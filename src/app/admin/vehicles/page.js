@@ -9,9 +9,21 @@ const STATUS_CONFIG = {
 };
 
 const defaultTiers = {
-  Car: [{ hours: 5, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }],
-  Bike: [{ hours: 3, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }],
-  Scooty: [{ hours: 3, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }],
+  Car: [{ hours: 5, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }, { hours: 168, price: '' }, { hours: 720, price: '' }],
+  Bike: [{ hours: 3, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }, { hours: 168, price: '' }, { hours: 720, price: '' }],
+  Scooty: [{ hours: 3, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }, { hours: 168, price: '' }, { hours: 720, price: '' }],
+};
+
+const formatDuration = (hours) => {
+  if (hours === 168) return '1 Week';
+  if (hours === 720) return '1 Month';
+  return `${hours} Hours`;
+};
+
+const formatDurationShort = (hours) => {
+  if (hours === 168) return '1w';
+  if (hours === 720) return '1m';
+  return `${hours}h`;
 };
 
 const emptyForm = {
@@ -197,7 +209,7 @@ export default function AdminVehicles() {
                       <div className="space-y-0.5">
                         {v.tieredPricing.map(tier => (
                           <div key={tier.hours} className="flex gap-2 text-xs">
-                            <span className="text-gray-500">{tier.hours}h</span>
+                            <span className="text-gray-500">{formatDurationShort(tier.hours)}</span>
                             <span className="text-white font-medium">₹{tier.price?.toLocaleString('en-IN')}</span>
                           </div>
                         ))}
@@ -328,7 +340,7 @@ export default function AdminVehicles() {
                 <div className="space-y-2">
                   {tiers.map((tier, i) => (
                     <div key={tier.hours} className="flex items-center gap-3 bg-black/40 border border-white/5 rounded-lg px-4 py-2">
-                      <span className="text-gray-400 text-sm w-20 flex-shrink-0">{tier.hours} hours</span>
+                      <span className="text-gray-400 text-sm w-20 flex-shrink-0">{formatDuration(tier.hours)}</span>
                       <span className="text-gray-600">₹</span>
                       <input
                         type="number" required min="1"

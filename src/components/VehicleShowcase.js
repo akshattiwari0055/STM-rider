@@ -8,6 +8,12 @@ import { Clock } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const formatDurationShort = (hours) => {
+  if (hours === 168) return '1w';
+  if (hours === 720) return '1m';
+  return `${hours}h`;
+};
+
 export default function VehicleShowcase() {
   const sectionRef = useRef(null);
   const [vehicles, setVehicles] = useState([]);
@@ -89,8 +95,8 @@ export default function VehicleShowcase() {
                       <div className="space-y-1 mb-5">
                         {v.tieredPricing.map(tier => (
                           <div key={tier.hours} className="flex justify-between text-sm">
-                            <span className="text-gray-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-[#FFB300]" /> {tier.hours}h
+                            <span className="text-gray-500 flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-[#FFB300]" /> {formatDurationShort(tier.hours)}
                             </span>
                             <span className="text-white font-semibold">₹{tier.price.toLocaleString('en-IN')}</span>
                           </div>

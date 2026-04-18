@@ -10,9 +10,21 @@ import Link from 'next/link';
 import { jsPDF } from 'jspdf';
 
 const FALLBACK_TIERS = {
-  Car:    [{ hours: 5, price: 999 }, { hours: 12, price: 1499 }, { hours: 24, price: 1999 }],
-  Bike:   [{ hours: 3, price: 399 }, { hours: 12, price: 799 },  { hours: 24, price: 999 }],
-  Scooty: [{ hours: 3, price: 299 }, { hours: 12, price: 499 },  { hours: 24, price: 799 }],
+  Car:    [{ hours: 5, price: 999 }, { hours: 12, price: 1499 }, { hours: 24, price: 1999 }, { hours: 168, price: 6999 }, { hours: 720, price: 25000 }],
+  Bike:   [{ hours: 3, price: 399 }, { hours: 12, price: 799 },  { hours: 24, price: 999 }, { hours: 168, price: 4999 }, { hours: 720, price: 15000 }],
+  Scooty: [{ hours: 3, price: 299 }, { hours: 12, price: 499 },  { hours: 24, price: 799 }, { hours: 168, price: 3999 }, { hours: 720, price: 12000 }],
+};
+
+const formatDuration = (hours) => {
+  if (hours === 168) return '1 Week';
+  if (hours === 720) return '1 Month';
+  return `${hours} Hours`;
+};
+
+const formatDurationShort = (hours) => {
+  if (hours === 168) return '1W';
+  if (hours === 720) return '1M';
+  return `${hours}h`;
 };
 
 function toLocalDatetimeValue(date) {
@@ -368,7 +380,7 @@ export default function BookingPage() {
 
       // Duration + Price
       pdf.setFontSize(11); pdf.setFont('helvetica','bold'); pdf.setTextColor(0,0,0);
-      pdf.text(`${d.durationHours||''} Hours Rental`,15,123);
+      pdf.text(`Rental Duration: ${formatDuration(d.durationHours || 0)}`,15,123);
       pdf.setFontSize(9); pdf.setFont('helvetica','normal'); pdf.setTextColor(150,150,150);
       pdf.text('Total Paid',w-15,118,{align:'right'});
       pdf.setFontSize(22); pdf.setFont('helvetica','bold'); pdf.setTextColor(255,106,0);
@@ -428,7 +440,7 @@ export default function BookingPage() {
                 <div className="space-y-1.5">
                   {vehicle.tieredPricing.map(t => (
                     <div key={t.hours} className="flex justify-between text-sm">
-                      <span className="text-gray-300 flex items-center gap-1.5"><Clock className="w-3 h-3 text-[#FFB300]" /> {t.hours} hrs</span>
+                      <span className="text-gray-300 flex items-center gap-1.5"><Clock className="w-3 h-3 text-[#FFB300]" /> {formatDurationShort(t.hours)}</span>
                       <span className="text-white font-bold">₹{t.price.toLocaleString('en-IN')}</span>
                     </div>
                   ))}
@@ -490,7 +502,7 @@ export default function BookingPage() {
                             </span>
                           )}
                           <Timer className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-[#FFB300]' : 'text-gray-500'}`} />
-                          <span className={`text-lg font-black ${isSelected ? 'text-[#FFB300]' : 'text-white'}`}>{tier.hours}h</span>
+                          <span className={`text-lg font-black ${isSelected ? 'text-[#FFB300]' : 'text-white'}`}>{formatDurationShort(tier.hours)}</span>
                           <span className={`text-xs font-semibold mt-0.5 ${isSelected ? 'text-white' : 'text-gray-400'}`}>₹{tier.price.toLocaleString('en-IN')}</span>
                         </button>
                       );
@@ -511,7 +523,7 @@ export default function BookingPage() {
                       </div>
                     )}
                     <div className="border-t border-white/10 pt-2 flex justify-between items-center">
-                      <span className="text-gray-300 font-semibold flex items-center gap-1.5"><Timer className="w-3.5 h-3.5 text-[#FFB300]" /> {selectedTier.hours} Hours</span>
+                      <span className="text-gray-300 font-semibold flex items-center gap-1.5"><Timer className="w-3.5 h-3.5 text-[#FFB300]" /> {formatDuration(selectedTier.hours)}</span>
                       <span className="text-[#FFB300] font-black text-2xl">₹{selectedTier.price.toLocaleString('en-IN')}</span>
                     </div>
                   </div>

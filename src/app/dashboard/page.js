@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
-// ── Status Badge ─────────────────────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
   const map = {
     Pending:   { color: 'text-yellow-400',  bg: 'bg-yellow-500/10 border-yellow-500/30',  icon: AlertCircle },
@@ -25,6 +24,12 @@ const StatusBadge = ({ status }) => {
       <Icon className="w-3 h-3" />{status}
     </span>
   );
+};
+
+const formatDuration = (hours) => {
+  if (hours === 168) return '1 Week';
+  if (hours === 720) return '1 Month';
+  return `${hours} Hours`;
 };
 
 // ── Receipt Modal ─────────────────────────────────────────────────────────────
@@ -102,7 +107,7 @@ function ReceiptModal({ booking, onClose }) {
 
       // Duration
       pdf.setFontSize(11); pdf.setFont('helvetica','bold'); pdf.setTextColor(0,0,0);
-      pdf.text(`${d.durationHours || ''} Hours Rental`, 15, 123);
+      pdf.text(`Rental Duration: ${formatDuration(d.durationHours || 0)}`, 15, 123);
 
       // Price
       pdf.setFontSize(9); pdf.setFont('helvetica','normal'); pdf.setTextColor(150,150,150);
@@ -200,10 +205,10 @@ function ReceiptModal({ booking, onClose }) {
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Duration</p>
-                <div className="flex items-center gap-1.5">
-                  <Timer className="w-4 h-4 text-[#FF6A00]" />
-                  <span className="font-bold text-gray-800">{booking.durationHours} Hours</span>
-                </div>
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-black/5 text-gray-500 text-sm font-medium">
+                <Timer className="w-4 h-4 text-[#FF6A00]" />
+                {formatDuration(booking.durationHours || 0)} Rental
+              </div>
               </div>
               <div className="text-right">
                 <p className="text-xs text-gray-400 mb-0.5">Total Paid</p>
@@ -278,7 +283,7 @@ function BookingCard({ booking, onViewReceipt }) {
         <div className="flex items-center justify-between pt-1 border-t border-white/5">
           <div className="flex items-center gap-1.5">
             <Timer className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-400 text-sm">{booking.durationHours || 0} Hours</span>
+            <span className="text-gray-400 text-sm">{formatDuration(booking.durationHours || 0)}</span>
           </div>
           <div className="text-right">
             <p className="text-[#FFB300] font-black text-xl">₹{booking.totalPrice?.toLocaleString('en-IN')}</p>
