@@ -323,12 +323,12 @@ export default function DashboardPage() {
     fetch('/api/auth/me')
       .then(r => r.json())
       .then(data => {
-        if (!data.user) { router.replace('/login'); return; }
+        if (!data.user) { window.location.href = '/login'; return; }
         setUser(data.user);
         setSettingsForm(p => ({ ...p, name: data.user.name, email: data.user.email }));
         setLoadingUser(false);
       })
-      .catch(() => router.replace('/login'));
+      .catch(() => { window.location.href = '/login'; });
   }, [router]);
 
   useEffect(() => {
