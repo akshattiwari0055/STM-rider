@@ -17,11 +17,15 @@ export async function GET(request) {
 
     const user = await User.findById(payload.userId).select('-password');
     if (!user) {
-      return NextResponse.json({ user: null }, { status: 200 });
+      const res = NextResponse.json({ user: null }, { status: 200 });
+      res.cookies.set('user_token', '', { maxAge: 0 });
+      return res;
     }
 
     return NextResponse.json({ user: { _id: user._id, name: user.name, email: user.email, role: user.role } });
   } catch {
-    return NextResponse.json({ user: null }, { status: 200 });
+    const res = NextResponse.json({ user: null }, { status: 200 });
+    res.cookies.set('user_token', '', { maxAge: 0 });
+    return res;
   }
 }
