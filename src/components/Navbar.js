@@ -51,22 +51,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.png"
-            alt="STM Riders Logo"
-            className="h-10 w-auto object-contain group-hover:scale-105 transition-transform"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              document.getElementById('nav-fallback-text').style.display = 'flex';
-            }}
-          />
-          <div id="nav-fallback-text" className="hidden items-center gap-2">
-            <div className="w-8 h-8 rounded bg-gradient-to-br from-[#FFB300] to-[#FF6A00] flex items-center justify-center font-bold text-black">
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-bold tracking-[0.2em] text-[#FFB300] uppercase hidden sm:block">
+              Yellow Hut
+            </span>
+            <div className="w-8 h-8 rounded bg-gradient-to-br from-[#FFB300] to-[#FF6A00] flex items-center justify-center font-bold text-black shadow-[0_0_15px_rgba(255,179,0,0.5)] group-hover:scale-110 transition-transform">
               S
             </div>
-            <span className="text-xl font-bold tracking-wider text-white">
-              STM<span className="text-[#FFB300]">Riders</span>
+            <span className="text-2xl font-black tracking-tight text-white group-hover:text-gray-200 transition-colors">
+              STM<span className="text-[#FF6A00]">Riders</span>
             </span>
           </div>
         </Link>

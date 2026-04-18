@@ -276,14 +276,48 @@ export default function AdminVehicles() {
                 </select>
               </div>
 
-              {/* Image */}
+              {/* Image Upload */}
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Image Path</label>
-                <input required type="text" value={formData.image}
-                  onChange={e => setFormData({ ...formData, image: e.target.value })}
-                  className="w-full bg-black border border-white/10 rounded-lg p-2.5 text-white focus:outline-none focus:border-[#FFB300]"
-                  placeholder="/images/vehicle_name.png"
+                <label className="block text-sm text-gray-400 mb-1">Vehicle Image</label>
+                <input required={!editingId} type="file" accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                          const canvas = document.createElement('canvas');
+                          const MAX_WIDTH = 800; // Resize to ensure DB doesn't overload
+                          let width = img.width;
+                          let height = img.height;
+                          
+                          if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                          }
+                          canvas.width = width;
+                          canvas.height = height;
+                          
+                          const ctx = canvas.getContext('2d');
+                          ctx.drawImage(img, 0, 0, width, height);
+                          
+                          setFormData({ ...formData, image: canvas.toDataURL('image/jpeg', 0.8) });
+                        };
+                        img.src = event.target.result;
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="w-full bg-black border border-white/10 rounded-lg p-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[#FFB300] file:text-black hover:file:bg-[#FF6A00] file:cursor-pointer transition-colors focus:outline-none"
                 />
+                {formData.image && (
+                  <div className="mt-2 text-xs text-emerald-400 font-medium">
+                    ✓ Image ready
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={formData.image} alt="Preview" className="w-16 h-10 object-cover rounded mt-1 opacity-80" />
+                  </div>
+                )}
               </div>
 
               {/* Tiered Pricing */}

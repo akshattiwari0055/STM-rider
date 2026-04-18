@@ -14,9 +14,19 @@ export default function AdminLayout({ children }) {
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col md:flex-row text-white font-sans">
       <aside className="w-full md:w-64 bg-[#111] border-b md:border-b-0 md:border-r border-white/10 shrink-0">
         <div className="p-6">
-          <Link href="/admin" className="text-xl font-bold tracking-widest text-white uppercase block">
-            <span className="text-[#FFB300]">Yellow</span> Hut<br />
-            <span className="text-xs text-gray-500 tracking-normal">Admin Panel</span>
+          <Link href="/admin" className="block space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold tracking-[0.2em] text-[#FFB300] uppercase hidden sm:block">
+                Yellow Hut
+              </span>
+              <div className="w-6 h-6 rounded bg-gradient-to-br from-[#FFB300] to-[#FF6A00] flex items-center justify-center font-bold text-black text-xs shadow-[0_0_10px_rgba(255,179,0,0.5)]">
+                S
+              </div>
+              <span className="text-lg font-black tracking-tight text-white">
+                STM<span className="text-[#FF6A00]">Riders</span>
+              </span>
+            </div>
+            <span className="text-xs font-semibold text-gray-500 tracking-widest uppercase block border-t border-white/5 pt-2 mt-2">Admin Panel</span>
           </Link>
         </div>
         <nav className="px-4 pb-6 space-y-1">
