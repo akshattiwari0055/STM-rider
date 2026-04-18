@@ -149,16 +149,23 @@ export default function AdminBookings() {
                     <div className="flex items-center gap-1.5 text-gray-500 text-xs mt-0.5">
                       <Phone className="w-3 h-3" />{b.phone}
                     </div>
-                    {(b.idCardImage || b.aadhaarCardImage) && (
+                    {(b.idCardImage || b.aadhaarCardImage || b.drivingLicenseImage) && (
                       <div className="mt-2 text-xs">
                         <details className="group cursor-pointer">
                           <summary className="text-blue-400 font-semibold hover:underline">View Uploaded IDs ▼</summary>
-                          <div className="mt-2 space-y-2 relative z-50">
+                          <div className="mt-2 space-y-2 relative z-50 flex flex-wrap gap-2">
                             {b.aadhaarCardImage && (
                               <div className="bg-black p-2 rounded border border-white/10 shadow-xl">
                                 <p className="text-gray-400 mb-1">Aadhaar Card:</p>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={b.aadhaarCardImage} alt="Aadhaar" className="w-32 h-auto rounded" />
+                              </div>
+                            )}
+                            {b.drivingLicenseImage && (
+                              <div className="bg-black p-2 rounded border border-white/10 shadow-xl">
+                                <p className="text-gray-400 mb-1">Driving License:</p>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={b.drivingLicenseImage} alt="DL" className="w-32 h-auto rounded" />
                               </div>
                             )}
                             {b.idCardImage && (

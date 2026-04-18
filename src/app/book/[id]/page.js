@@ -261,6 +261,7 @@ export default function BookingPage() {
   
   const [idCardImage, setIdCardImage] = useState(null);
   const [aadhaarCardImage, setAadhaarCardImage] = useState(null);
+  const [drivingLicenseImage, setDrivingLicenseImage] = useState(null);
 
   const processImage = (file, setter) => {
     if (!file) return;
@@ -332,7 +333,8 @@ export default function BookingPage() {
         durationHours: selectedTier.hours,
         totalPrice: selectedTier.price,
         idCardImage,
-        aadhaarCardImage
+        aadhaarCardImage,
+        drivingLicenseImage
       }),
     });
     const data = await res.json();
@@ -520,6 +522,14 @@ export default function BookingPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      Driving License <span className="text-red-400">*</span>
+                    </label>
+                    <input type="file" required accept="image/*" onChange={e => processImage(e.target.files[0], setDrivingLicenseImage)}
+                      className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer" />
+                    {drivingLicenseImage && <p className="text-xs text-emerald-400 mt-1 font-medium">✓ Driving License ready</p>}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
                       University ID / Other ID Proof <span className="text-red-400">*</span>
                     </label>
                     <input type="file" required accept="image/*" onChange={e => processImage(e.target.files[0], setIdCardImage)}
@@ -574,7 +584,7 @@ export default function BookingPage() {
                     </div>
                   </div>
                 )}
-                <button type="submit" disabled={submitting || !selectedTier || !pickupDateTime || !idCardImage || !aadhaarCardImage}
+                <button type="submit" disabled={submitting || !selectedTier || !pickupDateTime || !idCardImage || !aadhaarCardImage || !drivingLicenseImage}
                   className="w-full py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] rounded-xl text-black font-black text-base hover:shadow-[0_0_30px_rgba(255,106,0,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting

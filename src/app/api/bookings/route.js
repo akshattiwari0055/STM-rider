@@ -58,6 +58,7 @@ export async function POST(request) {
       totalPrice: finalPrice,
       idCardImage: body.idCardImage,
       aadhaarCardImage: body.aadhaarCardImage,
+      drivingLicenseImage: body.drivingLicenseImage,
       status: 'Pending', // stays Pending until admin confirms payment
     };
     if (userId) bookingData.user = userId;

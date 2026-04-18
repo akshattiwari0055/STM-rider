@@ -8,6 +8,7 @@ const bookingSchema = new Schema({
   idProof: { type: String }, // Legacy
   idCardImage: { type: String },
   aadhaarCardImage: { type: String },
+  drivingLicenseImage: { type: String },
   startDate: { type: Date, required: true },     // pickup datetime
   endDate: { type: Date },                        // legacy field (optional, kept for backward compat)
   durationHours: { type: Number },               // NEW: 3 / 5 / 12 / 24
