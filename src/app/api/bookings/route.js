@@ -56,6 +56,8 @@ export async function POST(request) {
       startDate: new Date(body.startDate),
       durationHours: Number(body.durationHours),
       totalPrice: finalPrice,
+      idCardImage: body.idCardImage,
+      aadhaarCardImage: body.aadhaarCardImage,
       status: 'Pending', // stays Pending until admin confirms payment
     };
     if (userId) bookingData.user = userId;

@@ -258,6 +258,30 @@ export default function BookingPage() {
   const [phone, setPhone] = useState('');
   const [pickupDateTime, setPickupDateTime] = useState('');
   const [selectedTier, setSelectedTier] = useState(null);
+  
+  const [idCardImage, setIdCardImage] = useState(null);
+  const [aadhaarCardImage, setAadhaarCardImage] = useState(null);
+
+  const processImage = (file, setter) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1000;
+        let width = img.width;
+        let height = img.height;
+        if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        setter(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     Promise.all([
@@ -307,6 +331,8 @@ export default function BookingPage() {
         startDate: new Date(pickupDateTime).toISOString(),
         durationHours: selectedTier.hours,
         totalPrice: selectedTier.price,
+        idCardImage,
+        aadhaarCardImage
       }),
     });
     const data = await res.json();
@@ -482,10 +508,30 @@ export default function BookingPage() {
                       className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-[#FFB300] [color-scheme:dark] transition-all" />
                   </div>
                 </div>
+                {/* Mandatory Uploads */}
+                <div className="space-y-4 pt-4 border-t border-white/10">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      Upload Aadhaar Card <span className="text-red-400">*</span>
+                    </label>
+                    <input type="file" required accept="image/*" onChange={e => processImage(e.target.files[0], setAadhaarCardImage)}
+                      className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer" />
+                    {aadhaarCardImage && <p className="text-xs text-emerald-400 mt-1 font-medium">✓ Aadhaar Card ready</p>}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      University ID / Other ID Proof <span className="text-red-400">*</span>
+                    </label>
+                    <input type="file" required accept="image/*" onChange={e => processImage(e.target.files[0], setIdCardImage)}
+                      className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-white/10 file:text-white hover:file:bg-white/20 transition-all cursor-pointer" />
+                    {idCardImage && <p className="text-xs text-emerald-400 mt-1 font-medium">✓ ID Proof ready</p>}
+                  </div>
+                </div>
+
                 {/* Duration Tiles */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Select Duration</label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {vehicle.tieredPricing.map(tier => {
                       const isSelected = selectedTier?.hours === tier.hours;
                       return (
@@ -528,7 +574,7 @@ export default function BookingPage() {
                     </div>
                   </div>
                 )}
-                <button type="submit" disabled={submitting || !selectedTier || !pickupDateTime}
+                <button type="submit" disabled={submitting || !selectedTier || !pickupDateTime || !idCardImage || !aadhaarCardImage}
                   className="w-full py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] rounded-xl text-black font-black text-base hover:shadow-[0_0_30px_rgba(255,106,0,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting

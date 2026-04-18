@@ -5,7 +5,9 @@ const bookingSchema = new Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   customerName: { type: String, required: true },
   phone: { type: String, required: true },
-  idProof: { type: String },
+  idProof: { type: String }, // Legacy
+  idCardImage: { type: String },
+  aadhaarCardImage: { type: String },
   startDate: { type: Date, required: true },     // pickup datetime
   endDate: { type: Date },                        // legacy field (optional, kept for backward compat)
   durationHours: { type: Number },               // NEW: 3 / 5 / 12 / 24
