@@ -1,5 +1,9 @@
 import Link from 'next/link';
-import { MapPin, Mail, Phone, Instagram, Send } from 'lucide-react';
+import { MapPin, Mail, Phone, Send } from 'lucide-react';
+
+const InstagramIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+);
 
 export const metadata = {
   title: 'Contact Us | Yellow Hut STM Riders',
@@ -41,7 +45,7 @@ export default function ContactPage() {
 
             <a href="https://www.instagram.com/stm.riders?igsh=dW4xcnpiMjJ1dGl6" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#E1306C]/50 transition-colors flex items-start gap-6 group block">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCAF45] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg shadow-pink-500/20">
-                <Instagram className="w-6 h-6 text-white" />
+                <InstagramIcon />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Instagram</h3>

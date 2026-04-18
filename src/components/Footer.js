@@ -24,7 +24,7 @@ export default function Footer() {
             <h3 className="text-3xl font-bold mb-4 uppercase text-white tracking-widest"><span className="text-[#FFB300]">Yellow</span> Hut</h3>
             <p className="text-gray-400 mb-6">STM Riders - Premium car and bike rentals for elite travelers. Your journey, our wheels.</p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><InstagramIcon /></a>
+              <a href="https://www.instagram.com/stm.riders?igsh=dW4xcnpiMjJ1dGl6" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><InstagramIcon /></a>
               <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><FacebookIcon /></a>
               <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><TwitterIcon /></a>
             </div>
@@ -45,7 +45,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="text-[#FF6A00] mt-1 shrink-0" size={20} />
-                <span className="text-gray-400">123 Rider Avenue, STM Block, City Center, 400001</span>
+                <span className="text-gray-400">Law Gate Road, Meheru, Phagwara, Punjab</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="text-[#FF6A00] shrink-0" size={20} />
