@@ -259,6 +259,15 @@ export default function BookingPage() {
   const [pickupDateTime, setPickupDateTime] = useState('');
   const [selectedTier, setSelectedTier] = useState(null);
   
+  const [isManualDuration, setIsManualDuration] = useState(false);
+  const [dropoffDateTime, setDropoffDateTime] = useState('');
+  const [manualPrice, setManualPrice] = useState(0);
+  const [manualHours, setManualHours] = useState(0);
+
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
+  
   const [idCardImage, setIdCardImage] = useState(null);
   const [aadhaarCardImage, setAadhaarCardImage] = useState(null);
   const [drivingLicenseImage, setDrivingLicenseImage] = useState(null);
@@ -305,11 +314,65 @@ export default function BookingPage() {
   }, [id]);
 
   const dropoffTime = (() => {
+    if (isManualDuration && dropoffDateTime) return new Date(dropoffDateTime);
     if (!pickupDateTime || !selectedTier) return null;
     const dt = new Date(pickupDateTime);
     dt.setHours(dt.getHours() + selectedTier.hours);
     return dt;
   })();
+
+  const handleApplyCoupon = async () => {
+    setCouponError('');
+    if (!couponCode) return;
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode })
+      });
+      const data = await res.json();
+      if (res.ok && data.valid) {
+        setAppliedCoupon(data);
+      } else {
+        setAppliedCoupon(null);
+        setCouponError(data.error || 'Invalid coupon');
+      }
+    } catch (err) {
+      setCouponError('Error validating coupon');
+    }
+  };
+
+  useEffect(() => {
+    if (isManualDuration && pickupDateTime && dropoffDateTime) {
+      const start = new Date(pickupDateTime);
+      const end = new Date(dropoffDateTime);
+      const diffMs = end - start;
+      if (diffMs > 0) {
+        const hrs = Math.ceil(diffMs / (1000 * 60 * 60));
+        setManualHours(hrs);
+        if (vehicle && vehicle.tieredPricing) {
+          let remaining = Math.max(0, hrs);
+          let sortedTiers = [...vehicle.tieredPricing].sort((a,b) => b.hours - a.hours);
+          let total = 0;
+          for (let tier of sortedTiers) {
+            if (remaining >= tier.hours) {
+              let count = Math.floor(remaining / tier.hours);
+              total += count * tier.price;
+              remaining -= count * tier.hours;
+            }
+          }
+          if (remaining > 0) {
+            let smallest = sortedTiers[sortedTiers.length - 1];
+            total += Math.ceil(remaining / smallest.hours) * smallest.price;
+          }
+          setManualPrice(total);
+        }
+      } else {
+        setManualHours(0);
+        setManualPrice(0);
+      }
+    }
+  }, [pickupDateTime, dropoffDateTime, isManualDuration, vehicle]);
 
   const handleTierSelect = (tier) => {
     setSelectedTier(tier);
@@ -318,8 +381,12 @@ export default function BookingPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedTier) return alert('Please select a rental duration.');
+    if (!isManualDuration && !selectedTier) return alert('Please select a rental duration.');
+    if (isManualDuration && (!dropoffDateTime || manualHours <= 0)) return alert('Please select a valid drop-off date & time.');
     if (!pickupDateTime) return alert('Please select pickup date & time.');
+
+    const durationHrs = isManualDuration ? manualHours : selectedTier.hours;
+    const basePrice = isManualDuration ? manualPrice : selectedTier.price;
 
     setSubmitting(true);
     const res = await fetch('/api/bookings', {
@@ -330,8 +397,10 @@ export default function BookingPage() {
         customerName,
         phone,
         startDate: new Date(pickupDateTime).toISOString(),
-        durationHours: selectedTier.hours,
-        totalPrice: selectedTier.price,
+        durationHours: durationHrs,
+        totalPrice: basePrice,
+        isManual: isManualDuration,
+        couponCode: appliedCoupon ? appliedCoupon.code : null,
         idCardImage,
         aadhaarCardImage,
         drivingLicenseImage
@@ -538,35 +607,82 @@ export default function BookingPage() {
                   </div>
                 </div>
 
-                {/* Duration Tiles */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Select Duration</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {vehicle.tieredPricing.map(tier => {
-                      const isSelected = selectedTier?.hours === tier.hours;
-                      return (
-                        <button key={tier.hours} type="button" onClick={() => handleTierSelect(tier)}
-                          className={`relative flex flex-col items-center p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
-                            isSelected
-                              ? 'bg-gradient-to-br from-[#FFB300]/20 to-[#FF6A00]/10 border-[#FFB300] shadow-[0_0_20px_rgba(255,179,0,0.2)]'
-                              : 'bg-white/5 border-white/10 hover:border-white/20'
-                          }`}
-                        >
-                          {isSelected && (
-                            <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#FFB300] flex items-center justify-center">
-                              <CheckCircle className="w-3 h-3 text-black" />
-                            </span>
-                          )}
-                          <Timer className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-[#FFB300]' : 'text-gray-500'}`} />
-                          <span className={`text-lg font-black ${isSelected ? 'text-[#FFB300]' : 'text-white'}`}>{formatDurationShort(tier.hours)}</span>
-                          <span className={`text-xs font-semibold mt-0.5 ${isSelected ? 'text-white' : 'text-gray-400'}`}>₹{tier.price.toLocaleString('en-IN')}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                {/* Duration Selection Mode */}
+                <div className="flex gap-4 mb-4 border-b border-white/10 pb-4">
+                  <button type="button" onClick={() => setIsManualDuration(false)}
+                    className={`text-sm font-bold pb-2 border-b-2 transition-all ${
+                      !isManualDuration ? 'border-[#FFB300] text-[#FFB300]' : 'border-transparent text-gray-500 hover:text-gray-300'
+                    }`}
+                  >
+                    Select Package
+                  </button>
+                  <button type="button" onClick={() => setIsManualDuration(true)}
+                    className={`text-sm font-bold pb-2 border-b-2 transition-all ${
+                      isManualDuration ? 'border-[#FFB300] text-[#FFB300]' : 'border-transparent text-gray-500 hover:text-gray-300'
+                    }`}
+                  >
+                    Custom Dates
+                  </button>
                 </div>
+
+                {!isManualDuration ? (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Select Package Duration</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {vehicle.tieredPricing.map(tier => {
+                        const isSelected = selectedTier?.hours === tier.hours;
+                        return (
+                          <button key={tier.hours} type="button" onClick={() => handleTierSelect(tier)}
+                            className={`relative flex flex-col items-center p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+                              isSelected
+                                ? 'bg-gradient-to-br from-[#FFB300]/20 to-[#FF6A00]/10 border-[#FFB300] shadow-[0_0_20px_rgba(255,179,0,0.2)]'
+                                : 'bg-white/5 border-white/10 hover:border-white/20'
+                            }`}
+                          >
+                            {isSelected && (
+                              <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#FFB300] flex items-center justify-center">
+                                <CheckCircle className="w-3 h-3 text-black" />
+                              </span>
+                            )}
+                            <Timer className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-[#FFB300]' : 'text-gray-500'}`} />
+                            <span className={`text-lg font-black ${isSelected ? 'text-[#FFB300]' : 'text-white'}`}>{formatDurationShort(tier.hours)}</span>
+                            <span className={`text-xs font-semibold mt-0.5 ${isSelected ? 'text-white' : 'text-gray-400'}`}>₹{tier.price.toLocaleString('en-IN')}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Drop-off Date & Time</label>
+                    <div className="relative mb-2">
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                      <input type="datetime-local" required={isManualDuration} min={pickupDateTime || minDateTime} value={dropoffDateTime} onChange={e => setDropoffDateTime(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-[#FFB300] [color-scheme:dark] transition-all" />
+                    </div>
+                    {manualHours > 0 && (
+                      <p className="text-xs text-[#FFB300]">Total Duration: {manualHours} Hours</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Coupon Code Section */}
+                <div className="pt-4 mt-2">
+                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Have a Coupon?</label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="Enter Code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFB300] uppercase" />
+                    <button type="button" onClick={handleApplyCoupon}
+                      className="bg-white/10 hover:bg-white/20 text-white px-4 rounded-xl text-sm font-bold border border-white/10 transition-colors">
+                      Apply
+                    </button>
+                  </div>
+                  {appliedCoupon && <p className="text-xs text-green-400 mt-2">Coupon applied! {appliedCoupon.discountPercentage}% OFF</p>}
+                  {couponError && <p className="text-xs text-red-400 mt-2">{couponError}</p>}
+                </div>
+
                 {/* Live Summary */}
-                {selectedTier && pickupDateTime && (
+                {((!isManualDuration && selectedTier) || (isManualDuration && manualHours > 0)) && pickupDateTime && (
                   <div className="bg-gradient-to-r from-[#FFB300]/10 to-[#FF6A00]/5 border border-[#FFB300]/20 rounded-xl p-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-400 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Pickup</span>
@@ -579,12 +695,22 @@ export default function BookingPage() {
                       </div>
                     )}
                     <div className="border-t border-white/10 pt-2 flex justify-between items-center">
-                      <span className="text-gray-300 font-semibold flex items-center gap-1.5"><Timer className="w-3.5 h-3.5 text-[#FFB300]" /> {formatDuration(selectedTier.hours)}</span>
-                      <span className="text-[#FFB300] font-black text-2xl">₹{selectedTier.price.toLocaleString('en-IN')}</span>
+                      <span className="text-gray-300 font-semibold flex items-center gap-1.5"><Timer className="w-3.5 h-3.5 text-[#FFB300]" /> {formatDuration(isManualDuration ? manualHours : selectedTier.hours)}</span>
+                      <div className="text-right">
+                        {appliedCoupon && (
+                          <span className="text-gray-500 text-sm line-through block">₹{(isManualDuration ? manualPrice : selectedTier.price).toLocaleString('en-IN')}</span>
+                        )}
+                        <span className="text-[#FFB300] font-black text-2xl">
+                          ₹{(appliedCoupon 
+                            ? Math.max(0, (isManualDuration ? manualPrice : selectedTier.price) * (1 - appliedCoupon.discountPercentage/100)) 
+                            : (isManualDuration ? manualPrice : selectedTier.price)
+                          ).toLocaleString('en-IN', {maximumFractionDigits: 0})}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
-                <button type="submit" disabled={submitting || !selectedTier || !pickupDateTime || !idCardImage || !aadhaarCardImage || !drivingLicenseImage}
+                <button type="submit" disabled={submitting || (!isManualDuration && !selectedTier) || (isManualDuration && manualHours <= 0) || !pickupDateTime || !idCardImage || !aadhaarCardImage || !drivingLicenseImage}
                   className="w-full py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] rounded-xl text-black font-black text-base hover:shadow-[0_0_30px_rgba(255,106,0,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting

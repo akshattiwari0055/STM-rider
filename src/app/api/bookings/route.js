@@ -3,6 +3,7 @@ import { jwtVerify } from 'jose';
 import connectDB from '@/lib/db';
 import { Booking } from '@/models/Booking';
 import { Vehicle } from '@/models/Vehicle';
+import { Coupon } from '@/models/Coupon';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
 
@@ -29,14 +30,26 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Vehicle is currently not available.' }, { status: 400 });
     }
 
-    // Determine price — validate against tieredPricing if available, otherwise trust client
     let finalPrice = Number(body.totalPrice);
-    if (vehicle.tieredPricing && vehicle.tieredPricing.length > 0) {
+    if (!body.isManual && vehicle.tieredPricing && vehicle.tieredPricing.length > 0) {
       const tier = vehicle.tieredPricing.find(t => t.hours === Number(body.durationHours));
       if (!tier) {
         return NextResponse.json({ error: 'Invalid duration selected for this vehicle.' }, { status: 400 });
       }
       finalPrice = tier.price; // always use server-side price when available
+    }
+
+    let originalPrice = finalPrice;
+    let appliedCoupon = null;
+
+    if (body.couponCode) {
+      const coupon = await Coupon.findOne({ code: body.couponCode.trim().toUpperCase() });
+      if (coupon && coupon.isActive && coupon.usedCount < coupon.usageLimit) {
+        finalPrice = Math.max(0, finalPrice - (finalPrice * coupon.discountPercentage) / 100);
+        appliedCoupon = coupon;
+      } else {
+        return NextResponse.json({ error: 'Invalid or inactive coupon code.' }, { status: 400 });
+      }
     }
 
     // Attach user if logged in
@@ -56,6 +69,8 @@ export async function POST(request) {
       startDate: new Date(body.startDate),
       durationHours: Number(body.durationHours),
       totalPrice: finalPrice,
+      originalPrice,
+      couponCode: appliedCoupon ? appliedCoupon.code : null,
       idCardImage: body.idCardImage,
       aadhaarCardImage: body.aadhaarCardImage,
       drivingLicenseImage: body.drivingLicenseImage,
@@ -64,6 +79,11 @@ export async function POST(request) {
     if (userId) bookingData.user = userId;
 
     const newBooking = await Booking.create(bookingData);
+
+    if (appliedCoupon) {
+      appliedCoupon.usedCount += 1;
+      await appliedCoupon.save();
+    }
 
     // Mark vehicle as Busy during the rental period
     vehicle.status = 'Busy';

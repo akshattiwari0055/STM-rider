@@ -13,6 +13,8 @@ const bookingSchema = new Schema({
   endDate: { type: Date },                        // legacy field (optional, kept for backward compat)
   durationHours: { type: Number },               // NEW: 3 / 5 / 12 / 24
   totalPrice: { type: Number, required: true },
+  originalPrice: { type: Number },
+  couponCode: { type: String },
   status: { type: String, enum: ['Pending', 'Active', 'Completed', 'Cancelled'], default: 'Pending' },
 }, { timestamps: true });
 

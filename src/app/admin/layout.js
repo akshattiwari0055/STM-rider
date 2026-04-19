@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, CarFront, FileText, LogOut } from 'lucide-react';
+import { LayoutDashboard, CarFront, FileText, Tag, LogOut } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -38,6 +38,9 @@ export default function AdminLayout({ children }) {
           </Link>
           <Link href="/admin/bookings" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${pathname.includes('/admin/bookings') ? 'bg-[#FF6A00]/10 text-[#FFB300]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
             <FileText size={18} /> Bookings
+          </Link>
+          <Link href="/admin/coupons" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${pathname.includes('/admin/coupons') ? 'bg-[#FF6A00]/10 text-[#FFB300]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+            <Tag size={18} /> Coupons
           </Link>
           <button onClick={() => {
             document.cookie = 'admin_token=; path=/; max-age=0;';
