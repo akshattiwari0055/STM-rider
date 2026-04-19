@@ -29,12 +29,30 @@ export default function Hero() {
 
   return (
     <section ref={heroRef} className="relative h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-[#FF6A00]/20 z-0"></div>
-      
-      {/* Abstract Shapes */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#FFB300]/10 rounded-full blur-[100px] z-0"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#FF6A00]/10 rounded-full blur-[100px] z-0"></div>
+      {/* Background Video for Desktop */}
+      <video 
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        className="absolute inset-0 w-full h-full object-cover hidden md:block z-0"
+      >
+        <source src="/videos/hero-desktop.mp4" type="video/mp4" />
+      </video>
+
+      {/* Background Video for Mobile */}
+      <video 
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        className="absolute inset-0 w-full h-full object-cover block md:hidden z-0"
+      >
+        <source src="/videos/hero-mobile.mp4" type="video/mp4" />
+      </video>
+
+      {/* Slight Black Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40 z-0"></div>
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center" ref={textRef}>
         <div className="hero-title mb-10 flex flex-col items-center">
