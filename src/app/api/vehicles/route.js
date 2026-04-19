@@ -70,42 +70,10 @@ async function autoExpireBookings() {
   }
 }
 
-/**
- * Seed vehicles by UPSERTING — vehicles are matched by name.
- * Existing vehicles keep their _id and Busy/Available status.
- * Missing tieredPricing gets patched in without deleting anything.
- * NEW vehicles from the default list are inserted if not found.
- */
-async function seedVehiclesIfNeeded() {
-  const count = await Vehicle.countDocuments();
-
-  if (count === 0) {
-    // Fresh DB — insert all defaults
-    await Vehicle.insertMany(defaultVehicles);
-    return;
-  }
-
-  // Incrementally patch: add missing vehicles, update missing tieredPricing
-  for (const dv of defaultVehicles) {
-    const existing = await Vehicle.findOne({ name: dv.name });
-
-    if (!existing) {
-      // New vehicle in defaults that isn't in DB yet
-      await Vehicle.create(dv);
-    } else if (!existing.tieredPricing || existing.tieredPricing.length === 0) {
-      // Existing vehicle missing tieredPricing — patch it (keep ID and status)
-      await Vehicle.findByIdAndUpdate(existing._id, {
-        tieredPricing: dv.tieredPricing,
-        pricePerDay: dv.pricePerDay,
-      });
-    }
-  }
-}
 
 export async function GET() {
   try {
     await connectDB();
-    await seedVehiclesIfNeeded();
     await autoExpireBookings();
 
     const vehicles = await Vehicle.find().sort({ createdAt: 1 });

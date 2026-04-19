@@ -61,14 +61,19 @@ export default function AdminVehicles() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate all tier prices filled
-    if (tiers.some(t => !t.price || isNaN(Number(t.price)))) {
-      alert('Please fill in all pricing tiers.');
+    // Validate required tier prices filled (1 week / 1 month are optional)
+    const requiredTiers = tiers.filter(t => t.hours !== 168 && t.hours !== 720);
+    if (requiredTiers.some(t => !t.price || isNaN(Number(t.price)))) {
+      alert('Please fill in all required pricing tiers.');
       return;
     }
 
-    const tieredPricing = tiers.map(t => ({ hours: t.hours, price: Number(t.price) }));
-    const minPrice = Math.min(...tieredPricing.map(t => t.price));
+    const tieredPricing = tiers
+      .filter(t => t.price && !isNaN(Number(t.price)))
+      .map(t => ({ hours: t.hours, price: Number(t.price) }));
+    
+    // minPrice from filled tiers only
+    const minPrice = tieredPricing.length > 0 ? Math.min(...tieredPricing.map(t => t.price)) : 0;
 
     const payload = {
       name: formData.name,
@@ -343,11 +348,11 @@ export default function AdminVehicles() {
                       <span className="text-gray-400 text-sm w-20 flex-shrink-0">{formatDuration(tier.hours)}</span>
                       <span className="text-gray-600">₹</span>
                       <input
-                        type="number" required min="1"
+                        type="number" required={tier.hours !== 168 && tier.hours !== 720} min="1"
                         value={tier.price}
                         onChange={e => updateTierPrice(i, e.target.value)}
                         className="flex-1 bg-transparent text-white focus:outline-none text-sm"
-                        placeholder="Enter price"
+                        placeholder={tier.hours === 168 || tier.hours === 720 ? "Optional" : "Enter price"}
                       />
                     </div>
                   ))}
