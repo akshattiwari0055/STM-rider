@@ -10,9 +10,9 @@ import Link from 'next/link';
 import { jsPDF } from 'jspdf';
 
 const FALLBACK_TIERS = {
-  Car:    [{ hours: 5, price: 999 }, { hours: 12, price: 1499 }, { hours: 24, price: 1999 }, { hours: 168, price: 6999 }, { hours: 720, price: 25000 }],
-  Bike:   [{ hours: 3, price: 399 }, { hours: 12, price: 799 },  { hours: 24, price: 999 }, { hours: 168, price: 4999 }, { hours: 720, price: 15000 }],
-  Scooty: [{ hours: 3, price: 299 }, { hours: 12, price: 499 },  { hours: 24, price: 799 }, { hours: 168, price: 3999 }, { hours: 720, price: 12000 }],
+  Car: [{ hours: 5, price: 999 }, { hours: 12, price: 1499 }, { hours: 24, price: 1999 }, { hours: 168, price: 6999 }, { hours: 720, price: 25000 }],
+  Bike: [{ hours: 3, price: 399 }, { hours: 12, price: 799 }, { hours: 24, price: 999 }, { hours: 168, price: 4999 }, { hours: 720, price: 15000 }],
+  Scooty: [{ hours: 3, price: 299 }, { hours: 12, price: 499 }, { hours: 24, price: 799 }, { hours: 168, price: 3999 }, { hours: 720, price: 12000 }],
 };
 
 const formatDuration = (hours) => {
@@ -93,11 +93,10 @@ function PaymentPage({ booking, vehicle, onDone }) {
           <button
             key={i}
             onClick={() => setActiveQr(i)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
-              activeQr === i
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all ${activeQr === i
                 ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black border-transparent'
                 : 'bg-white/5 text-gray-400 border-white/10 hover:text-white'
-            }`}
+              }`}
           >
             <QrCode className="w-4 h-4" /> {label}
           </button>
@@ -111,8 +110,8 @@ function PaymentPage({ booking, vehicle, onDone }) {
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
             {/* PhonePe icon using SVG path */}
             <svg viewBox="0 0 40 40" className="w-7 h-7">
-              <circle cx="20" cy="20" r="20" fill="#5f259f"/>
-              <path d="M27 14h-5.5l-6.5 12h3l1.5-3H24l1.5 3h3L27 14zm-7 6.5L22 16l2 4.5h-4z" fill="white"/>
+              <circle cx="20" cy="20" r="20" fill="#5f259f" />
+              <path d="M27 14h-5.5l-6.5 12h3l1.5-3H24l1.5 3h3L27 14zm-7 6.5L22 16l2 4.5h-4z" fill="white" />
             </svg>
           </div>
           <div>
@@ -138,9 +137,9 @@ function PaymentPage({ booking, vehicle, onDone }) {
               }}
             />
             {/* Placeholder if image missing */}
-            <div className="w-56 h-56 bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl items-center justify-center flex-col gap-2 text-gray-400 text-xs text-center p-4" style={{display: 'none'}}>
+            <div className="w-56 h-56 bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl items-center justify-center flex-col gap-2 text-gray-400 text-xs text-center p-4" style={{ display: 'none' }}>
               <QrCode className="w-10 h-10 opacity-30" />
-              <span>Save QR image as<br/><strong>/public/images/qr{activeQr + 1}.png</strong></span>
+              <span>Save QR image as<br /><strong>/public/images/qr{activeQr + 1}.png</strong></span>
             </div>
           </div>
 
@@ -258,7 +257,7 @@ export default function BookingPage() {
   const [phone, setPhone] = useState('');
   const [pickupDateTime, setPickupDateTime] = useState('');
   const [selectedTier, setSelectedTier] = useState(null);
-  
+
   const [isManualDuration, setIsManualDuration] = useState(false);
   const [dropoffDateTime, setDropoffDateTime] = useState('');
   const [manualPrice, setManualPrice] = useState(0);
@@ -267,7 +266,7 @@ export default function BookingPage() {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
-  
+
   const [idCardImage, setIdCardImage] = useState(null);
   const [aadhaarCardImage, setAadhaarCardImage] = useState(null);
   const [drivingLicenseImage, setDrivingLicenseImage] = useState(null);
@@ -352,7 +351,7 @@ export default function BookingPage() {
         setManualHours(hrs);
         if (vehicle && vehicle.tieredPricing) {
           let remaining = Math.max(0, hrs);
-          let sortedTiers = [...vehicle.tieredPricing].sort((a,b) => b.hours - a.hours);
+          let sortedTiers = [...vehicle.tieredPricing].sort((a, b) => b.hours - a.hours);
           let total = 0;
           for (let tier of sortedTiers) {
             if (remaining >= tier.hours) {
@@ -429,73 +428,73 @@ export default function BookingPage() {
       const d = booking;
       const v = vehicle || {};
       const startDt = new Date(d.startDate);
-      const dropDt  = new Date(d.startDate);
+      const dropDt = new Date(d.startDate);
       dropDt.setHours(dropDt.getHours() + (d.durationHours || 0));
-      const fmt  = (dt) => dt.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
-      const fmtT = (dt) => dt.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+      const fmt = (dt) => dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      const fmtT = (dt) => dt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
       // Top bar
-      pdf.setFillColor(255,179,0); pdf.rect(0,0,w,3,'F');
+      pdf.setFillColor(255, 179, 0); pdf.rect(0, 0, w, 3, 'F');
 
       // Logo
-      pdf.setFont('helvetica','bold'); pdf.setFontSize(20); pdf.setTextColor(0,0,0);
-      pdf.text('STM',15,22); pdf.setTextColor(255,106,0); pdf.text('Riders',31,22);
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.setTextColor(0, 0, 0);
+      pdf.text('STM', 15, 22); pdf.setTextColor(255, 106, 0); pdf.text('Riders', 31, 22);
 
       // Status
-      pdf.setFillColor(220,252,231); pdf.roundedRect(w-55,13,42,8,2,2,'F');
-      pdf.setFontSize(8); pdf.setTextColor(22,163,74); pdf.text('CONFIRMED',w-50,18.5);
-      pdf.setFontSize(8); pdf.setTextColor(160,160,160);
-      pdf.text(`#${d._id?.slice(-10).toUpperCase()||''}`,w-55,27,{maxWidth:50});
+      pdf.setFillColor(220, 252, 231); pdf.roundedRect(w - 55, 13, 42, 8, 2, 2, 'F');
+      pdf.setFontSize(8); pdf.setTextColor(22, 163, 74); pdf.text('CONFIRMED', w - 50, 18.5);
+      pdf.setFontSize(8); pdf.setTextColor(160, 160, 160);
+      pdf.text(`#${d._id?.slice(-10).toUpperCase() || ''}`, w - 55, 27, { maxWidth: 50 });
 
-      pdf.setDrawColor(230,230,230); pdf.line(15,32,w-15,32);
+      pdf.setDrawColor(230, 230, 230); pdf.line(15, 32, w - 15, 32);
 
       // Vehicle
-      pdf.setFontSize(9); pdf.setTextColor(130,130,130); pdf.setFont('helvetica','normal');
-      pdf.text('VEHICLE',15,42);
-      pdf.setFontSize(16); pdf.setFont('helvetica','bold'); pdf.setTextColor(0,0,0);
-      pdf.text(v.name||'Vehicle',15,51);
+      pdf.setFontSize(9); pdf.setTextColor(130, 130, 130); pdf.setFont('helvetica', 'normal');
+      pdf.text('VEHICLE', 15, 42);
+      pdf.setFontSize(16); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(0, 0, 0);
+      pdf.text(v.name || 'Vehicle', 15, 51);
 
       // Customer
-      pdf.setFontSize(9); pdf.setFont('helvetica','normal'); pdf.setTextColor(130,130,130);
-      pdf.text('CUSTOMER',15,63);
-      pdf.setFontSize(13); pdf.setFont('helvetica','bold'); pdf.setTextColor(0,0,0);
-      pdf.text(d.customerName||'',15,71);
-      pdf.setFontSize(10); pdf.setFont('helvetica','normal'); pdf.setTextColor(120,120,120);
-      pdf.text(d.phone||'',15,77);
+      pdf.setFontSize(9); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(130, 130, 130);
+      pdf.text('CUSTOMER', 15, 63);
+      pdf.setFontSize(13); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(0, 0, 0);
+      pdf.text(d.customerName || '', 15, 71);
+      pdf.setFontSize(10); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(120, 120, 120);
+      pdf.text(d.phone || '', 15, 77);
 
-      pdf.setDrawColor(230,230,230); pdf.line(15,83,w-15,83);
+      pdf.setDrawColor(230, 230, 230); pdf.line(15, 83, w - 15, 83);
 
       // Dates
-      pdf.setFontSize(9); pdf.setTextColor(130,130,130);
-      pdf.text('PICKUP',15,92); pdf.text('DROP-OFF',w/2+5,92);
-      pdf.setFontSize(11); pdf.setFont('helvetica','bold'); pdf.setTextColor(0,0,0);
-      pdf.text(fmt(startDt),15,100); pdf.text(fmt(dropDt),w/2+5,100);
-      pdf.setFontSize(10); pdf.setFont('helvetica','normal'); pdf.setTextColor(120,120,120);
-      pdf.text(fmtT(startDt),15,107); pdf.text(fmtT(dropDt),w/2+5,107);
+      pdf.setFontSize(9); pdf.setTextColor(130, 130, 130);
+      pdf.text('PICKUP', 15, 92); pdf.text('DROP-OFF', w / 2 + 5, 92);
+      pdf.setFontSize(11); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(0, 0, 0);
+      pdf.text(fmt(startDt), 15, 100); pdf.text(fmt(dropDt), w / 2 + 5, 100);
+      pdf.setFontSize(10); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(120, 120, 120);
+      pdf.text(fmtT(startDt), 15, 107); pdf.text(fmtT(dropDt), w / 2 + 5, 107);
 
-      pdf.setDrawColor(230,230,230); pdf.line(15,113,w-15,113);
+      pdf.setDrawColor(230, 230, 230); pdf.line(15, 113, w - 15, 113);
 
       // Duration + Price
-      pdf.setFontSize(11); pdf.setFont('helvetica','bold'); pdf.setTextColor(0,0,0);
-      pdf.text(`Rental Duration: ${formatDuration(d.durationHours || 0)}`,15,123);
-      pdf.setFontSize(9); pdf.setFont('helvetica','normal'); pdf.setTextColor(150,150,150);
-      pdf.text('Total Paid',w-15,118,{align:'right'});
-      pdf.setFontSize(22); pdf.setFont('helvetica','bold'); pdf.setTextColor(255,106,0);
-      pdf.text(`Rs. ${d.totalPrice?.toLocaleString('en-IN')||''}`,w-15,128,{align:'right'});
+      pdf.setFontSize(11); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(0, 0, 0);
+      pdf.text(`Rental Duration: ${formatDuration(d.durationHours || 0)}`, 15, 123);
+      pdf.setFontSize(9); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(150, 150, 150);
+      pdf.text('Total Paid', w - 15, 118, { align: 'right' });
+      pdf.setFontSize(22); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(255, 106, 0);
+      pdf.text(`Rs. ${d.totalPrice?.toLocaleString('en-IN') || ''}`, w - 15, 128, { align: 'right' });
 
-      pdf.setLineDashPattern([2,2],0); pdf.setDrawColor(220,220,220);
-      pdf.line(15,135,w-15,135); pdf.setLineDashPattern([],0);
+      pdf.setLineDashPattern([2, 2], 0); pdf.setDrawColor(220, 220, 220);
+      pdf.line(15, 135, w - 15, 135); pdf.setLineDashPattern([], 0);
 
-      pdf.setFontSize(9); pdf.setTextColor(160,160,160); pdf.setFont('helvetica','normal');
-      pdf.text('Thank you for choosing Yellow Hut STM Riders  •  Have a safe journey!',w/2,143,{align:'center'});
+      pdf.setFontSize(9); pdf.setTextColor(160, 160, 160); pdf.setFont('helvetica', 'normal');
+      pdf.text('Thank you for choosing Yellow Hut STM Riders  •  Have a safe journey!', w / 2, 143, { align: 'center' });
 
-      pdf.setFillColor(255,106,0);
-      pdf.rect(0,pdf.internal.pageSize.getHeight()-3,w,3,'F');
+      pdf.setFillColor(255, 106, 0);
+      pdf.rect(0, pdf.internal.pageSize.getHeight() - 3, w, 3, 'F');
 
-      pdf.save(`STMRiders_Receipt_${d._id?.slice(-8).toUpperCase()||'booking'}.pdf`);
-    } catch(err) {
-      console.error('PDF error:',err);
-      alert('PDF generation failed: '+err.message);
+      pdf.save(`STMRiders_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
+    } catch (err) {
+      console.error('PDF error:', err);
+      alert('PDF generation failed: ' + err.message);
     }
   };
 
@@ -610,16 +609,14 @@ export default function BookingPage() {
                 {/* Duration Selection Mode */}
                 <div className="flex gap-4 mb-4 border-b border-white/10 pb-4">
                   <button type="button" onClick={() => setIsManualDuration(false)}
-                    className={`text-sm font-bold pb-2 border-b-2 transition-all ${
-                      !isManualDuration ? 'border-[#FFB300] text-[#FFB300]' : 'border-transparent text-gray-500 hover:text-gray-300'
-                    }`}
+                    className={`text-sm font-bold pb-2 border-b-2 transition-all ${!isManualDuration ? 'border-[#FFB300] text-[#FFB300]' : 'border-transparent text-gray-500 hover:text-gray-300'
+                      }`}
                   >
                     Select Package
                   </button>
                   <button type="button" onClick={() => setIsManualDuration(true)}
-                    className={`text-sm font-bold pb-2 border-b-2 transition-all ${
-                      isManualDuration ? 'border-[#FFB300] text-[#FFB300]' : 'border-transparent text-gray-500 hover:text-gray-300'
-                    }`}
+                    className={`text-sm font-bold pb-2 border-b-2 transition-all ${isManualDuration ? 'border-[#FFB300] text-[#FFB300]' : 'border-transparent text-gray-500 hover:text-gray-300'
+                      }`}
                   >
                     Custom Dates
                   </button>
@@ -633,11 +630,10 @@ export default function BookingPage() {
                         const isSelected = selectedTier?.hours === tier.hours;
                         return (
                           <button key={tier.hours} type="button" onClick={() => handleTierSelect(tier)}
-                            className={`relative flex flex-col items-center p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
-                              isSelected
+                            className={`relative flex flex-col items-center p-4 rounded-xl border transition-all duration-200 cursor-pointer ${isSelected
                                 ? 'bg-gradient-to-br from-[#FFB300]/20 to-[#FF6A00]/10 border-[#FFB300] shadow-[0_0_20px_rgba(255,179,0,0.2)]'
                                 : 'bg-white/5 border-white/10 hover:border-white/20'
-                            }`}
+                              }`}
                           >
                             {isSelected && (
                               <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#FFB300] flex items-center justify-center">
@@ -669,11 +665,11 @@ export default function BookingPage() {
                 {/* Coupon Code Section */}
                 <div className="pt-4 mt-2">
                   <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Have a Coupon?</label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input type="text" placeholder="Enter Code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())}
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFB300] uppercase" />
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFB300] uppercase" />
                     <button type="button" onClick={handleApplyCoupon}
-                      className="bg-white/10 hover:bg-white/20 text-white px-4 rounded-xl text-sm font-bold border border-white/10 transition-colors">
+                      className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl text-sm font-bold border border-white/10 transition-colors whitespace-nowrap">
                       Apply
                     </button>
                   </div>
@@ -683,28 +679,28 @@ export default function BookingPage() {
 
                 {/* Live Summary */}
                 {((!isManualDuration && selectedTier) || (isManualDuration && manualHours > 0)) && pickupDateTime && (
-                  <div className="bg-gradient-to-r from-[#FFB300]/10 to-[#FF6A00]/5 border border-[#FFB300]/20 rounded-xl p-4 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Pickup</span>
-                      <span className="text-white font-medium">{fmtDate(pickupDateTime)} · {fmtTime(pickupDateTime)}</span>
+                  <div className="bg-gradient-to-r from-[#FFB300]/10 to-[#FF6A00]/5 border border-[#FFB300]/20 rounded-xl p-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between text-sm gap-1 sm:gap-2">
+                      <span className="text-gray-400 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 shrink-0" /> Pickup</span>
+                      <span className="text-white font-medium sm:text-right">{fmtDate(pickupDateTime)} · {fmtTime(pickupDateTime)}</span>
                     </div>
                     {dropoffTime && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Drop-off</span>
-                        <span className="text-white font-medium">{fmtDate(dropoffTime)} · {fmtTime(dropoffTime)}</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between text-sm gap-1 sm:gap-2">
+                        <span className="text-gray-400 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 shrink-0" /> Drop-off</span>
+                        <span className="text-white font-medium sm:text-right">{fmtDate(dropoffTime)} · {fmtTime(dropoffTime)}</span>
                       </div>
                     )}
-                    <div className="border-t border-white/10 pt-2 flex justify-between items-center">
-                      <span className="text-gray-300 font-semibold flex items-center gap-1.5"><Timer className="w-3.5 h-3.5 text-[#FFB300]" /> {formatDuration(isManualDuration ? manualHours : selectedTier.hours)}</span>
-                      <div className="text-right">
+                    <div className="border-t border-white/10 pt-3 flex justify-between items-end gap-2">
+                      <span className="text-gray-300 font-semibold flex items-center gap-1.5"><Timer className="w-3.5 h-3.5 text-[#FFB300] shrink-0" /> {formatDuration(isManualDuration ? manualHours : selectedTier.hours)}</span>
+                      <div className="text-right shrink-0">
                         {appliedCoupon && (
                           <span className="text-gray-500 text-sm line-through block">₹{(isManualDuration ? manualPrice : selectedTier.price).toLocaleString('en-IN')}</span>
                         )}
                         <span className="text-[#FFB300] font-black text-2xl">
-                          ₹{(appliedCoupon 
-                            ? Math.max(0, (isManualDuration ? manualPrice : selectedTier.price) * (1 - appliedCoupon.discountPercentage/100)) 
+                          ₹{(appliedCoupon
+                            ? Math.max(0, (isManualDuration ? manualPrice : selectedTier.price) * (1 - appliedCoupon.discountPercentage / 100))
                             : (isManualDuration ? manualPrice : selectedTier.price)
-                          ).toLocaleString('en-IN', {maximumFractionDigits: 0})}
+                          ).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                         </span>
                       </div>
                     </div>
