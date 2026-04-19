@@ -50,18 +50,12 @@ export default function Navbar() {
     <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-md py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)] border-b border-white/5' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-[0.2em] text-[#FFB300] uppercase hidden sm:block">
-              Yellow Hut
-            </span>
-            <div className="w-8 h-8 rounded bg-gradient-to-br from-[#FFB300] to-[#FF6A00] flex items-center justify-center font-bold text-black shadow-[0_0_15px_rgba(255,179,0,0.5)] group-hover:scale-110 transition-transform">
-              S
-            </div>
-            <span className="text-2xl font-black tracking-tight text-white group-hover:text-gray-200 transition-colors">
-              STM<span className="text-[#FF6A00]">Riders</span>
-            </span>
-          </div>
+        <Link href="/" className="flex items-center group">
+          <img 
+            src="/logo.png" 
+            alt="Yellow Hut STM Riders Logo" 
+            className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform" 
+          />
         </Link>
 
         {/* Desktop Links */}

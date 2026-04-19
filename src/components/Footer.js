@@ -45,7 +45,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="text-[#FF6A00] mt-1 shrink-0" size={20} />
-                <span className="text-gray-400">Law Gate Road, Meheru, Phagwara, Punjab</span>
+                <a href="https://maps.app.goo.gl/Jk9zUr5mBorsP6ULA" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Law Gate Road, Meheru, Phagwara, Punjab</a>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="text-[#FF6A00] shrink-0" size={20} />
