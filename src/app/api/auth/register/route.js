@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { SignJWT } from 'jose';
 import connectDB from '@/lib/db';
 import { User } from '@/models/User';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
+import { OTP } from '@/models/OTP';
+import { sendOtpEmail } from '@/lib/mailer';
 
 export async function POST(request) {
   try {
@@ -26,26 +25,25 @@ export async function POST(request) {
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email: email.toLowerCase(), password: hashed });
+    const normalizedEmail = email.toLowerCase();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const token = await new SignJWT({ userId: user._id.toString(), email: user.email, role: user.role })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('7d')
-      .sign(JWT_SECRET);
-
-    const response = NextResponse.json({
-      user: { _id: user._id, name: user.name, email: user.email, role: user.role },
-    }, { status: 201 });
-
-    response.cookies.set('user_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
+    await OTP.deleteMany({ email: normalizedEmail, purpose: 'register' });
+    await OTP.create({
+      email: normalizedEmail,
+      name,
+      password: hashed,
+      purpose: 'register',
+      code,
     });
 
-    return response;
+    await sendOtpEmail({ email: normalizedEmail, name, code, purpose: 'register' });
+
+    return NextResponse.json({
+      requiresOtp: true,
+      email: normalizedEmail,
+      message: 'We sent a verification code to your email.',
+    }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

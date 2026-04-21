@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { SignJWT } from 'jose';
 import connectDB from '@/lib/db';
 import { User } from '@/models/User';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
+import { OTP } from '@/models/OTP';
+import { sendOtpEmail } from '@/lib/mailer';
 
 export async function POST(request) {
   try {
@@ -21,29 +20,33 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
     }
 
+    if (user.authProvider === 'google' && !user.password) {
+      return NextResponse.json({ error: 'This account uses Google sign-in. Please continue with Google.' }, { status: 400 });
+    }
+
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
     }
 
-    const token = await new SignJWT({ userId: user._id.toString(), email: user.email, role: user.role })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('7d')
-      .sign(JWT_SECRET);
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const response = NextResponse.json({
-      user: { _id: user._id, name: user.name, email: user.email, role: user.role },
+    await OTP.deleteMany({ email: user.email, purpose: 'login' });
+    await OTP.create({
+      email: user.email,
+      name: user.name,
+      purpose: 'login',
+      userId: user._id.toString(),
+      code,
     });
 
-    response.cookies.set('user_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
-    });
+    await sendOtpEmail({ email: user.email, name: user.name, code, purpose: 'login' });
 
-    return response;
+    return NextResponse.json({
+      requiresOtp: true,
+      email: user.email,
+      message: 'We sent a verification code to your email.',
+    });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

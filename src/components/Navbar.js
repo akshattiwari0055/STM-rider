@@ -49,7 +49,6 @@ export default function Navbar() {
   return (
     <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-md py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)] border-b border-white/5' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        {/* Logo */}
         <Link href="/" className="flex items-center group">
           <img 
             src="/logo.png" 
@@ -58,7 +57,6 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
@@ -71,7 +69,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Auth Buttons - Desktop */}
         <div className="hidden md:flex items-center gap-3">
           {!authChecked ? (
             <div className="w-20 h-8 bg-white/5 rounded-full animate-pulse" />
@@ -106,7 +103,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Menu Toggle */}
         <button
           className="md:hidden text-white p-2 focus:outline-none"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -120,7 +116,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-xl border-t border-white/10 flex flex-col py-4 px-6 gap-4 shadow-2xl">
           {navLinks.map((link) => (

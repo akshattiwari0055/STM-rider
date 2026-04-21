@@ -29,7 +29,6 @@ export default function Hero() {
 
   return (
     <section ref={heroRef} className="relative h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Background Video for Desktop */}
       <video 
         autoPlay 
         loop 
@@ -40,7 +39,6 @@ export default function Hero() {
         <source src="/videos/hero-desktop.mp4" type="video/mp4" />
       </video>
 
-      {/* Background Video for Mobile */}
       <video 
         autoPlay 
         loop 
@@ -51,7 +49,6 @@ export default function Hero() {
         <source src="/videos/hero-mobile.mp4" type="video/mp4" />
       </video>
 
-      {/* Slight Black Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40 z-0"></div>
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center" ref={textRef}>

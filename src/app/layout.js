@@ -1,6 +1,7 @@
 import { Poppins, Montserrat } from "next/font/google";
 import "./globals.css";
 import NavbarWrapper from "@/components/NavbarWrapper";
+import GoogleAuthProvider from "@/components/GoogleAuthProvider";
 import { Analytics } from "@vercel/analytics/next";
 
 const poppins = Poppins({
@@ -24,9 +25,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${poppins.variable} ${montserrat.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground overflow-x-hidden">
-        <NavbarWrapper />
-        {children}
-        <Analytics />
+        <GoogleAuthProvider>
+          <NavbarWrapper />
+          {children}
+          <Analytics />
+        </GoogleAuthProvider>
       </body>
     </html>
   );

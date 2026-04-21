@@ -90,7 +90,6 @@ export default function VehicleShowcase() {
                       <span className="text-xs text-[#FFB300] bg-[#FFB300]/10 px-2 py-1 rounded border border-[#FFB300]/20">{v.type}</span>
                     </div>
 
-                    {/* Tiered pricing preview */}
                     {v.tieredPricing && v.tieredPricing.length > 0 ? (
                       <div className="space-y-1 mb-5">
                         {v.tieredPricing.map(tier => (
