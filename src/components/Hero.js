@@ -57,7 +57,7 @@ export default function Hero() {
           <img 
             src="/logo.png" 
             alt="Yellow Hut STM Riders Logo" 
-            className="w-full max-w-[400px] md:max-w-[600px] object-contain drop-shadow-[0_0_15px_rgba(255,179,0,0.3)] transition-transform hover:scale-[1.02] duration-500" 
+            className="w-full max-w-[400px] md:max-w-[450px] object-contain drop-shadow-[0_0_15px_rgba(255,179,0,0.3)] transition-transform hover:scale-[1.02] duration-500" 
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               document.getElementById('hero-fallback').style.display = 'flex';
