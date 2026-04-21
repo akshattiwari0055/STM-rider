@@ -6,7 +6,6 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-sec
 export async function middleware(request) {
   const path = request.nextUrl.pathname;
 
-  // ── Protect Admin routes ────────────────────────────────────────────────
   if (path.startsWith('/admin') && !path.startsWith('/admin/login')) {
     const token = request.cookies.get('admin_token')?.value;
     if (!token) {
@@ -37,8 +36,6 @@ export async function middleware(request) {
       return NextResponse.redirect(loginUrl);
     }
   }
-
-  // ── Redirect already logged-in users away from /login and /signup ───────
   if (path === '/login' || path === '/signup') {
     const token = request.cookies.get('user_token')?.value;
     if (token) {
