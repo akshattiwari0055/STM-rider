@@ -4,12 +4,25 @@ import connectDB from '@/lib/db';
 import { Booking } from '@/models/Booking';
 import { Vehicle } from '@/models/Vehicle';
 import { Coupon } from '@/models/Coupon';
+import { User } from '@/models/User';
+import {
+  calculateBookingEndDate,
+  cleanupBookingStates,
+  createBookingSlotKey,
+  findConflictingBooking,
+  getVerificationExpiryDate,
+  notifyAdminForNewBooking,
+  sendOverdueReturnReminders,
+} from '@/lib/booking-workflow';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
 
-export async function GET() {
+export async function GET(request) {
   try {
     await connectDB();
+    await cleanupBookingStates();
+    const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+    await sendOverdueReturnReminders({ baseUrl });
     const bookings = await Booking.find().populate('vehicle').sort({ createdAt: -1 });
     return NextResponse.json(bookings);
   } catch (error) {
@@ -21,13 +34,14 @@ export async function POST(request) {
   try {
     const body = await request.json();
     await connectDB();
+    await cleanupBookingStates();
 
     const vehicle = await Vehicle.findById(body.vehicle);
     if (!vehicle) {
       return NextResponse.json({ error: 'Vehicle not found.' }, { status: 404 });
     }
-    if (vehicle.status !== 'Available') {
-      return NextResponse.json({ error: 'Vehicle is currently not available.' }, { status: 400 });
+    if (vehicle.status === 'Under Maintenance') {
+      return NextResponse.json({ error: 'Vehicle is currently under maintenance.' }, { status: 400 });
     }
 
     let finalPrice = Number(body.totalPrice);
@@ -54,19 +68,42 @@ export async function POST(request) {
 
     // Attach user if logged in
     let userId = null;
+    let customerEmail = null;
     const token = request.cookies.get('user_token')?.value;
     if (token) {
       try {
         const { payload } = await jwtVerify(token, JWT_SECRET);
         userId = payload.userId;
+        customerEmail = payload.email || null;
       } catch { /* anonymous booking */ }
+    }
+
+    if (userId && !customerEmail) {
+      const user = await User.findById(userId).select('email');
+      customerEmail = user?.email || null;
+    }
+
+    const startDate = new Date(body.startDate);
+    const endDate = calculateBookingEndDate(startDate, Number(body.durationHours));
+    const conflict = await findConflictingBooking({
+      vehicleId: body.vehicle,
+      startDate,
+      endDate,
+    });
+
+    if (conflict) {
+      return NextResponse.json({
+        error: 'This vehicle already has another booking for that time slot. Please choose a different date or duration.',
+      }, { status: 409 });
     }
 
     const bookingData = {
       vehicle: body.vehicle,
+      customerEmail,
       customerName: body.customerName,
       phone: body.phone,
-      startDate: new Date(body.startDate),
+      startDate,
+      endDate,
       durationHours: Number(body.durationHours),
       totalPrice: finalPrice,
       originalPrice,
@@ -74,20 +111,39 @@ export async function POST(request) {
       idCardImage: body.idCardImage,
       aadhaarCardImage: body.aadhaarCardImage,
       drivingLicenseImage: body.drivingLicenseImage,
-      status: 'Pending', // stays Pending until admin confirms payment
+      status: 'Pending',
+      verificationPendingUntil: getVerificationExpiryDate(),
+      slotKey: createBookingSlotKey(body.vehicle, startDate, endDate),
     };
     if (userId) bookingData.user = userId;
 
-    const newBooking = await Booking.create(bookingData);
+    let newBooking;
+    try {
+      newBooking = await Booking.create(bookingData);
+    } catch (error) {
+      if (error?.code === 11000) {
+        return NextResponse.json({
+          error: 'Another booking was just created for this exact time slot. Please pick a different time.',
+        }, { status: 409 });
+      }
+      throw error;
+    }
 
     if (appliedCoupon) {
       appliedCoupon.usedCount += 1;
       await appliedCoupon.save();
     }
 
-    // Mark vehicle as Busy during the rental period
-    vehicle.status = 'Busy';
-    await vehicle.save();
+    const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+    try {
+      await notifyAdminForNewBooking({
+        booking: newBooking,
+        vehicle,
+        baseUrl,
+      });
+    } catch {
+      // Booking creation should still succeed even if email delivery is unavailable.
+    }
 
     return NextResponse.json(newBooking, { status: 201 });
   } catch (error) {

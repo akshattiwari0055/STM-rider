@@ -153,20 +153,20 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen pt-28 sm:pt-24 pb-12 sm:pb-12 flex items-center justify-center px-4 relative overflow-hidden">
       <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-[#FF6A00]/10 rounded-full blur-[120px] z-0 pointer-events-none" />
       <div className="absolute top-1/4 left-1/3 w-64 h-64 bg-[#FFB300]/8 rounded-full blur-[100px] z-0 pointer-events-none" />
 
       <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FFB300] to-[#FF6A00] mb-4 shadow-[0_0_30px_rgba(255,179,0,0.4)]">
             {otpStep ? <ShieldCheck className="w-7 h-7 text-black" /> : <UserPlus className="w-7 h-7 text-black" />}
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">{otpStep ? 'Verify Email' : 'Create Account'}</h1>
-          <p className="text-gray-400">{otpStep ? 'Enter the code sent to your email.' : 'Join STM Riders and start your journey.'}</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">{otpStep ? 'Verify Email' : 'Create Account'}</h1>
+          <p className="text-sm sm:text-base text-gray-400">{otpStep ? 'Enter the code sent to your email.' : 'Join STM Riders and start your journey.'}</p>
         </div>
 
-        <div className="glass rounded-2xl p-8 border border-white/5 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+        <div className="glass rounded-2xl p-5 sm:p-8 border border-white/5 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
           {message && (
             <div className="mb-6 px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-300 text-sm">
               {message}

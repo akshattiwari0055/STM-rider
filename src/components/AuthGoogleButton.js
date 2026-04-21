@@ -21,7 +21,7 @@ export default function AuthGoogleButton({
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-center rounded-full border border-black/30 bg-white px-2 py-2 shadow-[0_14px_30px_rgba(0,0,0,0.18)]">
+      <div className="google-auth-shell flex w-full justify-center overflow-hidden rounded-full border border-black/30 bg-white px-2 py-2 shadow-[0_14px_30px_rgba(0,0,0,0.18)]">
         <GoogleLogin
           onSuccess={onSuccess}
           onError={onError}
@@ -29,7 +29,7 @@ export default function AuthGoogleButton({
           shape="pill"
           size="large"
           text={text}
-          width="280"
+          width="100%"
           logo_alignment="left"
         />
       </div>

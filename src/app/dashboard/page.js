@@ -290,13 +290,18 @@ function BookingCard({ booking, onViewReceipt }) {
           </div>
         </div>
 
-        {/* View Receipt button */}
-        <button
-          onClick={() => onViewReceipt(booking)}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-[#FFB300]/30 text-[#FFB300] text-sm font-semibold hover:bg-[#FFB300]/10 transition-all"
-        >
-          <Download className="w-4 h-4" /> View & Download Receipt
-        </button>
+        {booking.status === 'Pending' ? (
+          <div className="w-full rounded-lg border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200">
+            Admin verification pending. Receipt will unlock after approval.
+          </div>
+        ) : (
+          <button
+            onClick={() => onViewReceipt(booking)}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-[#FFB300]/30 text-[#FFB300] text-sm font-semibold hover:bg-[#FFB300]/10 transition-all"
+          >
+            <Download className="w-4 h-4" /> View & Download Receipt
+          </button>
+        )}
       </div>
     </div>
   );
@@ -457,14 +462,14 @@ export default function DashboardPage() {
         {activeTab === 'bookings' && (
           <div className="space-y-8">
 
-            {/* Pending bookings — payment awaiting confirmation */}
+            {/* Pending bookings — admin review awaiting confirmation */}
             {pendingBookings.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
                   <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                   <div>
-                    <p className="text-yellow-400 font-semibold text-sm">Payment Pending</p>
-                    <p className="text-yellow-400/70 text-xs">Your booking is created. Please complete payment via QR and send WhatsApp confirmation. The admin will activate it shortly.</p>
+                    <p className="text-yellow-400 font-semibold text-sm">Admin Verification Pending</p>
+                    <p className="text-yellow-400/70 text-xs">We received your booking request and payment proof handoff. The admin team will verify it and email you the confirmed receipt PDF once approved.</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

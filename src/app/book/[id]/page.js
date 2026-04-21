@@ -159,10 +159,10 @@ function PaymentPage({ booking, vehicle, onDone }) {
           className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black text-lg rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(37,211,102,0.3)] hover:scale-[1.02]"
         >
           <MessageCircle className="w-6 h-6" />
-          Done — Notify on WhatsApp
+          Done — Send Payment Proof
         </button>
         <p className="text-center text-xs text-gray-600">
-          This opens WhatsApp with your booking details pre-filled for confirmation
+          This opens WhatsApp with your booking details for admin verification and approval
         </p>
       </div>
     </div>
@@ -249,7 +249,7 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // stage: 'form' | 'payment' | 'success'
+  // stage: 'form' | 'payment' | 'pending'
   const [stage, setStage] = useState('form');
   const [booking, setBooking] = useState(null);
 
@@ -724,29 +724,59 @@ export default function BookingPage() {
           <PaymentPage
             booking={booking}
             vehicle={vehicle}
-            onDone={() => setStage('success')}
+            onDone={() => setStage('pending')}
           />
         )}
 
-        {/* ══ STAGE 3: Receipt / Success ═════════════════════════════════ */}
-        {stage === 'success' && booking && (
+        {/* ══ STAGE 3: Pending Admin Verification ═════════════════════════ */}
+        {stage === 'pending' && booking && (
           <div className="flex flex-col items-center">
             <div className="flex flex-col items-center mb-8">
-              <div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mb-4">
-                <CheckCircle className="w-10 h-10 text-emerald-400" />
+              <div className="w-20 h-20 rounded-full bg-yellow-500/10 border-2 border-yellow-500/30 flex items-center justify-center mb-4">
+                <Clock className="w-10 h-10 text-yellow-400" />
               </div>
-              <h2 className="text-3xl font-black text-white">All Done! 🎉</h2>
-              <p className="text-gray-400 mt-1">Booking confirmed & payment notified. Here&apos;s your receipt.</p>
+              <h2 className="text-3xl font-black text-white">Admin Verification Pending</h2>
+              <p className="text-gray-400 mt-1 text-center max-w-2xl">
+                Your payment proof has been shared. The vehicle will only turn busy after admin approval.
+                We&apos;ve notified the admin team already, and you&apos;ll get a confirmation email with the receipt PDF once approved.
+              </p>
             </div>
-            <ReceiptView booking={booking} vehicle={vehicle} receiptRef={receiptRef} />
+
+            <div className="glass rounded-3xl border border-yellow-500/20 p-6 md:p-8 max-w-2xl w-full text-left">
+              <div className="space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-yellow-400">Current Status</p>
+                <p className="text-2xl font-bold text-white">Waiting for admin approval</p>
+                <p className="text-sm text-gray-400">
+                  Booking ID: <span className="text-white font-medium">#{booking._id?.slice(-10).toUpperCase()}</span>
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
+                  <p className="text-xs uppercase tracking-[0.25em] text-gray-500 mb-2">Vehicle</p>
+                  <p className="text-lg font-bold text-white">{vehicle.name}</p>
+                  <p className="text-sm text-gray-400">{vehicle.type}</p>
+                </div>
+                <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
+                  <p className="text-xs uppercase tracking-[0.25em] text-gray-500 mb-2">Amount Submitted</p>
+                  <p className="text-lg font-bold text-[#FFB300]">₹{booking.totalPrice?.toLocaleString('en-IN')}</p>
+                  <p className="text-sm text-gray-400">Receipt email will be sent after approval</p>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 p-4 text-sm text-yellow-200">
+                Until approval, this booking will appear as <span className="font-semibold">Admin verification pending</span> in your dashboard.
+              </div>
+            </div>
+
             <div className="mt-8 flex flex-wrap gap-4 justify-center">
-              <button onClick={downloadReceipt}
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white px-6 py-3 rounded-xl font-semibold border border-white/20 transition-all">
-                <Download size={18} /> Download PDF
-              </button>
               <button onClick={() => router.push('/dashboard')}
                 className="flex items-center gap-2 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black px-6 py-3 rounded-xl font-black transition-all hover:scale-105">
                 View My Bookings →
+              </button>
+              <button onClick={() => router.push('/vehicles')}
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white px-6 py-3 rounded-xl font-semibold border border-white/20 transition-all">
+                Browse More Vehicles
               </button>
             </div>
           </div>

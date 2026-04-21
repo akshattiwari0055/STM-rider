@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { Vehicle } from '@/models/Vehicle';
 import { Booking } from '@/models/Booking';
+import { cleanupBookingStates } from '@/lib/booking-workflow';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,6 +75,7 @@ async function autoExpireBookings() {
 export async function GET() {
   try {
     await connectDB();
+    await cleanupBookingStates();
     await autoExpireBookings();
 
     const vehicles = await Vehicle.find().sort({ createdAt: 1 });

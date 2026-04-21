@@ -30,6 +30,11 @@ function calcDropoff(b) {
   return null;
 }
 
+function isOverdueActiveBooking(booking) {
+  const dropoff = calcDropoff(booking);
+  return booking.status === 'Active' && dropoff && dropoff <= new Date();
+}
+
 export default function AdminBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,11 +52,15 @@ export default function AdminBookings() {
 
   const updateStatus = async (bookingId, status) => {
     setUpdatingId(bookingId);
-    await fetch(`/api/bookings/${bookingId}`, {
+    const res = await fetch(`/api/bookings/${bookingId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || 'Could not update this booking.');
+    }
     setUpdatingId(null);
     fetchBookings();
   };
@@ -122,6 +131,12 @@ export default function AdminBookings() {
                   <div className="bg-yellow-500/10 border-b border-yellow-500/20 px-4 py-2 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                     <span className="text-yellow-400 text-xs font-semibold">Awaiting payment confirmation — verify WhatsApp before confirming</span>
+                  </div>
+                )}
+                {isOverdueActiveBooking(b) && (
+                  <div className="bg-blue-500/10 border-b border-blue-500/20 px-4 py-2 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                    <span className="text-blue-300 text-xs font-semibold">Rental time is over. Hourly reminder emails are being sent until admin marks this vehicle returned.</span>
                   </div>
                 )}
 
@@ -223,13 +238,13 @@ export default function AdminBookings() {
                       {b.status === 'Pending' && (
                         <button onClick={() => updateStatus(b._id, 'Active')} disabled={isUpdating}
                           className="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-colors disabled:opacity-40">
-                          {isUpdating ? '...' : '✓ Confirm'}
+                          {isUpdating ? '...' : 'Approve'}
                         </button>
                       )}
                       {b.status === 'Active' && (
                         <button onClick={() => updateStatus(b._id, 'Completed')} disabled={isUpdating}
                           className="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500/20 transition-colors disabled:opacity-40">
-                          {isUpdating ? '...' : 'Complete'}
+                          {isUpdating ? '...' : 'Mark Returned'}
                         </button>
                       )}
                       {(b.status === 'Pending' || b.status === 'Active') && (

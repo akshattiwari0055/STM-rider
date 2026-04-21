@@ -33,3 +33,15 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+.google-auth-shell,
+.google-auth-shell > div,
+.google-auth-shell iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.google-auth-shell [style*="width"] {
+  width: 100% !important;
+  max-width: 100% !important;
+}

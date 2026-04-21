@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import connectDB from '@/lib/db';
-import { Booking } from '@/models/Booking';
-import { Vehicle } from '@/models/Vehicle';
+import { applyBookingStatusTransition } from '@/lib/booking-workflow';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
 
@@ -20,27 +19,11 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const { status } = await request.json();
     await connectDB();
-
-    const booking = await Booking.findById(id).populate('vehicle');
-    if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
-
-    booking.status = status;
-    await booking.save();
-
-    // If admin marks booking Completed or Cancelled, restore vehicle to Available
-    if ((status === 'Completed' || status === 'Cancelled') && booking.vehicle) {
-      const otherActive = await Booking.findOne({
-        vehicle: booking.vehicle._id,
-        status: 'Active',
-        _id: { $ne: booking._id },
-      });
-      if (!otherActive) {
-        await Vehicle.findByIdAndUpdate(booking.vehicle._id, { status: 'Available' });
-      }
-    }
+    const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+    await applyBookingStatusTransition({ bookingId: id, nextStatus: status, baseUrl });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: error.message.includes('time slot') ? 409 : 500 });
   }
 }
