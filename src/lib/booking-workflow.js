@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { Booking } from '@/models/Booking';
+import { User } from '@/models/User';
 import { Vehicle } from '@/models/Vehicle';
 import {
   sendAdminBookingReviewEmail,
