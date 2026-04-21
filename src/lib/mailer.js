@@ -21,6 +21,27 @@ function getTransporter() {
   return transporterPromise;
 }
 
+async function sendMailWithLogging(transporter, mailOptions, label) {
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[mail:${label}] sent`, {
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      messageId: info?.messageId,
+      response: info?.response,
+    });
+    return info;
+  } catch (error) {
+    console.error(`[mail:${label}] failed`, {
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      error: error?.message,
+      stack: error?.stack,
+    });
+    throw error;
+  }
+}
+
 export function isSmtpConfigured() {
   return Boolean(
     process.env.SMTP_HOST &&
@@ -163,7 +184,7 @@ export async function sendOtpEmail({ email, name, code, purpose }) {
       ? 'Use this one-time code to finish signing in to STM Riders.'
       : 'Use this one-time code to verify your email and finish creating your STM Riders account.';
 
-  await transporter.sendMail({
+  await sendMailWithLogging(transporter, {
     from: process.env.MAIL_FROM,
     to: email,
     subject: purpose === 'login' ? 'Your STM Riders login code' : 'Verify your STM Riders email',
@@ -179,7 +200,7 @@ export async function sendOtpEmail({ email, name, code, purpose }) {
         <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">If you did not request this, you can ignore this email.</p>
       </div>
     `,
-  });
+  }, `otp-${purpose}`);
 }
 
 export async function sendAdminBookingReviewEmail({
@@ -199,7 +220,7 @@ export async function sendAdminBookingReviewEmail({
   const pickupTime = formatDateTime(booking.startDate);
   const dropoffTime = formatDateTime(booking.endDate);
 
-  await transporter.sendMail({
+  await sendMailWithLogging(transporter, {
     from: process.env.MAIL_FROM,
     to: adminEmail,
     subject: `New booking awaiting approval: ${vehicle.name}`,
@@ -232,7 +253,7 @@ export async function sendAdminBookingReviewEmail({
         </p>
       </div>
     `,
-  });
+  }, 'admin-booking-review');
 }
 
 export async function sendBookingApprovedEmail({
@@ -248,7 +269,7 @@ export async function sendBookingApprovedEmail({
   const transporter = await getTransporter();
   const receiptBuffer = buildReceiptPdfBuffer({ booking, vehicle });
 
-  await transporter.sendMail({
+  await sendMailWithLogging(transporter, {
     from: process.env.MAIL_FROM,
     to: customerEmail,
     subject: `Booking confirmed for ${vehicle.name}`,
@@ -283,7 +304,7 @@ export async function sendBookingApprovedEmail({
         </p>
       </div>
     `,
-  });
+  }, 'booking-approved');
 }
 
 export async function sendVehicleReturnReminderEmail({
@@ -300,7 +321,7 @@ export async function sendVehicleReturnReminderEmail({
   const transporter = await getTransporter();
   const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.SMTP_USER;
 
-  await transporter.sendMail({
+  await sendMailWithLogging(transporter, {
     from: process.env.MAIL_FROM,
     to: adminEmail,
     subject: `Return check needed: ${vehicle.name}`,
@@ -331,5 +352,5 @@ export async function sendVehicleReturnReminderEmail({
         </p>
       </div>
     `,
-  });
+  }, 'vehicle-return-reminder');
 }

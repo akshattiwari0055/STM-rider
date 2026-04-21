@@ -141,8 +141,12 @@ export async function POST(request) {
         vehicle,
         baseUrl,
       });
-    } catch {
-      // Booking creation should still succeed even if email delivery is unavailable.
+    } catch (error) {
+      console.error('[booking:create] admin notification email failed', {
+        bookingId: newBooking._id?.toString(),
+        vehicleId: vehicle._id?.toString(),
+        error: error?.message,
+      });
     }
 
     return NextResponse.json(newBooking, { status: 201 });

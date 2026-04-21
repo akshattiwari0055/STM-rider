@@ -110,21 +110,29 @@ export async function sendOverdueReturnReminders({ baseUrl }) {
       continue;
     }
 
-    const returnToken = await createBookingActionToken({
-      bookingId: booking._id.toString(),
-      action: 'complete',
-    });
+    try {
+      const returnToken = await createBookingActionToken({
+        bookingId: booking._id.toString(),
+        action: 'complete',
+      });
 
-    await sendVehicleReturnReminderEmail({
-      booking,
-      vehicle: booking.vehicle,
-      customerEmail: booking.customerEmail || booking.user?.email,
-      baseUrl,
-      confirmReturnUrl: `${baseUrl}/api/admin/bookings/${booking._id}/decision?token=${encodeURIComponent(returnToken)}`,
-    });
+      await sendVehicleReturnReminderEmail({
+        booking,
+        vehicle: booking.vehicle,
+        customerEmail: booking.customerEmail || booking.user?.email,
+        baseUrl,
+        confirmReturnUrl: `${baseUrl}/api/admin/bookings/${booking._id}/decision?token=${encodeURIComponent(returnToken)}`,
+      });
 
-    booking.returnReminderLastSentAt = now;
-    await booking.save();
+      booking.returnReminderLastSentAt = now;
+      await booking.save();
+    } catch (error) {
+      console.error('[booking:return-reminder] failed', {
+        bookingId: booking._id?.toString(),
+        vehicleId: booking.vehicle?._id?.toString(),
+        error: error?.message,
+      });
+    }
   }
 }
 
