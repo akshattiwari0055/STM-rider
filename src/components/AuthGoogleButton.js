@@ -1,6 +1,6 @@
 "use client";
 
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function AuthGoogleButton({
   enabled,
@@ -10,6 +10,12 @@ export default function AuthGoogleButton({
   onError,
 }) {
   const label = mode === 'signup' ? 'Sign up with Google' : 'Sign in with Google';
+
+  const login = useGoogleLogin({
+    onSuccess,
+    onError,
+    flow: 'auth-code', // or 'implicit' — match whatever you were using before
+  });
 
   if (!enabled) {
     return (
@@ -21,8 +27,11 @@ export default function AuthGoogleButton({
 
   return (
     <div className="space-y-3">
-      <div className="relative overflow-hidden rounded-full border border-black/35 bg-white shadow-[0_14px_30px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:scale-[1.01]">
-        {/* Visual layer — NO pointer-events-none here */}
+      <button
+        type="button"
+        onClick={() => login()}
+        className="w-full rounded-full border border-black/35 bg-white shadow-[0_14px_30px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
+      >
         <div className="flex items-center justify-center gap-4 px-6 py-3.5">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
             <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
@@ -34,22 +43,11 @@ export default function AuthGoogleButton({
           </div>
           <span className="text-[1.05rem] font-semibold text-[#1f1f1f]">{label}</span>
         </div>
+      </button>
 
-
-        {/* Invisible Google button stretched over the entire area */}
-        <div className="absolute inset-0 opacity-0 [&>div]:h-full [&>div]:w-full [&>div>div]:h-full [&>div>div>div]:h-full [&_iframe]:h-full [&_iframe]:w-full">
-          <GoogleLogin
-            onSuccess={onSuccess}
-            onError={onError}
-            theme="outline"
-            shape="pill"
-            text={mode === 'signup' ? 'signup_with' : 'signin_with'}
-            width="100%"
-          />
-        </div>
-      </div>
-
-      {loading ? <p className="text-center text-sm text-gray-400">Finishing Google authentication...</p> : null}
+      {loading && (
+        <p className="text-center text-sm text-gray-400">Finishing Google authentication...</p>
+      )}
     </div>
   );
 }
