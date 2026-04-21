@@ -22,7 +22,8 @@ export default function AuthGoogleButton({
   return (
     <div className="space-y-3">
       <div className="relative overflow-hidden rounded-full border border-black/35 bg-white shadow-[0_14px_30px_rgba(0,0,0,0.18)] transition-transform duration-200 hover:scale-[1.01]">
-        <div className="pointer-events-none flex items-center justify-center gap-4 px-6 py-3.5">
+        {/* Visual layer — NO pointer-events-none here */}
+        <div className="flex items-center justify-center gap-4 px-6 py-3.5">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
             <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.26-.96 2.33-2.04 3.05l3.31 2.57c1.93-1.78 3.04-4.4 3.04-7.51 0-.72-.07-1.41-.19-2.08z"/>
@@ -34,7 +35,9 @@ export default function AuthGoogleButton({
           <span className="text-[1.05rem] font-semibold text-[#1f1f1f]">{label}</span>
         </div>
 
-        <div className="absolute inset-0 opacity-0">
+
+        {/* Invisible Google button stretched over the entire area */}
+        <div className="absolute inset-0 opacity-0 [&>div]:h-full [&>div]:w-full [&>div>div]:h-full [&>div>div>div]:h-full [&_iframe]:h-full [&_iframe]:w-full">
           <GoogleLogin
             onSuccess={onSuccess}
             onError={onError}
