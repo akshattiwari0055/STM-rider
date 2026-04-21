@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/admin/return-reminders",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
