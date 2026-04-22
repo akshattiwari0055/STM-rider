@@ -34,8 +34,12 @@ It supports:
   - live availability badges
   - tier-based pricing display
 - Vehicle booking page with:
+  - real-time booking calendar per vehicle
+  - date cells showing available, partially busy, and fully blocked days
+  - clickable day selection that snaps pickup date
   - package selection or custom date range
   - automatic duration calculation
+  - client-side blocked-slot feedback before submit
   - server-side price validation
   - overlap/concurrency protection for same vehicle slot
   - coupon application
@@ -329,13 +333,16 @@ When user submits booking:
 1. Vehicle is fetched by ID
 2. Vehicle must exist
 3. Vehicle must not be under maintenance
-4. Server recalculates or validates price
-5. Coupon is validated again server-side
-6. Server checks for overlapping active or still-valid pending bookings
-7. Booking is saved with `Pending` status
-8. A temporary slot lock is created for that exact vehicle/time window
-9. Admin notification email is sent
-10. Vehicle is still not marked `Busy` yet
+4. Booking page first shows a live availability calendar for the selected vehicle
+5. Frontend highlights open, partially busy, and blocked dates
+6. Package buttons are disabled when they overlap a blocked range for the chosen pickup time
+7. Server recalculates or validates price
+8. Coupon is validated again server-side
+9. Server checks for overlapping active or still-valid pending bookings
+10. Booking is saved with `Pending` status
+11. A temporary slot lock is created for that exact vehicle/time window
+12. Admin notification email is sent
+13. Vehicle is still not marked `Busy` yet
 
 ### Booking Data Includes
 
@@ -381,14 +388,36 @@ The current payment flow is:
 
 This means payment is currently semi-manual, not gateway-automated.
 
+### Calendar Availability Logic
+
+The vehicle booking page now includes a real-time availability calendar:
+
+1. Frontend requests `GET /api/vehicles/[id]/availability`
+2. Server returns:
+   - blocked booking ranges
+   - day-by-day summaries for the next booking window
+3. Calendar shows each date as:
+   - available
+   - partially busy
+   - fully blocked
+4. User can only click valid future dates
+5. When a date is selected:
+   - pickup day is auto-filled
+   - selected day detail is shown below the grid
+6. Package options are checked against the selected pickup time
+7. Custom drop-off selections are also checked against blocked windows
+8. Final server-side conflict check still runs during booking creation
+
+This gives users a visual slot selector while still keeping the backend as the final source of truth.
+
 ### Auto Expiry Logic
 
-Inside `GET /api/vehicles`:
+Inside booking cleanup logic:
 
-- app clears stale pending bookings whose admin verification window expired
-- app keeps active bookings active after rental end until admin confirms vehicle return
+- stale pending bookings whose admin verification window expired are cancelled automatically
+- active bookings stay active after rental end until admin confirms vehicle return
 
-This is an important business rule because inventory cleanup happens during vehicle fetch.
+This keeps temporary slot locks from living forever while still preventing vehicles from becoming available too early.
 
 ### Vehicle Return Reminder Logic
 
@@ -656,11 +685,13 @@ Fields:
 ### Vehicle APIs
 
 - `GET /api/vehicles`
-  - list vehicles and auto-expire old active bookings
+  - list vehicles and clean stale pending state
 - `POST /api/vehicles`
   - create vehicle
 - `GET /api/vehicles/[id]`
   - fetch vehicle details
+- `GET /api/vehicles/[id]/availability`
+  - fetch live blocked ranges and calendar summaries for one vehicle
 - `PUT /api/vehicles/[id]`
   - admin update vehicle
 - `DELETE /api/vehicles/[id]`
@@ -716,6 +747,7 @@ Key reusable components:
 - `Footer`
 - `AuthGoogleButton`
 - `GoogleAuthProvider`
+- `VehicleAvailabilityCalendar`
 
 ## Environment Variables
 
@@ -801,6 +833,8 @@ These are the main logic rules that define how the site works:
 - OTP security layer for local auth
 - Google login support
 - Admin panel with useful controls
+- Real-time per-vehicle availability calendar on booking page
+- Visual date blocking with frontend slot guidance
 - Dynamic pricing model
 - Coupon engine
 - PDF receipt generation

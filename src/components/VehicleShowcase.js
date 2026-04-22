@@ -46,6 +46,36 @@ export default function VehicleShowcase() {
     }
   }, [loading, vehicles]);
 
+  const getVehicleAvailabilityMeta = (vehicle) => {
+    if (vehicle.status === 'Under Maintenance') {
+      return {
+        badgeText: 'Under Maintenance',
+        badgeColor: '#F59E0B',
+        ctaText: 'Unavailable',
+        ctaHref: '#',
+        ctaClass: 'bg-gray-800 text-gray-500 cursor-not-allowed',
+      };
+    }
+
+    if (vehicle.status === 'Busy') {
+      return {
+        badgeText: 'Booked In Some Slots',
+        badgeColor: '#F97316',
+        ctaText: 'Check Time Slots',
+        ctaHref: `/book/${vehicle._id}`,
+        ctaClass: 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black hover:opacity-90',
+      };
+    }
+
+    return {
+      badgeText: 'Available',
+      badgeColor: '#10B981',
+      ctaText: 'Book Now',
+      ctaHref: `/book/${vehicle._id}`,
+      ctaClass: 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black hover:opacity-90',
+    };
+  };
+
   return (
     <section ref={sectionRef} className="py-20 px-6 max-w-7xl mx-auto relative cursor-default">
       <div className="absolute top-1/4 left-0 w-80 h-80 bg-[#FF6A00]/5 rounded-full blur-[100px] z-0" />
@@ -71,13 +101,14 @@ export default function VehicleShowcase() {
               const minTier = (v.tieredPricing && v.tieredPricing.length > 0)
                 ? v.tieredPricing.reduce((a, b) => a.price < b.price ? a : b)
                 : null;
+              const availabilityMeta = getVehicleAvailabilityMeta(v);
 
               return (
                 <div key={v._id} className="vehicle-card glass rounded-2xl overflow-hidden group hover:shadow-[0_15px_40px_rgba(255,106,0,0.15)] transition-all duration-300">
                   <div className="relative h-56 overflow-hidden">
                     <div className="absolute top-4 right-4 z-10 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md bg-black/50 border border-white/10"
-                      style={{ color: v.status === 'Available' ? '#10B981' : v.status === 'Busy' ? '#EF4444' : '#F59E0B' }}>
-                      {v.status}
+                      style={{ color: availabilityMeta.badgeColor }}>
+                      {availabilityMeta.badgeText}
                     </div>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={v.image} alt={v.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -112,14 +143,10 @@ export default function VehicleShowcase() {
                     )}
 
                     <Link
-                      href={v.status === 'Available' ? `/book/${v._id}` : '#'}
-                      className={`block w-full text-center py-3 rounded-lg font-semibold transition-all ${
-                        v.status === 'Available'
-                          ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black hover:opacity-90'
-                          : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                      }`}
+                      href={availabilityMeta.ctaHref}
+                      className={`block w-full text-center py-3 rounded-lg font-semibold transition-all ${availabilityMeta.ctaClass}`}
                     >
-                      {v.status === 'Available' ? 'Book Now' : 'Not Available'}
+                      {availabilityMeta.ctaText}
                     </Link>
                   </div>
                 </div>
