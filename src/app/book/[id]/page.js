@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { jsPDF } from 'jspdf';
+import VehicleAvailabilityCalendar from '@/components/VehicleAvailabilityCalendar';
 
 const FALLBACK_TIERS = {
   Car: [{ hours: 5, price: 999 }, { hours: 12, price: 1499 }, { hours: 24, price: 1999 }, { hours: 168, price: 6999 }, { hours: 720, price: 25000 }],
@@ -31,6 +32,16 @@ function toLocalDatetimeValue(date) {
   const offset = date.getTimezoneOffset();
   const local = new Date(date.getTime() - offset * 60000);
   return local.toISOString().slice(0, 16);
+}
+
+function addHoursToDate(date, hours) {
+  const next = new Date(date);
+  next.setHours(next.getHours() + Number(hours || 0));
+  return next;
+}
+
+function rangesOverlap(startA, endA, startB, endB) {
+  return startA < endB && endA > startB;
 }
 
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
@@ -248,6 +259,9 @@ export default function BookingPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [availabilityLoading, setAvailabilityLoading] = useState(true);
+  const [availabilityError, setAvailabilityError] = useState('');
+  const [availability, setAvailability] = useState(null);
 
   // stage: 'form' | 'payment' | 'pending'
   const [stage, setStage] = useState('form');
@@ -296,7 +310,8 @@ export default function BookingPage() {
     Promise.all([
       fetch('/api/vehicles').then(r => r.json()),
       fetch('/api/auth/me').then(r => r.json()),
-    ]).then(([vehicles, authData]) => {
+      fetch(`/api/vehicles/${id}/availability`).then(r => r.json()),
+    ]).then(([vehicles, authData, availabilityData]) => {
       const found = Array.isArray(vehicles) ? vehicles.find(v => v._id === id) : null;
       if (found) {
         if (!found.tieredPricing || found.tieredPricing.length === 0) {
@@ -308,17 +323,39 @@ export default function BookingPage() {
         setUser(authData.user);
         setCustomerName(authData.user.name);
       }
+      if (!availabilityData?.error) {
+        setAvailability(availabilityData);
+        setAvailabilityError('');
+      } else {
+        setAvailabilityError(availabilityData.error);
+      }
       setLoading(false);
-    }).catch(() => setLoading(false));
+      setAvailabilityLoading(false);
+    }).catch(() => {
+      setLoading(false);
+      setAvailabilityLoading(false);
+      setAvailabilityError('Availability calendar could not be loaded right now.');
+    });
   }, [id]);
 
   const dropoffTime = (() => {
     if (isManualDuration && dropoffDateTime) return new Date(dropoffDateTime);
     if (!pickupDateTime || !selectedTier) return null;
-    const dt = new Date(pickupDateTime);
-    dt.setHours(dt.getHours() + selectedTier.hours);
-    return dt;
+    return addHoursToDate(new Date(pickupDateTime), selectedTier.hours);
   })();
+
+  const blockedRanges = (availability?.blockedRanges || []).map((range) => ({
+    ...range,
+    startDate: new Date(range.start),
+    endDate: new Date(range.end),
+  }));
+
+  const selectedRangeConflict =
+    pickupDateTime && dropoffTime
+      ? blockedRanges.find((range) =>
+          rangesOverlap(new Date(pickupDateTime), dropoffTime, range.startDate, range.endDate)
+        )
+      : null;
 
   const handleApplyCoupon = async () => {
     setCouponError('');
@@ -373,6 +410,41 @@ export default function BookingPage() {
     }
   }, [pickupDateTime, dropoffDateTime, isManualDuration, vehicle]);
 
+  const handleCalendarSelect = (dateKey) => {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    const fallbackTime = pickupDateTime ? new Date(pickupDateTime) : new Date();
+    const candidate = new Date(
+      year,
+      month - 1,
+      day,
+      fallbackTime.getHours() || 10,
+      fallbackTime.getMinutes() || 0,
+      0,
+      0
+    );
+    const earliest = new Date(Date.now() + 15 * 60 * 1000);
+
+    if (candidate < earliest) {
+      candidate.setHours(earliest.getHours(), earliest.getMinutes(), 0, 0);
+    }
+
+    setPickupDateTime(toLocalDatetimeValue(candidate));
+    if (!selectedTier && vehicle?.tieredPricing?.length) {
+      setSelectedTier(vehicle.tieredPricing[0]);
+    }
+
+    if (dropoffDateTime && new Date(dropoffDateTime) <= candidate) {
+      setDropoffDateTime(toLocalDatetimeValue(addHoursToDate(candidate, selectedTier?.hours || 1)));
+    }
+  };
+
+  const doesTierConflict = (hours) => {
+    if (!pickupDateTime) return false;
+    const start = new Date(pickupDateTime);
+    const end = addHoursToDate(start, hours);
+    return blockedRanges.some((range) => rangesOverlap(start, end, range.startDate, range.endDate));
+  };
+
   const handleTierSelect = (tier) => {
     setSelectedTier(tier);
     if (!pickupDateTime) setPickupDateTime(toLocalDatetimeValue(new Date()));
@@ -383,6 +455,9 @@ export default function BookingPage() {
     if (!isManualDuration && !selectedTier) return alert('Please select a rental duration.');
     if (isManualDuration && (!dropoffDateTime || manualHours <= 0)) return alert('Please select a valid drop-off date & time.');
     if (!pickupDateTime) return alert('Please select pickup date & time.');
+    if (selectedRangeConflict) {
+      return alert('That time window overlaps with an existing booking. Please choose another slot.');
+    }
 
     const durationHrs = isManualDuration ? manualHours : selectedTier.hours;
     const basePrice = isManualDuration ? manualPrice : selectedTier.price;
@@ -515,7 +590,7 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-16 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto w-full max-w-5xl">
         {stage !== 'success' && (
           <Link href="/vehicles" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 text-sm group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Fleet
@@ -524,18 +599,17 @@ export default function BookingPage() {
 
         {/* ══ STAGE 1: Form ══════════════════════════════════════════════ */}
         {stage === 'form' && (
-          <div className="glass rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-[0_30px_80px_rgba(0,0,0,0.5)] border border-white/5">
-            {/* Left: Vehicle */}
-            <div className="md:w-5/12 relative min-h-[280px]">
+          <div className="glass rounded-3xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.5)] border border-white/5">
+            <div className="relative h-[230px] sm:h-[280px] lg:h-[320px]">
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent z-10" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={vehicle.image} alt={vehicle.name} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute bottom-0 left-0 right-0 z-20 p-6">
+              <img src={vehicle.image} alt={vehicle.name} className="absolute inset-0 w-full h-full object-cover object-center" />
+              <div className="absolute bottom-0 left-0 right-0 z-20 p-5 sm:p-6">
                 <span className="text-[#FFB300] font-semibold text-xs tracking-widest uppercase mb-2 block">{vehicle.type}</span>
-                <h1 className="text-3xl font-black text-white mb-4">{vehicle.name}</h1>
-                <div className="space-y-1.5">
+                <h1 className="text-3xl sm:text-4xl font-black text-white mb-4">{vehicle.name}</h1>
+                <div className="grid max-w-md grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3">
                   {vehicle.tieredPricing.map(t => (
-                    <div key={t.hours} className="flex justify-between text-sm">
+                    <div key={t.hours} className="text-sm">
                       <span className="text-gray-300 flex items-center gap-1.5"><Clock className="w-3 h-3 text-[#FFB300]" /> {formatDurationShort(t.hours)}</span>
                       <span className="text-white font-bold">₹{t.price.toLocaleString('en-IN')}</span>
                     </div>
@@ -545,7 +619,7 @@ export default function BookingPage() {
             </div>
 
             {/* Right: Form */}
-            <div className="md:w-7/12 p-7 md:p-9 relative">
+            <div className="relative w-full max-w-3xl mx-auto p-5 sm:p-7 md:p-9">
               <div className="absolute top-0 right-0 w-48 h-48 bg-[#FFB300]/5 rounded-full blur-[60px] pointer-events-none" />
               <h2 className="text-2xl font-bold text-white mb-0.5">Complete Your Booking</h2>
               {user && <p className="text-gray-500 text-sm mb-5">Booking as <span className="text-[#FFB300]">{user.email}</span></p>}
@@ -577,6 +651,38 @@ export default function BookingPage() {
                     <input type="datetime-local" required min={minDateTime} value={pickupDateTime} onChange={e => setPickupDateTime(e.target.value)}
                       className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-[#FFB300] [color-scheme:dark] transition-all" />
                   </div>
+                </div>
+
+                <div className="space-y-3">
+                  {availabilityLoading ? (
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-400">
+                      Loading real-time calendar availability...
+                    </div>
+                  ) : availability ? (
+                    <VehicleAvailabilityCalendar
+                      availability={availability}
+                      pickupDateTime={pickupDateTime}
+                      selectedEndDateTime={dropoffTime}
+                      onSelectDate={handleCalendarSelect}
+                    />
+                  ) : (
+                    <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+                      {availabilityError || 'Availability calendar is unavailable right now.'}
+                    </div>
+                  )}
+
+                  {selectedRangeConflict && (
+                    <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+                      The selected pickup and drop-off overlap with an existing booking from{' '}
+                      <span className="font-semibold text-white">
+                        {fmtDate(selectedRangeConflict.start)} {fmtTime(selectedRangeConflict.start)}
+                      </span>{' '}
+                      to{' '}
+                      <span className="font-semibold text-white">
+                        {fmtDate(selectedRangeConflict.end)} {fmtTime(selectedRangeConflict.end)}
+                      </span>.
+                    </div>
+                  )}
                 </div>
                 {/* Mandatory Uploads */}
                 <div className="space-y-4 pt-4 border-t border-white/10">
@@ -626,23 +732,38 @@ export default function BookingPage() {
                   <div>
                     <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Select Package Duration</label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {vehicle.tieredPricing.map(tier => {
+                      {vehicle.tieredPricing.map((tier) => {
                         const isSelected = selectedTier?.hours === tier.hours;
+                        const isBlockedForPickup = doesTierConflict(tier.hours);
+
                         return (
-                          <button key={tier.hours} type="button" onClick={() => handleTierSelect(tier)}
-                            className={`relative flex flex-col items-center p-4 rounded-xl border transition-all duration-200 cursor-pointer ${isSelected
-                                ? 'bg-gradient-to-br from-[#FFB300]/20 to-[#FF6A00]/10 border-[#FFB300] shadow-[0_0_20px_rgba(255,179,0,0.2)]'
-                                : 'bg-white/5 border-white/10 hover:border-white/20'
+                          <button
+                            key={tier.hours}
+                            type="button"
+                            onClick={() => handleTierSelect(tier)}
+                            disabled={isBlockedForPickup}
+                            className={`relative flex flex-col items-center rounded-xl border p-4 transition-all duration-200 ${isBlockedForPickup ? 'cursor-not-allowed opacity-45' : 'cursor-pointer'} ${isSelected
+                              ? 'border-[#FFB300] bg-gradient-to-br from-[#FFB300]/20 to-[#FF6A00]/10 shadow-[0_0_20px_rgba(255,179,0,0.2)]'
+                              : 'border-white/10 bg-white/5 hover:border-white/20'
                               }`}
                           >
                             {isSelected && (
-                              <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#FFB300] flex items-center justify-center">
-                                <CheckCircle className="w-3 h-3 text-black" />
+                              <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#FFB300]">
+                                <CheckCircle className="h-3 w-3 text-black" />
                               </span>
                             )}
-                            <Timer className={`w-5 h-5 mb-1.5 ${isSelected ? 'text-[#FFB300]' : 'text-gray-500'}`} />
-                            <span className={`text-lg font-black ${isSelected ? 'text-[#FFB300]' : 'text-white'}`}>{formatDurationShort(tier.hours)}</span>
-                            <span className={`text-xs font-semibold mt-0.5 ${isSelected ? 'text-white' : 'text-gray-400'}`}>₹{tier.price.toLocaleString('en-IN')}</span>
+                            <Timer className={`mb-1.5 h-5 w-5 ${isSelected ? 'text-[#FFB300]' : 'text-gray-500'}`} />
+                            <span className={`text-lg font-black ${isSelected ? 'text-[#FFB300]' : 'text-white'}`}>
+                              {formatDurationShort(tier.hours)}
+                            </span>
+                            <span className={`mt-0.5 text-xs font-semibold ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                              Rs. {tier.price.toLocaleString('en-IN')}
+                            </span>
+                            {isBlockedForPickup && (
+                              <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-red-300">
+                                Busy slot
+                              </span>
+                            )}
                           </button>
                         );
                       })}
@@ -654,7 +775,7 @@ export default function BookingPage() {
                     <div className="relative mb-2">
                       <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                       <input type="datetime-local" required={isManualDuration} min={pickupDateTime || minDateTime} value={dropoffDateTime} onChange={e => setDropoffDateTime(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-[#FFB300] [color-scheme:dark] transition-all" />
+                        className={`w-full rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none [color-scheme:dark] transition-all ${selectedRangeConflict ? 'border border-red-500/40 bg-red-500/10 focus:border-red-400' : 'border border-white/10 bg-white/5 focus:border-[#FFB300]'}`} />
                     </div>
                     {manualHours > 0 && (
                       <p className="text-xs text-[#FFB300]">Total Duration: {manualHours} Hours</p>
@@ -706,7 +827,7 @@ export default function BookingPage() {
                     </div>
                   </div>
                 )}
-                <button type="submit" disabled={submitting || (!isManualDuration && !selectedTier) || (isManualDuration && manualHours <= 0) || !pickupDateTime || !idCardImage || !aadhaarCardImage || !drivingLicenseImage}
+                <button type="submit" disabled={submitting || (!isManualDuration && !selectedTier) || (isManualDuration && manualHours <= 0) || !pickupDateTime || !idCardImage || !aadhaarCardImage || !drivingLicenseImage || Boolean(selectedRangeConflict)}
                   className="w-full py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] rounded-xl text-black font-black text-base hover:shadow-[0_0_30px_rgba(255,106,0,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting
