@@ -189,12 +189,17 @@ export async function applyBookingStatusTransition({ bookingId, nextStatus, base
       throw new Error('This vehicle already has another booking for the same time slot.');
     }
 
+    await Booking.findByIdAndUpdate(booking._id, {
+      $set: {
+        status: 'Active',
+        approvedAt: new Date(),
+        verificationPendingUntil: null,
+        returnReminderLastSentAt: null,
+        returnConfirmedAt: null,
+      },
+    });
+
     booking.status = 'Active';
-    booking.approvedAt = new Date();
-    booking.verificationPendingUntil = null;
-    booking.returnReminderLastSentAt = null;
-    booking.returnConfirmedAt = null;
-    await booking.save();
 
     await Vehicle.findByIdAndUpdate(booking.vehicle._id, { status: 'Busy' });
 
@@ -213,22 +218,34 @@ export async function applyBookingStatusTransition({ bookingId, nextStatus, base
   }
 
   if (nextStatus === 'Cancelled') {
+    await Booking.findByIdAndUpdate(booking._id, {
+      $set: {
+        status: 'Cancelled',
+        verificationPendingUntil: null,
+        returnReminderLastSentAt: null,
+      },
+      $unset: { slotKey: 1 }, // ✅ unset instead of null to avoid duplicate key error
+    });
+
     booking.status = 'Cancelled';
-    booking.verificationPendingUntil = null;
-    booking.slotKey = null;
-    booking.returnReminderLastSentAt = null;
-    await booking.save();
+
     await clearVehicleIfNoActiveBookings(booking.vehicle._id);
     return { booking, changed: true };
   }
 
   if (nextStatus === 'Completed') {
+    await Booking.findByIdAndUpdate(booking._id, {
+      $set: {
+        status: 'Completed',
+        verificationPendingUntil: null,
+        returnConfirmedAt: new Date(),
+        returnReminderLastSentAt: null,
+      },
+      $unset: { slotKey: 1 }, // ✅ unset instead of null to avoid duplicate key error
+    });
+
     booking.status = 'Completed';
-    booking.verificationPendingUntil = null;
-    booking.returnConfirmedAt = new Date();
-    booking.returnReminderLastSentAt = null;
-    booking.slotKey = null;
-    await booking.save();
+
     await clearVehicleIfNoActiveBookings(booking.vehicle._id);
     return { booking, changed: true };
   }

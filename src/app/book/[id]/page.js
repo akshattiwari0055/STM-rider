@@ -55,7 +55,6 @@ function PaymentPage({ booking, vehicle, onDone }) {
     d.setHours(d.getHours() + booking.durationHours);
     return d;
   })();
-
   const handleDonePayment = () => {
     const bookingId = booking._id?.slice(-10).toUpperCase() || 'N/A';
     const msg = encodeURIComponent(
