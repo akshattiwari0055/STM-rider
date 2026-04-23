@@ -1,18 +1,43 @@
 "use client";
 
-import { Flame } from "lucide-react";
-
 export default function OffersBanner() {
+  const items = [
+    { icon: "🚗", text: "Book Your Vehicle Now", badge: "Easy & Fast" },
+    { icon: "🛵", text: "Ride Anytime, Anywhere", badge: "Best Rates" },
+    { icon: "🚙", text: "Hassle-Free Rentals", badge: "Book in Seconds" },
+    { icon: "🛺", text: "Wide Range of Vehicles Available", badge: "Reserve Today" },
+  ];
+
+  // Duplicate for seamless infinite loop
+  const repeated = [...items, ...items];
+
   return (
-    <div className="bg-gradient-to-r from-[#FFB300]/20 to-[#FF6A00]/20 border-y border-[#FF6A00]/30 py-4 overflow-hidden relative">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-      <div className="flex justify-center items-center gap-3 px-4 relative z-10 w-full animate-[pulse_3s_ease-in-out_infinite]">
-        <Flame className="text-[#FF6A00] animate-bounce" size={28} />
-        <h2 className="text-white text-lg md:text-xl font-bold tracking-wide text-center">
-          <span className="text-gradient">FLAT 40% OFF</span> on 2 Rentals (Wed & Sat Only)
-        </h2>
-        <Flame className="text-[#FF6A00] animate-bounce" size={28} />
+    <div className="overflow-hidden border-y-2 border-white/20 bg-gradient-to-r from-[#FF6A00] via-[#FFB300] to-[#FF6A00] py-3">
+      <div
+        className="flex w-max"
+        style={{ animation: "ticker 22s linear infinite" }}
+      >
+        {repeated.map((item, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 whitespace-nowrap px-10 text-white"
+          >
+            <span className="text-xl">{item.icon}</span>
+            <span className="text-base font-bold tracking-wide">{item.text}</span>
+            <span className="rounded-full bg-white/25 px-3 py-0.5 text-sm font-semibold">
+              {item.badge}
+            </span>
+            <span className="h-2 w-2 rounded-full bg-white/60" />
+          </div>
+        ))}
       </div>
+
+      <style>{`
+        @keyframes ticker {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
     </div>
   );
 }
