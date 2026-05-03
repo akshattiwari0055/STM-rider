@@ -33,7 +33,7 @@ export async function GET(request, { params }) {
     if (!token) {
       return new NextResponse(renderDecisionHtml({
         title: 'Missing token',
-        message: 'This approval link is incomplete. Please use the latest email sent by STM Riders.',
+        message: 'This approval link is incomplete. Please use the latest email sent by Elite Bike Rentals.',
         accent: '#f59e0b',
       }), {
         status: 400,
