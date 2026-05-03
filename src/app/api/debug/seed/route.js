@@ -6,6 +6,9 @@ export async function GET() {
   try {
     await connectDB();
     
+    // Clear existing vehicles to ensure a clean fleet with new pricing and images
+    await Vehicle.deleteMany({});
+    
     const demoVehicles = [
       // --- CARS (10) ---
       { name: "Maruti Swift", type: "Car", pricePerDay: 1200, tieredPricing: [{ hours: 5, price: 599 }, { hours: 12, price: 899 }, { hours: 24, price: 1200 }, { hours: 168, price: 6999 }], image: "https://images.unsplash.com/photo-1592198084033-aade902d1aae?auto=format&fit=crop&q=80&w=800", status: "Available" },
