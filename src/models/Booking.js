@@ -22,6 +22,8 @@ const bookingSchema = new Schema({
   returnReminderLastSentAt: { type: Date, default: null },
   returnConfirmedAt: { type: Date, default: null },
   slotKey: { type: String, unique: true, sparse: true, default: null },
+  razorpayOrderId: { type: String, default: null },
+  razorpayPaymentId: { type: String, default: null },
 }, { timestamps: true });
 
 // Always delete the cached model so schema changes take effect on hot-reload

@@ -4,9 +4,10 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Calendar, Clock, CheckCircle, Download, ArrowLeft,
-  Phone, User, Timer, MessageCircle, QrCode, Wallet
+  Phone, User, Timer, Wallet, CreditCard, ShieldCheck, Loader2
 } from 'lucide-react';
 import Link from 'next/link';
+import Script from 'next/script';
 import { jsPDF } from 'jspdf';
 import VehicleAvailabilityCalendar from '@/components/VehicleAvailabilityCalendar';
 
@@ -49,47 +50,101 @@ const fmtTime = (d) => new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit'
 
 // ── Payment Page Component ───────────────────────────────────────────────────
 function PaymentPage({ booking, vehicle, onDone }) {
-  const [activeQr, setActiveQr] = useState(0);
-  const dropoff = (() => {
-    const d = new Date(booking.startDate);
-    d.setHours(d.getHours() + booking.durationHours);
-    return d;
-  })();
-  const handleDonePayment = () => {
-    const bookingId = booking._id?.slice(-10).toUpperCase() || 'N/A';
-    const msg = encodeURIComponent(
-      `Hi! I am *${booking.customerName}*.\n\n` +
-      `I have booked *${vehicle.name}* for *${booking.durationHours} hours*.\n\n` +
-      `📋 Booking ID: *#${bookingId}*\n` +
-      `🚗 Vehicle: *${vehicle.name}* (${vehicle.type})\n` +
-      `⏱ Duration: *${booking.durationHours} Hours*\n` +
-      `📅 Pickup: *${fmtDate(booking.startDate)}* at *${fmtTime(booking.startDate)}*\n` +
-      `🕐 Drop-off: *${fmtDate(dropoff)}* at *${fmtTime(dropoff)}*\n` +
-      `💰 Amount Paid: *₹${booking.totalPrice?.toLocaleString('en-IN')}*\n\n` +
-      `Payment done ✅`
-    );
-    window.open(`https://wa.me/918004256939?text=${msg}`, '_blank');
-    onDone();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handlePayment = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // 1. Create order on server
+      const res = await fetch('/api/razorpay/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: booking._id }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Failed to create order');
+
+      // 2. Open Razorpay Checkout
+      const options = {
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Elite Bike Rentals",
+        description: `Rental for ${vehicle.name}`,
+        order_id: data.orderId,
+        handler: async function (response) {
+          try {
+            setLoading(true);
+            // 3. Verify payment on server
+            const verifyRes = await fetch('/api/razorpay/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...response,
+                bookingId: booking._id
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyRes.ok) {
+              onDone(); // Success!
+            } else {
+              throw new Error(verifyData.error || 'Payment verification failed');
+            }
+          } catch (err) {
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: booking.customerName,
+          email: booking.customerEmail || "",
+          contact: booking.phone,
+        },
+        theme: {
+          color: "#FFB300",
+        },
+      };
+
+      if (!window.Razorpay) {
+        throw new Error('Razorpay SDK not loaded. Please refresh the page.');
+      }
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        setError(response.error.description);
+        setLoading(false);
+      });
+      rzp.open();
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flex flex-col items-center max-w-2xl mx-auto">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+      
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-emerald-400" />
+        <div className="w-16 h-16 rounded-2xl bg-[#FFB300]/10 border-2 border-[#FFB300]/30 flex items-center justify-center mx-auto mb-4">
+          <CreditCard className="w-8 h-8 text-[#FFB300]" />
         </div>
-        <h2 className="text-3xl font-black text-white mb-1">Booking Created!</h2>
-        <p className="text-gray-400">Complete your booking by making the payment below.</p>
+        <h2 className="text-3xl font-black text-white mb-1">Payment Required</h2>
+        <p className="text-gray-400">Securely pay using Razorpay to confirm your booking instantly.</p>
       </div>
 
       {/* Booking Summary strip */}
-      <div className="w-full glass border border-white/10 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-center gap-4">
+      <div className="w-full glass border border-white/10 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={vehicle.image} alt={vehicle.name} className="w-24 h-16 object-cover rounded-xl flex-shrink-0" />
         <div className="flex-1 text-center sm:text-left">
           <p className="text-white font-bold text-lg">{vehicle.name}</p>
-          <p className="text-gray-400 text-sm">{booking.durationHours} hours · {fmtDate(booking.startDate)} {fmtTime(booking.startDate)}</p>
+          <p className="text-gray-400 text-sm">{booking.durationHours} hours · {fmtDate(booking.startDate)}</p>
         </div>
         <div className="text-right">
           <p className="text-xs text-gray-500 mb-0.5">Total Amount</p>
@@ -97,82 +152,31 @@ function PaymentPage({ booking, vehicle, onDone }) {
         </div>
       </div>
 
-      {/* QR Selector tabs */}
-      <div className="flex gap-2 mb-5">
-        {['QR Code 1', 'QR Code 2'].map((label, i) => (
-          <button
-            key={i}
-            onClick={() => setActiveQr(i)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all ${activeQr === i
-                ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black border-transparent'
-                : 'bg-white/5 text-gray-400 border-white/10 hover:text-white'
-              }`}
-          >
-            <QrCode className="w-4 h-4" /> {label}
-          </button>
-        ))}
-      </div>
-
-      {/* QR Card */}
-      <div className="w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.5)] mb-6">
-        {/* PhonePe header */}
-        <div className="bg-[#5f259f] px-6 pt-6 pb-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-            {/* PhonePe icon using SVG path */}
-            <svg viewBox="0 0 40 40" className="w-7 h-7">
-              <circle cx="20" cy="20" r="20" fill="#5f259f" />
-              <path d="M27 14h-5.5l-6.5 12h3l1.5-3H24l1.5 3h3L27 14zm-7 6.5L22 16l2 4.5h-4z" fill="white" />
-            </svg>
+      <div className="w-full max-w-sm space-y-4">
+        {error && (
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+            {error}
           </div>
-          <div>
-            <p className="text-white font-black text-lg">PhonePe</p>
-            <p className="text-purple-200 text-xs font-semibold tracking-wider">ACCEPTED HERE</p>
-          </div>
-        </div>
+        )}
 
-        <div className="px-6 py-4 text-center">
-          <p className="text-gray-500 text-sm mb-4">Scan &amp; Pay Using PhonePe App</p>
-
-          {/* QR Code Image */}
-          <div className="relative inline-block">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={activeQr === 0 ? '/images/qr1.png' : '/images/qr2.png'}
-              alt={`Payment QR ${activeQr + 1}`}
-              className="w-56 h-56 object-contain mx-auto"
-              onError={(e) => {
-                // Fallback if image not found
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-            {/* Placeholder if image missing */}
-            <div className="w-56 h-56 bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl items-center justify-center flex-col gap-2 text-gray-400 text-xs text-center p-4" style={{ display: 'none' }}>
-              <QrCode className="w-10 h-10 opacity-30" />
-              <span>Save QR image as<br /><strong>/public/images/qr{activeQr + 1}.png</strong></span>
-            </div>
-          </div>
-
-          <p className="font-black text-gray-800 text-lg mt-4 tracking-wider">ELITE RENTALS ACCOUNTS</p>
-          <p className="text-gray-400 text-xs mt-1">Pay ₹{booking.totalPrice?.toLocaleString('en-IN')} exactly</p>
-        </div>
-
-        <div className="px-6 pb-4 text-center">
-          <p className="text-gray-400 text-[10px]">© 2026, All rights reserved, PhonePe Ltd</p>
-        </div>
-      </div>
-
-      {/* Done Payment CTA */}
-      <div className="w-full max-w-sm space-y-3">
         <button
-          onClick={handleDonePayment}
-          className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black text-lg rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(37,211,102,0.3)] hover:scale-[1.02]"
+          onClick={handlePayment}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black font-black text-xl rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(255,179,0,0.3)] hover:scale-[1.02] disabled:opacity-50"
         >
-          <MessageCircle className="w-6 h-6" />
-          Done — Send Payment Proof
+          {loading ? (
+            <Loader2 className="w-6 h-6 animate-spin" />
+          ) : (
+            <>
+              <ShieldCheck className="w-6 h-6" />
+              Pay Now ₹{booking.totalPrice?.toLocaleString('en-IN')}
+            </>
+          )}
         </button>
-        <p className="text-center text-xs text-gray-600">
-          This opens WhatsApp with your booking details for admin verification and approval
+        
+        <p className="text-center text-xs text-gray-600 flex items-center justify-center gap-2">
+          <ShieldCheck className="w-3 h-3 text-[#FFB300]" />
+          Secure payment via Razorpay • Instant Confirmation
         </p>
       </div>
     </div>
@@ -844,59 +848,41 @@ export default function BookingPage() {
           <PaymentPage
             booking={booking}
             vehicle={vehicle}
-            onDone={() => setStage('pending')}
+            onDone={() => setStage('success')}
           />
         )}
 
-        {/* ══ STAGE 3: Pending Admin Verification ═════════════════════════ */}
-        {stage === 'pending' && booking && (
+        {/* ══ STAGE 3: Success & Receipt ═════════════════════════════════ */}
+        {stage === 'success' && booking && (
           <div className="flex flex-col items-center">
-            <div className="flex flex-col items-center mb-8">
-              <div className="w-20 h-20 rounded-full bg-yellow-500/10 border-2 border-yellow-500/30 flex items-center justify-center mb-4">
-                <Clock className="w-10 h-10 text-yellow-400" />
+            <div className="text-center mb-10">
+              <div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <CheckCircle className="w-10 h-10 text-emerald-400" />
               </div>
-              <h2 className="text-3xl font-black text-white">Admin Verification Pending</h2>
-              <p className="text-gray-400 mt-1 text-center max-w-2xl">
-                Your payment proof has been shared. The vehicle will only turn busy after admin approval.
-                We&apos;ve notified the admin team already, and you&apos;ll get a confirmation email with the receipt PDF once approved.
+              <h2 className="text-4xl font-black text-white mb-2">Booking Confirmed!</h2>
+              <p className="text-gray-400 max-w-xl mx-auto text-lg">
+                Your payment was successful and your vehicle is now reserved. 
+                A confirmation email with your receipt has been sent to your email.
               </p>
             </div>
 
-            <div className="glass rounded-3xl border border-yellow-500/20 p-6 md:p-8 max-w-2xl w-full text-left">
-              <div className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-yellow-400">Current Status</p>
-                <p className="text-2xl font-bold text-white">Waiting for admin approval</p>
-                <p className="text-sm text-gray-400">
-                  Booking ID: <span className="text-white font-medium">#{booking._id?.slice(-10).toUpperCase()}</span>
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
-                  <p className="text-xs uppercase tracking-[0.25em] text-gray-500 mb-2">Vehicle</p>
-                  <p className="text-lg font-bold text-white">{vehicle.name}</p>
-                  <p className="text-sm text-gray-400">{vehicle.type}</p>
-                </div>
-                <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
-                  <p className="text-xs uppercase tracking-[0.25em] text-gray-500 mb-2">Amount Submitted</p>
-                  <p className="text-lg font-bold text-[#FFB300]">₹{booking.totalPrice?.toLocaleString('en-IN')}</p>
-                  <p className="text-sm text-gray-400">Receipt email will be sent after approval</p>
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 p-4 text-sm text-yellow-200">
-                Until approval, this booking will appear as <span className="font-semibold">Admin verification pending</span> in your dashboard.
-              </div>
+            <div className="w-full flex justify-center mb-12">
+              <ReceiptView booking={booking} vehicle={vehicle} receiptRef={receiptRef} />
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-4 justify-center">
-              <button onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-2 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black px-6 py-3 rounded-xl font-black transition-all hover:scale-105">
-                View My Bookings →
+            <div className="flex flex-wrap gap-4 justify-center">
+              <button
+                onClick={downloadReceipt}
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-2xl font-bold border border-white/10 transition-all group"
+              >
+                <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
+                Download PDF Receipt
               </button>
-              <button onClick={() => router.push('/vehicles')}
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white px-6 py-3 rounded-xl font-semibold border border-white/20 transition-all">
-                Browse More Vehicles
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="flex items-center gap-2 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black px-8 py-4 rounded-2xl font-black transition-all hover:scale-105 shadow-[0_0_30px_rgba(255,179,0,0.3)]"
+              >
+                Go to My Dashboard →
               </button>
             </div>
           </div>

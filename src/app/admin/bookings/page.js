@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Calendar, Phone, User, Timer, CheckCircle, Clock, XCircle, RefreshCw, AlertCircle } from 'lucide-react';
+import { Calendar, Phone, User, Timer, CheckCircle, Clock, XCircle, RefreshCw, AlertCircle, ShieldCheck } from 'lucide-react';
 
 const STATUS_CONFIG = {
   Pending:   { color: 'text-yellow-400',  bg: 'bg-yellow-500/10 border-yellow-500/30',  icon: AlertCircle },
@@ -128,9 +128,22 @@ export default function AdminBookings() {
               }`}>
                 {/* Pending warning bar */}
                 {b.status === 'Pending' && (
-                  <div className="bg-yellow-500/10 border-b border-yellow-500/20 px-4 py-2 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                    <span className="text-yellow-400 text-xs font-semibold">Awaiting payment confirmation — verify WhatsApp before confirming</span>
+                  <div className="bg-yellow-500/10 border-b border-yellow-500/20 px-4 py-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                      <span className="text-yellow-400 text-xs font-semibold">Awaiting payment — user is currently at the checkout stage</span>
+                    </div>
+                    {b.razorpayOrderId && (
+                      <span className="text-[10px] font-mono text-yellow-500/50 uppercase tracking-wider">Order: {b.razorpayOrderId}</span>
+                    )}
+                  </div>
+                )}
+                {b.status === 'Active' && b.razorpayPaymentId && (
+                  <div className="bg-emerald-500/5 border-b border-emerald-500/10 px-4 py-1.5 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest">
+                      <ShieldCheck className="w-3 h-3" /> Razorpay Verified
+                    </div>
+                    <span className="text-[10px] font-mono text-emerald-500/40">Pay ID: {b.razorpayPaymentId}</span>
                   </div>
                 )}
                 {isOverdueActiveBooking(b) && (
