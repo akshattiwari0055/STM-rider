@@ -223,13 +223,14 @@ export async function sendAdminBookingReviewEmail({
   await sendMailWithLogging(transporter, {
     from: process.env.MAIL_FROM,
     to: adminEmail,
-    subject: `New booking awaiting approval: ${vehicle.name}`,
+    subject: `New booking (Awaiting Payment): ${vehicle.name}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;padding:24px;color:#111827;background:#fffaf0;border:1px solid #fde68a;border-radius:18px;">
         <p style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#b45309;margin:0 0 12px;">Elite Bike Rentals Admin</p>
-        <h1 style="margin:0 0 12px;font-size:28px;color:#111827;">A booking needs your review.</h1>
+        <h1 style="margin:0 0 12px;font-size:28px;color:#111827;">New Booking Initiated</h1>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#4b5563;">
-          The customer has completed the booking flow and is now waiting for admin verification.
+          A customer has started a booking and is currently at the checkout stage. 
+          The slot is temporarily blocked for 30 minutes. Once they pay via Razorpay, it will be automatically confirmed.
         </p>
 
         <div style="background:#111827;color:#f9fafb;border-radius:16px;padding:18px 20px;margin-bottom:20px;">
