@@ -30,7 +30,7 @@ export default function ContactPage() {
           
           {/* Contact Info Cards */}
           <div className="space-y-6">
-            <a href="https://maps.app.goo.gl/Jk9zUr5mBorsP6ULA" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#FFB300]/30 transition-colors flex items-start gap-6 group block">
+            <a href="https://maps.app.goo.gl/" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#FFB300]/30 transition-colors flex items-start gap-6 group block">
               <div className="w-14 h-14 rounded-full bg-[#FFB300]/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                 <MapPin className="w-6 h-6 text-[#FFB300]" />
               </div>
