@@ -17,13 +17,13 @@ export default function AdminLayout({ children }) {
           <Link href="/admin" className="block space-y-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-[0.2em] text-[#FFB300] uppercase hidden sm:block">
-                Yellow Hut
+                Elite Bike
               </span>
               <div className="w-6 h-6 rounded bg-gradient-to-br from-[#FFB300] to-[#FF6A00] flex items-center justify-center font-bold text-black text-xs shadow-[0_0_10px_rgba(255,179,0,0.5)]">
-                S
+                E
               </div>
               <span className="text-lg font-black tracking-tight text-white">
-                STM<span className="text-[#FF6A00]">Riders</span>
+                Rentals
               </span>
             </div>
             <span className="text-xs font-semibold text-gray-500 tracking-widest uppercase block border-t border-white/5 pt-2 mt-2">Admin Panel</span>

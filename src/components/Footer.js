@@ -21,10 +21,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           <div>
-            <h3 className="text-3xl font-bold mb-4 uppercase text-white tracking-widest"><span className="text-[#FFB300]">Yellow</span> Hut</h3>
-            <p className="text-gray-400 mb-6">STM Riders - Premium car and bike rentals for elite travelers. Your journey, our wheels.</p>
+            <h3 className="text-3xl font-bold mb-4 uppercase text-white tracking-widest"><span className="text-[#FFB300]">Elite</span> Bike Rentals</h3>
+            <p className="text-gray-400 mb-6">Elite Bike Rentals - Premium car and bike rentals for elite travelers. Your journey, our wheels.</p>
             <div className="flex gap-4">
-              <a href="https://www.instagram.com/stm.riders?igsh=dW4xcnpiMjJ1dGl6" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><InstagramIcon /></a>
+              <a href="#" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><InstagramIcon /></a>
               <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><FacebookIcon /></a>
               <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><TwitterIcon /></a>
             </div>
@@ -49,18 +49,18 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="text-[#FF6A00] shrink-0" size={20} />
-                <a href="tel:+919465853502" className="text-gray-400 hover:text-white transition-colors">+91 94658 53502</a>
+                <a href="tel:+918004256939" className="text-gray-400 hover:text-white transition-colors">+91 80042 56939</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="text-[#FF6A00] shrink-0" size={20} />
-                <a href="mailto:info@yellowhut.com" className="text-gray-400 hover:text-white transition-colors">info@yellowhut.com</a>
+                <a href="mailto:info@elitebikerentals.com" className="text-gray-400 hover:text-white transition-colors">info@elitebikerentals.com</a>
               </li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-white/10 pt-8 text-center text-gray-500 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>&copy; {new Date().getFullYear()} Yellow Hut STM Riders. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Elite Bike Rentals. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/admin" className="hover:text-[#FFB300] transition-colors">Admin Login</Link>
           </div>

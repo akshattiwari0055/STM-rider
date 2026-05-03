@@ -68,7 +68,7 @@ function PaymentPage({ booking, vehicle, onDone }) {
       `💰 Amount Paid: *₹${booking.totalPrice?.toLocaleString('en-IN')}*\n\n` +
       `Payment done ✅`
     );
-    window.open(`https://wa.me/919465853502?text=${msg}`, '_blank');
+    window.open(`https://wa.me/918004256939?text=${msg}`, '_blank');
     onDone();
   };
 
@@ -153,7 +153,7 @@ function PaymentPage({ booking, vehicle, onDone }) {
             </div>
           </div>
 
-          <p className="font-black text-gray-800 text-lg mt-4 tracking-wider">MAYANK JAISWAL</p>
+          <p className="font-black text-gray-800 text-lg mt-4 tracking-wider">ELITE RENTALS ACCOUNTS</p>
           <p className="text-gray-400 text-xs mt-1">Pay ₹{booking.totalPrice?.toLocaleString('en-IN')} exactly</p>
         </div>
 
@@ -192,8 +192,8 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
       <div className="h-2 bg-gradient-to-r from-[#FFB300] to-[#FF6A00]" />
       <div className="px-8 pt-8 pb-4 flex items-center justify-between border-b border-gray-100">
         <div>
-          <p className="text-2xl font-black">STM<span className="text-[#FF6A00]">Riders</span></p>
-          <p className="text-xs text-gray-400 tracking-widest">YELLOW HUT STM RIDERS</p>
+          <p className="text-2xl font-black">ELITE<span className="text-[#FF6A00]">BIKES</span></p>
+          <p className="text-xs text-gray-400 tracking-widest">ELITE BIKE RENTALS</p>
         </div>
         <div className="text-right">
           <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">
@@ -240,7 +240,7 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
           </div>
         </div>
         <div className="pt-4 border-t border-dashed border-gray-200 text-center text-xs text-gray-400">
-          Thank you for choosing Yellow Hut STM Riders • Have a safe journey! 🏍️
+          Thank you for choosing Elite Bike Rentals • Have a safe journey! 🏍️
         </div>
       </div>
       <div className="h-2 bg-gradient-to-r from-[#FF6A00] to-[#FFB300]" />
@@ -512,7 +512,7 @@ export default function BookingPage() {
 
       // Logo
       pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.setTextColor(0, 0, 0);
-      pdf.text('STM', 15, 22); pdf.setTextColor(255, 106, 0); pdf.text('Riders', 31, 22);
+      pdf.text('ELITE', 15, 22); pdf.setTextColor(255, 106, 0); pdf.text('BIKES', 36, 22);
 
       // Status
       pdf.setFillColor(220, 252, 231); pdf.roundedRect(w - 55, 13, 42, 8, 2, 2, 'F');
@@ -560,12 +560,12 @@ export default function BookingPage() {
       pdf.line(15, 135, w - 15, 135); pdf.setLineDashPattern([], 0);
 
       pdf.setFontSize(9); pdf.setTextColor(160, 160, 160); pdf.setFont('helvetica', 'normal');
-      pdf.text('Thank you for choosing Yellow Hut STM Riders  •  Have a safe journey!', w / 2, 143, { align: 'center' });
+      pdf.text('Thank you for choosing Elite Bike Rentals  •  Have a safe journey!', w / 2, 143, { align: 'center' });
 
       pdf.setFillColor(255, 106, 0);
       pdf.rect(0, pdf.internal.pageSize.getHeight() - 3, w, 3, 'F');
 
-      pdf.save(`STMRiders_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
+      pdf.save(`EliteBikes_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
     } catch (err) {
       console.error('PDF error:', err);
       alert('PDF generation failed: ' + err.message);

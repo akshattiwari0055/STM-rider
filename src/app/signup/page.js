@@ -163,7 +163,7 @@ export default function SignupPage() {
             {otpStep ? <ShieldCheck className="w-7 h-7 text-black" /> : <UserPlus className="w-7 h-7 text-black" />}
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">{otpStep ? 'Verify Email' : 'Create Account'}</h1>
-          <p className="text-sm sm:text-base text-gray-400">{otpStep ? 'Enter the code sent to your email.' : 'Join STM Riders and start your journey.'}</p>
+          <p className="text-sm sm:text-base text-gray-400">{otpStep ? 'Enter the code sent to your email.' : 'Join Elite Bike Rentals and start your journey.'}</p>
         </div>
 
         <div className="glass rounded-2xl p-5 sm:p-8 border border-white/5 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">

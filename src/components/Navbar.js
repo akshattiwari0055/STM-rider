@@ -51,8 +51,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link href="/" className="flex items-center group">
           <img 
-            src="/logo.png" 
-            alt="Yellow Hut STM Riders Logo" 
+            src="/logo.svg" 
+            alt="Elite Bike Rentals Logo" 
             className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform" 
           />
         </Link>

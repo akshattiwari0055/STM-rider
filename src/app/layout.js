@@ -17,8 +17,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: "Yellow Hut STM Riders | Premium Vehicle Rentals",
-  description: "Rent premium cars and bikes at affordable prices. Experience luxury with Yellow Hut STM Riders.",
+  title: "Elite Bike Rentals | Premium Vehicle Rentals",
+  description: "Rent premium cars and bikes at affordable prices. Experience luxury with Elite Bike Rentals.",
 };
 
 export default function RootLayout({ children }) {

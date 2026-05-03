@@ -6,8 +6,8 @@ const InstagramIcon = () => (
 );
 
 export const metadata = {
-  title: 'Contact Us | Yellow Hut STM Riders',
-  description: 'Get in touch with Yellow Hut STM Riders. Located at Law Gate Road in Meheru, Phagwara, Punjab.',
+  title: 'Contact Us | Elite Bike Rentals',
+  description: 'Get in touch with Elite Bike Rentals. Located at Law Gate Road in Meheru, Phagwara, Punjab.',
 };
 
 export default function ContactPage() {
@@ -44,14 +44,14 @@ export default function ContactPage() {
               </div>
             </a>
 
-            <a href="https://www.instagram.com/stm.riders?igsh=dW4xcnpiMjJ1dGl6" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#E1306C]/50 transition-colors flex items-start gap-6 group block">
+            <a href="#" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#E1306C]/50 transition-colors flex items-start gap-6 group block">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCAF45] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg shadow-pink-500/20">
                 <InstagramIcon />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Instagram</h3>
                 <p className="text-gray-400 leading-relaxed font-medium group-hover:text-pink-400 transition-colors">
-                  @stm.riders
+                  @elite.bikerentals
                 </p>
                 <p className="text-xs text-gray-500 mt-1">Follow us for updates and exclusive offers!</p>
               </div>
@@ -64,7 +64,7 @@ export default function ContactPage() {
                <div>
                  <h3 className="text-xl font-bold text-white mb-2">Call & WhatsApp</h3>
                  <p className="text-gray-400 leading-relaxed font-medium">
-                   +91 94658 53502
+                   +91 80042 56939
                  </p>
                  <p className="text-xs text-gray-500 mt-1">Available 24/7 for support.</p>
                </div>

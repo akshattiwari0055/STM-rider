@@ -55,8 +55,8 @@ export default function Hero() {
         <div className="hero-title mb-10 flex flex-col items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
-            src="/logo.png" 
-            alt="Yellow Hut STM Riders Logo" 
+            src="/logo.svg" 
+            alt="Elite Bike Rentals Logo" 
             className="w-full max-w-[400px] md:max-w-[390px] object-contain drop-shadow-[0_0_15px_rgba(255,179,0,0.3)] transition-transform hover:scale-[1.02] duration-500" 
             onError={(e) => {
               e.currentTarget.style.display = 'none';
@@ -65,10 +65,10 @@ export default function Hero() {
           />
           <div id="hero-fallback" className="hidden flex-col items-center">
             <h1 className="text-5xl md:text-7xl font-extrabold text-white uppercase tracking-tight">
-              <span className="text-gradient">STM Riders</span><br/>
+              <span className="text-gradient">Elite Bike</span><br/>
             </h1>
             <h2 className="text-2xl mt-4 block font-medium tracking-[0.2em] text-[#FFB300] uppercase">
-              Yellow Hut
+              Rentals
             </h2>
           </div>
         </div>
