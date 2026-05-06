@@ -53,22 +53,18 @@ export default function Hero() {
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center" ref={textRef}>
         <div className="hero-title mb-10 flex flex-col items-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src="/logo.svg" 
-            alt="Singh Travels and Tour Logo" 
-            className="w-[220px] sm:w-[280px] md:w-[340px] max-h-[42vh] object-contain drop-shadow-[0_0_18px_rgba(255,179,0,0.35)] transition-transform hover:scale-[1.02] duration-500" 
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              document.getElementById('hero-fallback').style.display = 'flex';
-            }}
-          />
-          <div id="hero-fallback" className="hidden flex-col items-center">
-            <h1 className="text-5xl md:text-7xl font-extrabold text-white uppercase tracking-tight">
-              <span className="text-gradient">Singh Travels</span><br/>
+          <div className="flex flex-col items-center hover:scale-[1.02] transition-transform duration-500 cursor-default group">
+            <h1 className="text-6xl sm:text-7xl md:text-8xl md:text-[6rem] font-black uppercase tracking-tighter mb-2 text-center drop-shadow-2xl">
+              <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-300">
+                Singh
+              </span>
+              {' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFB300] to-[#FF6A00] animate-pulse drop-shadow-[0_0_25px_rgba(255,179,0,0.5)]">
+                Tours
+              </span>
             </h1>
-            <h2 className="text-2xl mt-4 block font-medium tracking-[0.2em] text-[#FFB300] uppercase">
-              & Tour
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-[0.3em] text-white/90 uppercase mt-2 group-hover:tracking-[0.4em] transition-all duration-500 group-hover:text-white group-hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+              & Travel
             </h2>
           </div>
         </div>
