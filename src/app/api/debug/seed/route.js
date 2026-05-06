@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { Vehicle } from '@/models/Vehicle';
-import { getNamedMiddlewareRegex } from 'next/dist/shared/lib/router/utils/route-regex';
-import { getAbsoluteValueForTuple } from 'html2canvas/dist/types/css/types/length-percentage';
+
 
 export async function GET() {
   try {
