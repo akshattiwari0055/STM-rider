@@ -129,7 +129,7 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
       <div className="px-8 pt-8 pb-4 flex items-center justify-between border-b border-gray-100">
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="STM RIDER Logo" className="h-16 w-16 object-contain" />
+          <img src="/log.png" alt="STM RIDER Logo" className="h-16 w-16 object-contain" />
         </div>
         <div className="text-right">
           <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-[#FFB300]/20 text-[#FF6A00]">

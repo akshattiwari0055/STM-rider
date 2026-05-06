@@ -51,11 +51,9 @@ export default function Hero() {
 
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40 z-0"></div>
 
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center" ref={textRef}>
+      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center mt-24 md:mt-16" ref={textRef}>
         <div className="hero-title mb-10 flex flex-col items-center">
-          <div className="flex flex-col items-center hover:scale-[1.02] transition-transform duration-500 cursor-default group">
-            <img src="/logo.png" alt="STM RIDER" className="h-24 md:h-36 object-contain drop-shadow-2xl" />
-          </div>
+            <img src="/log.png" alt="STM RIDER" className="h-40 sm:h-48 md:h-64 lg:h-72 w-auto object-contain drop-shadow-[0_0_25px_rgba(255,179,0,0.4)]" />
         </div>
         
         <p className="hero-subtitle text-xl md:text-2xl text-gray-300 mb-10 font-light">
