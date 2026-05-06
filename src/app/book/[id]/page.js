@@ -63,7 +63,6 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
       <div className="h-2 bg-gradient-to-r from-[#FFB300] to-[#FF6A00]" />
       <div className="px-8 pt-8 pb-4 flex items-center justify-between border-b border-gray-100">
         <div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="STM Riders Logo" className="h-16 w-auto object-contain" />
         </div>
         <div className="text-right">
