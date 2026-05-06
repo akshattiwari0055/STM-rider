@@ -50,11 +50,13 @@ export default function Navbar() {
     <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-md py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)] border-b border-white/5' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link href="/" className="flex items-center group">
-          <img 
-            src="/logo.png" 
-            alt="STM Riders Logo" 
-            className="h-16 md:h-20 w-auto object-contain group-hover:scale-105 transition-transform" 
-          />
+          <div className="bg-white p-1.5 md:p-2 rounded-full shadow-[0_0_15px_rgba(255,179,0,0.4)] group-hover:scale-105 transition-transform duration-300">
+            <img 
+              src="/logo.png" 
+              alt="STM RIDER Logo" 
+              className="h-9 w-9 md:h-11 md:w-11 object-cover rounded-full" 
+            />
+          </div>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { Vehicle } from '@/models/Vehicle';
+import { getNamedMiddlewareRegex } from 'next/dist/shared/lib/router/utils/route-regex';
+import { getAbsoluteValueForTuple } from 'html2canvas/dist/types/css/types/length-percentage';
 
 export async function GET() {
   try {
@@ -21,7 +23,6 @@ export async function GET() {
       { name: "Honda City", type: "Car", pricePerDay: 2000, tieredPricing: [{ hours: 5, price: 899 }, { hours: 12, price: 1399 }, { hours: 24, price: 2000 }, { hours: 168, price: 11499 }], image: "https://images.unsplash.com/photo-1527247043589-98e6ac08f56c?auto=format&fit=crop&q=80&w=800", status: "Available" },
       { name: "Maruti WagonR", type: "Car", pricePerDay: 900, tieredPricing: [{ hours: 5, price: 399 }, { hours: 12, price: 699 }, { hours: 24, price: 900 }, { hours: 168, price: 4999 }], image: "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&q=80&w=800", status: "Available" },
       { name: "Toyota Fortuner", type: "Car", pricePerDay: 5500, tieredPricing: [{ hours: 5, price: 2499 }, { hours: 12, price: 3999 }, { hours: 24, price: 5500 }, { hours: 168, price: 32000 }], image: "https://images.unsplash.com/photo-1617469767053-d3b508a0d822?auto=format&fit=crop&q=80&w=800", status: "Available" },
-
       // --- BIKES (10) ---
       { name: "Royal Enfield Classic 350", type: "Bike", pricePerDay: 1000, tieredPricing: [{ hours: 5, price: 499 }, { hours: 12, price: 749 }, { hours: 24, price: 1000 }, { hours: 168, price: 5999 }], image: "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?auto=format&fit=crop&q=80&w=800", status: "Available" },
       { name: "Royal Enfield Himalayan", type: "Bike", pricePerDay: 1400, tieredPricing: [{ hours: 5, price: 699 }, { hours: 12, price: 999 }, { hours: 24, price: 1400 }, { hours: 168, price: 7999 }], image: "https://images.unsplash.com/photo-1614165933026-0750fcd503e8?auto=format&fit=crop&q=80&w=800", status: "Available" },

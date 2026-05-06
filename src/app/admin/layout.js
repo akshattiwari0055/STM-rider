@@ -17,10 +17,10 @@ export default function AdminLayout({ children }) {
           <Link href="/admin" className="block space-y-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-[0.2em] text-[#FFB300] uppercase hidden sm:block">
-                STM Riders
+                STM RIDER
               </span>
               <div className="w-6 h-6 rounded bg-gradient-to-br from-[#FFB300] to-[#FF6A00] flex items-center justify-center font-bold text-black text-xs shadow-[0_0_10px_rgba(255,179,0,0.5)]">
-                E
+                S
               </div>
               <span className="text-lg font-black tracking-tight text-white">
                 Rentals

@@ -131,7 +131,7 @@ export default function AdminBookings() {
                   <div className="bg-yellow-500/10 border-b border-yellow-500/20 px-4 py-2 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                      <span className="text-yellow-400 text-xs font-semibold">Awaiting admin approval</span>
+                      <span className="text-yellow-400 text-xs font-semibold">Awaiting Admin Approval — User has submitted manual payment</span>
                     </div>
                   </div>
                 )}

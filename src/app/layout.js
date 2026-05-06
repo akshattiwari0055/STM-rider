@@ -17,8 +17,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: "STM Riders | Premium Vehicle Rentals",
-  description: "Rent premium cars and bikes at affordable prices. Experience luxury with STM Riders.",
+  title: "STM - RIDER | Premium Vehicle Rentals",
+  description: "Rent premium cars and bikes at affordable prices. Experience luxury with STM - RIDER.",
 };
 
 export default function RootLayout({ children }) {

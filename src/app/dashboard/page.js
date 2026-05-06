@@ -121,13 +121,13 @@ function ReceiptModal({ booking, onClose }) {
 
       // Footer
       pdf.setFontSize(9); pdf.setTextColor(160,160,160); pdf.setFont('helvetica','normal');
-      pdf.text('Thank you for choosing STM Riders  •  Have a safe journey!', w/2, 143, { align:'center' });
+      pdf.text('Thank you for choosing STM RIDER  •  Have a safe journey!', w/2, 143, { align:'center' });
 
       // Bottom bar
       pdf.setFillColor(255,106,0);
       pdf.rect(0, pdf.internal.pageSize.getHeight()-3, w, 3, 'F');
 
-      pdf.save(`EliteBikes_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
+      pdf.save(`STMRider_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
     } catch (err) {
       console.error('PDF error:', err);
       alert('PDF generation failed: ' + err.message);
@@ -217,7 +217,7 @@ function ReceiptModal({ booking, onClose }) {
             </div>
 
             <div className="pt-4 border-t border-dashed border-gray-200 text-center text-xs text-gray-400">
-              Thank you for choosing STM Riders • Have a safe journey! 🏍️
+              Thank you for choosing STM RIDER • Have a safe journey! 🏍️
             </div>
           </div>
 

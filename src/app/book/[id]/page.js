@@ -48,7 +48,72 @@ function rangesOverlap(startA, endA, startB, endB) {
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 const fmtTime = (d) => new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-// Payment flow removed
+// ── Payment Page Component ───────────────────────────────────────────────────
+function PaymentPage({ booking, vehicle, onDone }) {
+  const [loading, setLoading] = useState(false);
+
+  const handlePaymentDone = () => {
+    setLoading(true);
+    setTimeout(() => {
+      onDone();
+    }, 1500);
+  };
+
+  return (
+    <div className="flex flex-col items-center max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 rounded-2xl bg-[#FFB300]/10 border-2 border-[#FFB300]/30 flex items-center justify-center mx-auto mb-4">
+          <CreditCard className="w-8 h-8 text-[#FFB300]" />
+        </div>
+        <h2 className="text-3xl font-black text-white mb-1">Manual Payment Required</h2>
+        <p className="text-gray-400">Scan the QR code below to pay securely via UPI.</p>
+      </div>
+
+      {/* Booking Summary strip */}
+      <div className="w-full glass border border-white/10 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={vehicle.image} alt={vehicle.name} className="w-24 h-16 object-cover rounded-xl flex-shrink-0" />
+        <div className="flex-1 text-center sm:text-left">
+          <p className="text-white font-bold text-lg">{vehicle.name}</p>
+          <p className="text-gray-400 text-sm">{booking.durationHours} hours · {fmtDate(booking.startDate)}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-gray-500 mb-0.5">Total Amount</p>
+          <p className="text-3xl font-black text-[#FFB300]">₹{booking.totalPrice?.toLocaleString('en-IN')}</p>
+        </div>
+      </div>
+
+      {/* QR Code */}
+      <div className="w-full max-w-sm bg-white p-4 rounded-3xl mb-8 shadow-2xl flex flex-col items-center">
+        <img src="/images/qr1.png" alt="Payment QR Code" className="w-full h-auto rounded-xl object-contain mb-2" />
+        <p className="text-black font-bold">Mayank Jaiswal</p>
+      </div>
+
+      <div className="w-full max-w-sm space-y-4">
+        <button
+          onClick={handlePaymentDone}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black font-black text-xl rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(255,179,0,0.3)] hover:scale-[1.02] disabled:opacity-50"
+        >
+          {loading ? (
+            <Loader2 className="w-6 h-6 animate-spin" />
+          ) : (
+            <>
+              <ShieldCheck className="w-6 h-6" />
+              I Have Paid ₹{booking.totalPrice?.toLocaleString('en-IN')}
+            </>
+          )}
+        </button>
+        
+        <p className="text-center text-xs text-gray-600 flex items-center justify-center gap-2">
+          <ShieldCheck className="w-3 h-3 text-[#FFB300]" />
+          Admin will approve the booking shortly after verification.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 // ── Receipt Component ────────────────────────────────────────────────────────
 function ReceiptView({ booking, vehicle, receiptRef }) {
@@ -63,11 +128,12 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
       <div className="h-2 bg-gradient-to-r from-[#FFB300] to-[#FF6A00]" />
       <div className="px-8 pt-8 pb-4 flex items-center justify-between border-b border-gray-100">
         <div>
-          <img src="/logo.png" alt="STM Riders Logo" className="h-16 w-auto object-contain" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="STM RIDER Logo" className="h-16 w-16 object-contain" />
         </div>
         <div className="text-right">
-          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-700">
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" /> PENDING
+          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-[#FFB300]/20 text-[#FF6A00]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF6A00]" /> PENDING
           </span>
           <p className="text-xs text-gray-400 mt-1">#{booking._id?.slice(-10).toUpperCase()}</p>
         </div>
@@ -110,7 +176,7 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
           </div>
         </div>
         <div className="pt-4 border-t border-dashed border-gray-200 text-center text-xs text-gray-400">
-          Thank you for choosing STM Riders • Awaiting Admin Approval 🏍️
+          Thank you for choosing STM RIDER • Awaiting Admin Approval 🏍️
         </div>
       </div>
       <div className="h-2 bg-gradient-to-r from-[#FF6A00] to-[#FFB300]" />
@@ -359,7 +425,7 @@ export default function BookingPage() {
         vehicleImage: vehicle.image,
         vehicleType: vehicle.type,
       });
-      setStage('success'); // bypass payment to success directly
+      setStage('payment'); // ← go to payment QR page
     } else {
       alert(data.error || 'Booking failed. Please try again.');
     }
@@ -382,11 +448,11 @@ export default function BookingPage() {
 
       // Logo
       pdf.setFont('helvetica', 'bold'); pdf.setFontSize(19); pdf.setTextColor(255, 106, 0);
-      pdf.text('STM', 15, 22); pdf.setFontSize(10); pdf.setTextColor(21, 135, 194); pdf.text('RIDERS', 15, 28);
+      pdf.text('STM', 15, 22); pdf.setFontSize(10); pdf.setTextColor(21, 135, 194); pdf.text('RIDER', 15, 28);
 
       // Status
-      pdf.setFillColor(254, 240, 138); pdf.roundedRect(w - 55, 13, 42, 8, 2, 2, 'F');
-      pdf.setFontSize(8); pdf.setTextColor(161, 98, 7); pdf.text('PENDING', w - 50, 18.5);
+      pdf.setFillColor(255, 243, 205); pdf.roundedRect(w - 55, 13, 42, 8, 2, 2, 'F');
+      pdf.setFontSize(8); pdf.setTextColor(255, 106, 0); pdf.text('PENDING', w - 46, 18.5);
       pdf.setFontSize(8); pdf.setTextColor(160, 160, 160);
       pdf.text(`#${d._id?.slice(-10).toUpperCase() || ''}`, w - 55, 27, { maxWidth: 50 });
 
@@ -430,12 +496,12 @@ export default function BookingPage() {
       pdf.line(15, 135, w - 15, 135); pdf.setLineDashPattern([], 0);
 
       pdf.setFontSize(9); pdf.setTextColor(160, 160, 160); pdf.setFont('helvetica', 'normal');
-      pdf.text('Thank you for choosing STM Riders  •  Have a safe journey!', w / 2, 143, { align: 'center' });
+      pdf.text('Thank you for choosing STM RIDER  •  Pending Approval', w / 2, 143, { align: 'center' });
 
       pdf.setFillColor(255, 106, 0);
       pdf.rect(0, pdf.internal.pageSize.getHeight() - 3, w, 3, 'F');
 
-      pdf.save(`STMRiders_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
+      pdf.save(`STMRider_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
     } catch (err) {
       console.error('PDF error:', err);
       alert('PDF generation failed: ' + err.message);
@@ -699,27 +765,36 @@ export default function BookingPage() {
                 <button type="submit" disabled={submitting || (!isManualDuration && !selectedTier) || (isManualDuration && manualHours <= 0) || !pickupDateTime || !idCardImage || !aadhaarCardImage || !drivingLicenseImage || Boolean(selectedRangeConflict)}
                   className="w-full py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] rounded-xl text-black font-black text-base hover:shadow-[0_0_30px_rgba(255,106,0,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
+                  {submitting
                     ? <><span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />Processing...</>
-                    : <><Calendar className="w-5 h-5" /> Request Booking</>
+                    : <><Wallet className="w-5 h-5" /> Confirm Booking & Pay</>
+                  }
                 </button>
               </form>
             </div>
           </div>
         )}
 
-        {/* STAGE 2 REMOVED */}
+        {/* ══ STAGE 2: Payment QR ════════════════════════════════════════ */}
+        {stage === 'payment' && booking && (
+          <PaymentPage
+            booking={booking}
+            vehicle={vehicle}
+            onDone={() => setStage('success')}
+          />
+        )}
 
         {/* ══ STAGE 3: Success & Receipt ═════════════════════════════════ */}
         {stage === 'success' && booking && (
           <div className="flex flex-col items-center">
             <div className="text-center mb-10">
-              <div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-4 animate-bounce">
-                <CheckCircle className="w-10 h-10 text-emerald-400" />
+              <div className="w-20 h-20 rounded-full bg-[#FFB300]/10 border-2 border-[#FFB300]/30 flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <CheckCircle className="w-10 h-10 text-[#FFB300]" />
               </div>
-              <h2 className="text-4xl font-black text-white mb-2">Booking Requested!</h2>
+              <h2 className="text-4xl font-black text-white mb-2">Booking Submitted!</h2>
               <p className="text-gray-400 max-w-xl mx-auto text-lg">
-                Your booking request has been sent successfully. 
-                Please wait for the admin to approve your request. We will notify you once approved.
+                Your payment is under review. Your vehicle is tentatively reserved.
+                Our admin team will approve the booking shortly and send a confirmation email.
               </p>
             </div>
 

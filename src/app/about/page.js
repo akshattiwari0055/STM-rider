@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { Shield, Clock, MapPin, Star } from 'lucide-react';
 
 export const metadata = {
-  title: 'About Us | STM Riders',
-  description: 'Learn about STM Riders, your trusted vehicle rental platform in Phagwara, Punjab.',
+  title: 'About Us | STM RIDER',
+  description: 'Learn about STM RIDER, your trusted vehicle rental platform in Phagwara, Punjab.',
 };
 
 export default function AboutPage() {
@@ -15,7 +15,7 @@ export default function AboutPage() {
         <div className="text-center mb-20 relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#FFB300]/10 rounded-full blur-[80px]" />
           <h1 className="text-4xl md:text-6xl font-black text-white mb-6 relative z-10">
-            About <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFB300] to-[#FF6A00]">STM Riders</span>
+            About <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFB300] to-[#FF6A00]">STM RIDER</span>
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed relative z-10">
             We are dedicated to providing the most reliable, affordable, and flexible two-wheeler and four-wheeler rental services for college students and professionals in Phagwara, Punjab.
@@ -27,7 +27,7 @@ export default function AboutPage() {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white">Our Mission</h2>
             <p className="text-gray-400 leading-relaxed">
-              Based out of Law Gate Road, Meheru, STM Riders was founded with a single goal: to empower mobility. We understand that finding quick, affordable transport near university campuses can be tough. 
+              Based out of Law Gate Road, Meheru, STM RIDER was founded with a single goal: to empower mobility. We understand that finding quick, affordable transport near university campuses can be tough. 
             </p>
             <p className="text-gray-400 leading-relaxed">
               That's why we've streamlined the entire rental process. Whether you need a scooter for a quick grocery run, a bike for a weekend trip, or a car with your friends, we've got you covered with completely transparent tiered pricing and no hidden fees.
@@ -40,9 +40,9 @@ export default function AboutPage() {
              <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-20 h-20 mx-auto rounded bg-gradient-to-br from-[#FFB300] to-[#FF6A00] flex items-center justify-center font-bold text-black text-3xl shadow-[0_0_30px_rgba(255,179,0,0.4)] mb-4 transform group-hover:scale-110 transition-transform">
-                    E
+                    S
                   </div>
-                  <h3 className="text-2xl font-black text-white tracking-widest uppercase">STM Riders</h3>
+                  <h3 className="text-2xl font-black text-white tracking-widest uppercase">STM RIDER</h3>
                 </div>
              </div>
           </div>

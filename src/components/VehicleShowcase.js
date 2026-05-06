@@ -83,7 +83,7 @@ export default function VehicleShowcase() {
       <div className="relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-center mb-12">
           <div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Elite <span className="text-gradient">Fleet</span></h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">STM <span className="text-gradient">Fleet</span></h2>
             <p className="text-gray-400">Choose from our premium selection of cars and bikes.</p>
           </div>
           <Link href="/vehicles" className="mt-6 md:mt-0 px-6 py-3 border border-[#FF6A00] text-[#FFB300] rounded-full hover:bg-[#FF6A00] hover:text-white transition-all">

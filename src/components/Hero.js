@@ -53,20 +53,8 @@ export default function Hero() {
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center" ref={textRef}>
         <div className="hero-title mb-10 flex flex-col items-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src="/logo.png" 
-            alt="STM Riders Logo" 
-            className="w-[280px] sm:w-[360px] md:w-[420px] max-h-[42vh] object-contain drop-shadow-[0_0_18px_rgba(255,179,0,0.35)] transition-transform hover:scale-[1.02] duration-500" 
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              document.getElementById('hero-fallback').style.display = 'flex';
-            }}
-          />
-          <div id="hero-fallback" className="hidden flex-col items-center">
-            <h1 className="text-5xl md:text-7xl font-extrabold text-white uppercase tracking-tight">
-              <span className="text-gradient">STM Riders</span><br/>
-            </h1>
+          <div className="flex flex-col items-center hover:scale-[1.02] transition-transform duration-500 cursor-default group">
+            <img src="/logo.png" alt="STM RIDER" className="h-24 md:h-36 object-contain drop-shadow-2xl" />
           </div>
         </div>
         
