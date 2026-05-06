@@ -50,11 +50,14 @@ export default function Navbar() {
     <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-md py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)] border-b border-white/5' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link href="/" className="flex items-center group">
-          <img 
-            src="/logo.svg" 
-            alt="Singh Travels and Tour Logo" 
-            className="h-12 md:h-14 w-auto object-contain group-hover:scale-105 transition-transform" 
-          />
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tighter drop-shadow-lg">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFB300] to-[#FF6A00] inline-block animate-pulse">
+              Singh
+            </span>
+            <span className="text-white ml-2 inline-block group-hover:scale-105 transition-transform duration-300">
+              Tours & Travel
+            </span>
+          </h1>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">

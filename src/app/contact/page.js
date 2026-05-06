@@ -30,7 +30,7 @@ export default function ContactPage() {
           
           {/* Contact Info Cards */}
           <div className="space-y-6">
-            <a href="https://maps.app.goo.gl/" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#FFB300]/30 transition-colors flex items-start gap-6 group block">
+            <a href="https://maps.app.goo.gl/rJheG1hmwedKFsHF8" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#FFB300]/30 transition-colors flex items-start gap-6 group block">
               <div className="w-14 h-14 rounded-full bg-[#FFB300]/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                 <MapPin className="w-6 h-6 text-[#FFB300]" />
               </div>
@@ -72,7 +72,7 @@ export default function ContactPage() {
           </div>
 
           {/* Map / Image Placeholder */}
-          <a href="https://maps.app.goo.gl/rJheG1hmwedKFsHF8" target="_blank" rel="noopener noreferrer" className="relative h-full min-h-[400px] rounded-3xl overflow-hidden glass border border-white/10 group block">
+          <a href="https://maps.app.goo.gl/Jk9zUr5mBorsP6ULA" target="_blank" rel="noopener noreferrer" className="relative h-full min-h-[400px] rounded-3xl overflow-hidden glass border border-white/10 group block">
              {/* Styled placeholder for a map or office image */}
              <div className="absolute inset-0 bg-[#0a0a0a] group-hover:bg-[#111] transition-colors" />
              {/* Map Grid Pattern */}
