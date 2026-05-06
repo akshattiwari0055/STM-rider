@@ -1,35 +1,115 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">Singh Travels and Tour Logo</title>
+  <desc id="desc">A palm beach travel logo with Singh Travels and Tour text, a jeep, sunset, globe, map pin, and family travelers.</desc>
+  <rect width="900" height="900" fill="#ffffff"/>
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#FFB300;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#FF6A00;stop-opacity:1" />
+    <linearGradient id="sunset" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ff9d1c"/>
+      <stop offset="1" stop-color="#f5ca33"/>
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
-      <feOffset dx="1" dy="1" result="offsetblur" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.3" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
+    <linearGradient id="blueText" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#0878b8"/>
+      <stop offset="1" stop-color="#42a9dc"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity=".22"/>
     </filter>
+    <clipPath id="circleClip">
+      <circle cx="450" cy="450" r="398"/>
+    </clipPath>
   </defs>
-  
-  <!-- Icon: Minimalist Wheel/Bike -->
-  <g transform="translate(10, 10) scale(0.8)" filter="url(#shadow)">
-    <circle cx="40" cy="50" r="35" fill="none" stroke="url(#grad)" stroke-width="8" />
-    <circle cx="40" cy="50" r="15" fill="url(#grad)" />
-    <path d="M40 15 L40 35 M40 65 L40 85 M15 50 L35 50 M65 50 L85 50" stroke="white" stroke-width="4" stroke-linecap="round" />
-    <path d="M80 30 L120 30 M80 50 L130 50 M80 70 L110 70" stroke="url(#grad)" stroke-width="6" stroke-linecap="round" opacity="0.8" />
+
+  <g clip-path="url(#circleClip)">
+    <path d="M100 790 C240 815 355 785 475 800 C610 817 736 799 820 775 C823 811 824 850 820 900 L80 900 C77 852 82 815 100 790Z" fill="#282828"/>
+  </g>
+  <path d="M786 280 C882 390 874 592 779 714 C667 858 427 883 263 807 C90 727 32 557 76 388" fill="none" stroke="#2f2f2e" stroke-width="34" stroke-linecap="round"/>
+
+  <g fill="#2f2f2e">
+    <path d="M322 189 C276 160 207 151 114 171 C188 92 274 53 345 84 C391 104 417 150 421 201 C394 187 359 181 322 189Z"/>
+    <path d="M411 204 C447 139 520 102 613 107 C560 137 526 173 506 214 C558 196 615 197 687 224 C610 241 559 265 524 307 C586 301 642 318 701 362 C617 353 552 363 504 395 C453 428 430 472 416 546 C392 439 364 378 326 340 C270 291 200 285 104 335 C164 227 287 183 377 232 C386 236 395 241 404 247 C407 233 409 218 411 204Z"/>
+    <path d="M319 358 C278 342 233 355 184 397 C223 326 285 289 333 310 C365 324 381 353 383 387 C362 370 341 361 319 358Z"/>
+    <path d="M375 392 C405 347 454 328 518 340 C469 359 438 388 423 427 C467 421 510 431 552 460 C479 462 425 485 390 529 C357 571 343 638 341 741 C292 642 288 553 331 483 C344 462 359 445 375 431 C374 418 374 405 375 392Z"/>
+    <path d="M407 198 C315 281 241 373 197 474 C159 561 154 668 190 757 C121 667 100 528 143 414 C181 315 260 238 375 184Z"/>
   </g>
 
-  <!-- Text -->
-  <text x="130" y="65" font-family="Arial, sans-serif" font-weight="900" font-size="42" fill="white" letter-spacing="2">
-    ELITE <tspan fill="url(#grad)">BIKES</tspan>
-  </text>
-  <text x="130" y="85" font-family="Arial, sans-serif" font-weight="600" font-size="12" fill="#999" letter-spacing="4">
-    PREMIUM RENTALS
-  </text>
+  <g fill="#555555">
+    <path d="M636 300 h160 v8 h-160z"/>
+    <circle cx="656" cy="258" r="8"/>
+    <path d="M649 266 c-16 18 -18 45 -8 70 l16 -3 c-8 -23 -4 -40 8 -55z"/>
+    <path d="M666 281 c9 9 20 15 34 18 l2 -13 c-13 -3 -22 -9 -29 -18z"/>
+    <path d="M654 335 h17 l-4 42 h-13z"/>
+    <path d="M675 335 h17 l16 42 h-15z"/>
+    <rect x="613" y="286" width="24" height="45" rx="3"/>
+    <path d="M606 330 h38 v8 h-38z"/>
+    <circle cx="622" cy="343" r="5"/>
+    <circle cx="638" cy="343" r="5"/>
+
+    <circle cx="746" cy="263" r="8"/>
+    <path d="M731 280 c14 -18 32 -18 47 0 l-5 55 h-36z"/>
+    <path d="M743 334 h13 l-8 43 h-15z"/>
+    <path d="M760 334 h12 l15 43 h-15z"/>
+    <rect x="790" y="293" width="22" height="39" rx="3"/>
+    <path d="M784 330 h35 v8 h-35z"/>
+    <circle cx="794" cy="343" r="5"/>
+    <circle cx="811" cy="343" r="5"/>
+
+    <circle cx="706" cy="303" r="7"/>
+    <path d="M696 312 c9 -13 23 -13 33 0 l-3 36 h-27z"/>
+    <path d="M705 347 h10 l-3 30 h-12z"/>
+    <path d="M716 347 h10 l12 30 h-12z"/>
+  </g>
+
+  <g fill="none" stroke="#2f2f2e" stroke-width="4" stroke-linecap="round">
+    <path d="M489 325 c16 -17 32 -17 48 0"/>
+    <path d="M529 319 c13 -13 27 -13 42 0"/>
+    <path d="M462 360 c11 -11 23 -11 35 0"/>
+  </g>
+
+  <text x="432" y="505" font-family="Arial Black, Impact, sans-serif" font-size="116" font-weight="900" fill="#ff7a1a" letter-spacing="1">SINGH</text>
+  <text x="210" y="600" font-family="Arial Black, Impact, sans-serif" font-size="104" font-weight="900" fill="url(#blueText)" letter-spacing="1">TRAVELS &amp;</text>
+  <g stroke="#777777" stroke-width="3" stroke-linecap="round">
+    <path d="M344 620 h68"/>
+    <path d="M426 620 h89"/>
+    <path d="M530 620 h54"/>
+    <path d="M394 631 h95"/>
+    <path d="M505 631 h72"/>
+  </g>
+
+  <g transform="translate(235 650)" filter="url(#softShadow)">
+    <path d="M65 8 C98 6 134 22 164 55 L18 55 C31 30 46 15 65 8Z" fill="url(#sunset)"/>
+    <path d="M32 42 h112 M42 32 h88 M55 23 h55" stroke="#e4871d" stroke-width="5" stroke-linecap="round"/>
+    <path d="M168 57 c24 -14 54 -17 84 -7 l-9 46 h-84z" fill="#202020"/>
+    <path d="M28 82 h278 c9 0 18 7 22 16 l13 29 c4 10 -3 20 -14 20 h-32 c-6 -19 -24 -32 -45 -32 s-39 13 -45 32 h-111 c-6 -19 -24 -32 -46 -32 s-40 13 -46 32 h-18 c-10 0 -18 -8 -18 -18 v-27 c0 -11 9 -20 21 -20z" fill="#1d8cc9"/>
+    <path d="M63 55 h86 c15 0 31 8 39 21 l9 16 h-151z" fill="#1b1b1b"/>
+    <path d="M70 61 h30 l-8 31 h-36z M109 61 h37 l16 31 h-44z" fill="#69c5e7"/>
+    <path d="M27 93 l-15 34 h26 l25 -34z" fill="#176a98"/>
+    <rect x="183" y="96" width="50" height="18" rx="5" fill="#0e5c85"/>
+    <circle cx="49" cy="147" r="25" fill="#151515"/>
+    <circle cx="49" cy="147" r="10" fill="#404040"/>
+    <circle cx="250" cy="147" r="25" fill="#151515"/>
+    <circle cx="250" cy="147" r="10" fill="#404040"/>
+    <path d="M262 36 c-35 -20 -75 -25 -115 -13" stroke="#272727" stroke-width="7" stroke-linecap="round"/>
+  </g>
+
+  <text x="455" y="740" font-family="Arial Black, Impact, sans-serif" font-size="94" font-weight="900" fill="url(#blueText)" letter-spacing="0">T</text>
+  <g transform="translate(545 666)">
+    <circle cx="44" cy="44" r="38" fill="#2c99cf"/>
+    <path d="M14 32 c20 -13 38 -17 61 -7 M12 50 c23 7 49 4 70 -8 M29 13 c4 23 1 48 -10 71 M51 13 c-5 25 -3 48 6 69" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(630 642)">
+    <path d="M46 0 c26 0 46 20 46 46 c0 36 -46 87 -46 87 S0 82 0 46 C0 20 20 0 46 0Z" fill="#f7941d"/>
+    <circle cx="46" cy="45" r="23" fill="#ffffff"/>
+    <path d="M14 48 c30 -14 61 -22 96 -24" stroke="#555555" stroke-width="5" stroke-linecap="round"/>
+    <path d="M61 35 l52 -15 l-32 40 l-7 -17 l-18 13z" fill="#f7941d" stroke="#555555" stroke-width="3.5" stroke-linejoin="round"/>
+  </g>
+  <text x="700" y="740" font-family="Arial Black, Impact, sans-serif" font-size="94" font-weight="900" fill="url(#blueText)" letter-spacing="0">UR</text>
+
+  <g fill="none" stroke="#2f2f2e" stroke-width="3" stroke-linecap="round">
+    <path d="M330 650 c14 -14 28 -14 43 0"/>
+    <path d="M480 646 c12 -10 23 -10 35 0"/>
+    <path d="M365 752 c11 -11 23 -11 35 0"/>
+    <path d="M592 790 c8 -32 27 -48 58 -56"/>
+    <path d="M620 795 c5 -34 14 -56 29 -71"/>
+    <path d="M648 794 c0 -29 8 -53 24 -71"/>
+  </g>
 </svg>

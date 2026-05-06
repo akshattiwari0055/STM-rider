@@ -6,8 +6,8 @@ const InstagramIcon = () => (
 );
 
 export const metadata = {
-  title: 'Contact Us | Elite Bike Rentals',
-  description: 'Get in touch with Elite Bike Rentals. Located at Law Gate Road in Meheru, Phagwara, Punjab.',
+  title: 'Contact Us | STM Riders',
+  description: 'Get in touch with STM Riders. Located at Law Gate Road in Meheru, Phagwara, Punjab.',
 };
 
 export default function ContactPage() {
@@ -64,7 +64,7 @@ export default function ContactPage() {
                <div>
                  <h3 className="text-xl font-bold text-white mb-2">Call & WhatsApp</h3>
                  <p className="text-gray-400 leading-relaxed font-medium">
-                   +91 80042 56939
+                   +91 94658 53502
                  </p>
                  <p className="text-xs text-gray-500 mt-1">Available 24/7 for support.</p>
                </div>
@@ -72,7 +72,7 @@ export default function ContactPage() {
           </div>
 
           {/* Map / Image Placeholder */}
-          <a href="https://maps.app.goo.gl/Jk9zUr5mBorsP6ULA" target="_blank" rel="noopener noreferrer" className="relative h-full min-h-[400px] rounded-3xl overflow-hidden glass border border-white/10 group block">
+          <a href="https://maps.app.goo.gl/rJheG1hmwedKFsHF8" target="_blank" rel="noopener noreferrer" className="relative h-full min-h-[400px] rounded-3xl overflow-hidden glass border border-white/10 group block">
              {/* Styled placeholder for a map or office image */}
              <div className="absolute inset-0 bg-[#0a0a0a] group-hover:bg-[#111] transition-colors" />
              {/* Map Grid Pattern */}

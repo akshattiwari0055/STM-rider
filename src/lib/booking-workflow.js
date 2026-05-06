@@ -145,7 +145,6 @@ export async function findConflictingBooking({ vehicleId, startDate, endDate, ex
     endDate: { $gt: startDate },
     $or: [
       { status: 'Active' },
-      { status: 'Pending', verificationPendingUntil: { $gt: now } },
     ],
   };
 

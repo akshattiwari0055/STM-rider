@@ -48,140 +48,7 @@ function rangesOverlap(startA, endA, startB, endB) {
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 const fmtTime = (d) => new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-// ── Payment Page Component ───────────────────────────────────────────────────
-function PaymentPage({ booking, vehicle, onDone }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handlePayment = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      // 1. Create order on server
-      const res = await fetch('/api/razorpay/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: booking._id }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || 'Failed to create order');
-
-      // 2. Open Razorpay Checkout
-      const options = {
-        key: data.keyId,
-        amount: data.amount,
-        currency: data.currency,
-        name: "Elite Bike Rentals",
-        description: `Rental for ${vehicle.name}`,
-        order_id: data.orderId,
-        handler: async function (response) {
-          try {
-            setLoading(true);
-            // 3. Verify payment on server
-            const verifyRes = await fetch('/api/razorpay/verify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...response,
-                bookingId: booking._id
-              }),
-            });
-            const verifyData = await verifyRes.json();
-            if (verifyRes.ok) {
-              onDone(); // Success!
-            } else {
-              throw new Error(verifyData.error || 'Payment verification failed');
-            }
-          } catch (err) {
-            setError(err.message);
-          } finally {
-            setLoading(false);
-          }
-        },
-        prefill: {
-          name: booking.customerName,
-          email: booking.customerEmail || "",
-          contact: booking.phone,
-        },
-        theme: {
-          color: "#FFB300",
-        },
-      };
-
-      if (!window.Razorpay) {
-        throw new Error('Razorpay SDK not loaded. Please refresh the page.');
-      }
-
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response) {
-        setError(response.error.description);
-        setLoading(false);
-      });
-      rzp.open();
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="flex flex-col items-center max-w-2xl mx-auto">
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
-      
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-[#FFB300]/10 border-2 border-[#FFB300]/30 flex items-center justify-center mx-auto mb-4">
-          <CreditCard className="w-8 h-8 text-[#FFB300]" />
-        </div>
-        <h2 className="text-3xl font-black text-white mb-1">Payment Required</h2>
-        <p className="text-gray-400">Securely pay using Razorpay to confirm your booking instantly.</p>
-      </div>
-
-      {/* Booking Summary strip */}
-      <div className="w-full glass border border-white/10 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={vehicle.image} alt={vehicle.name} className="w-24 h-16 object-cover rounded-xl flex-shrink-0" />
-        <div className="flex-1 text-center sm:text-left">
-          <p className="text-white font-bold text-lg">{vehicle.name}</p>
-          <p className="text-gray-400 text-sm">{booking.durationHours} hours · {fmtDate(booking.startDate)}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-gray-500 mb-0.5">Total Amount</p>
-          <p className="text-3xl font-black text-[#FFB300]">₹{booking.totalPrice?.toLocaleString('en-IN')}</p>
-        </div>
-      </div>
-
-      <div className="w-full max-w-sm space-y-4">
-        {error && (
-          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
-            {error}
-          </div>
-        )}
-
-        <button
-          onClick={handlePayment}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black font-black text-xl rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(255,179,0,0.3)] hover:scale-[1.02] disabled:opacity-50"
-        >
-          {loading ? (
-            <Loader2 className="w-6 h-6 animate-spin" />
-          ) : (
-            <>
-              <ShieldCheck className="w-6 h-6" />
-              Pay Now ₹{booking.totalPrice?.toLocaleString('en-IN')}
-            </>
-          )}
-        </button>
-        
-        <p className="text-center text-xs text-gray-600 flex items-center justify-center gap-2">
-          <ShieldCheck className="w-3 h-3 text-[#FFB300]" />
-          Secure payment via Razorpay • Instant Confirmation
-        </p>
-      </div>
-    </div>
-  );
-}
+// Payment flow removed
 
 // ── Receipt Component ────────────────────────────────────────────────────────
 function ReceiptView({ booking, vehicle, receiptRef }) {
@@ -196,12 +63,12 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
       <div className="h-2 bg-gradient-to-r from-[#FFB300] to-[#FF6A00]" />
       <div className="px-8 pt-8 pb-4 flex items-center justify-between border-b border-gray-100">
         <div>
-          <p className="text-2xl font-black">ELITE<span className="text-[#FF6A00]">BIKES</span></p>
-          <p className="text-xs text-gray-400 tracking-widest">ELITE BIKE RENTALS</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="STM Riders Logo" className="h-16 w-auto object-contain" />
         </div>
         <div className="text-right">
-          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> CONFIRMED
+          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" /> PENDING
           </span>
           <p className="text-xs text-gray-400 mt-1">#{booking._id?.slice(-10).toUpperCase()}</p>
         </div>
@@ -244,7 +111,7 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
           </div>
         </div>
         <div className="pt-4 border-t border-dashed border-gray-200 text-center text-xs text-gray-400">
-          Thank you for choosing Elite Bike Rentals • Have a safe journey! 🏍️
+          Thank you for choosing STM Riders • Awaiting Admin Approval 🏍️
         </div>
       </div>
       <div className="h-2 bg-gradient-to-r from-[#FF6A00] to-[#FFB300]" />
@@ -493,7 +360,7 @@ export default function BookingPage() {
         vehicleImage: vehicle.image,
         vehicleType: vehicle.type,
       });
-      setStage('payment'); // ← go to payment QR page
+      setStage('success'); // bypass payment to success directly
     } else {
       alert(data.error || 'Booking failed. Please try again.');
     }
@@ -515,12 +382,12 @@ export default function BookingPage() {
       pdf.setFillColor(255, 179, 0); pdf.rect(0, 0, w, 3, 'F');
 
       // Logo
-      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.setTextColor(0, 0, 0);
-      pdf.text('ELITE', 15, 22); pdf.setTextColor(255, 106, 0); pdf.text('BIKES', 36, 22);
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(19); pdf.setTextColor(255, 106, 0);
+      pdf.text('STM', 15, 22); pdf.setFontSize(10); pdf.setTextColor(21, 135, 194); pdf.text('RIDERS', 15, 28);
 
       // Status
-      pdf.setFillColor(220, 252, 231); pdf.roundedRect(w - 55, 13, 42, 8, 2, 2, 'F');
-      pdf.setFontSize(8); pdf.setTextColor(22, 163, 74); pdf.text('CONFIRMED', w - 50, 18.5);
+      pdf.setFillColor(254, 240, 138); pdf.roundedRect(w - 55, 13, 42, 8, 2, 2, 'F');
+      pdf.setFontSize(8); pdf.setTextColor(161, 98, 7); pdf.text('PENDING', w - 50, 18.5);
       pdf.setFontSize(8); pdf.setTextColor(160, 160, 160);
       pdf.text(`#${d._id?.slice(-10).toUpperCase() || ''}`, w - 55, 27, { maxWidth: 50 });
 
@@ -564,12 +431,12 @@ export default function BookingPage() {
       pdf.line(15, 135, w - 15, 135); pdf.setLineDashPattern([], 0);
 
       pdf.setFontSize(9); pdf.setTextColor(160, 160, 160); pdf.setFont('helvetica', 'normal');
-      pdf.text('Thank you for choosing Elite Bike Rentals  •  Have a safe journey!', w / 2, 143, { align: 'center' });
+      pdf.text('Thank you for choosing STM Riders  •  Have a safe journey!', w / 2, 143, { align: 'center' });
 
       pdf.setFillColor(255, 106, 0);
       pdf.rect(0, pdf.internal.pageSize.getHeight() - 3, w, 3, 'F');
 
-      pdf.save(`EliteBikes_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
+      pdf.save(`STMRiders_Receipt_${d._id?.slice(-8).toUpperCase() || 'booking'}.pdf`);
     } catch (err) {
       console.error('PDF error:', err);
       alert('PDF generation failed: ' + err.message);
@@ -833,24 +700,15 @@ export default function BookingPage() {
                 <button type="submit" disabled={submitting || (!isManualDuration && !selectedTier) || (isManualDuration && manualHours <= 0) || !pickupDateTime || !idCardImage || !aadhaarCardImage || !drivingLicenseImage || Boolean(selectedRangeConflict)}
                   className="w-full py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] rounded-xl text-black font-black text-base hover:shadow-[0_0_30px_rgba(255,106,0,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {submitting
                     ? <><span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />Processing...</>
-                    : <><Wallet className="w-5 h-5" /> Confirm Booking & Pay</>
-                  }
+                    : <><Calendar className="w-5 h-5" /> Request Booking</>
                 </button>
               </form>
             </div>
           </div>
         )}
 
-        {/* ══ STAGE 2: Payment QR ════════════════════════════════════════ */}
-        {stage === 'payment' && booking && (
-          <PaymentPage
-            booking={booking}
-            vehicle={vehicle}
-            onDone={() => setStage('success')}
-          />
-        )}
+        {/* STAGE 2 REMOVED */}
 
         {/* ══ STAGE 3: Success & Receipt ═════════════════════════════════ */}
         {stage === 'success' && booking && (
@@ -859,10 +717,10 @@ export default function BookingPage() {
               <div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-4 animate-bounce">
                 <CheckCircle className="w-10 h-10 text-emerald-400" />
               </div>
-              <h2 className="text-4xl font-black text-white mb-2">Booking Confirmed!</h2>
+              <h2 className="text-4xl font-black text-white mb-2">Booking Requested!</h2>
               <p className="text-gray-400 max-w-xl mx-auto text-lg">
-                Your payment was successful and your vehicle is now reserved. 
-                A confirmation email with your receipt has been sent to your email.
+                Your booking request has been sent successfully. 
+                Please wait for the admin to approve your request. We will notify you once approved.
               </p>
             </div>
 

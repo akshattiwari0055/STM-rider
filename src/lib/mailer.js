@@ -86,19 +86,20 @@ function buildReceiptPdfBuffer({ booking, vehicle }) {
   pdf.rect(0, 0, width, 3, 'F');
 
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(20);
-  pdf.setTextColor(0, 0, 0);
-  pdf.text('ELITE', 15, 20);
+  pdf.setFontSize(19);
   pdf.setTextColor(255, 106, 0);
-  pdf.text('BIKES', 36, 20);
+  pdf.text('STM', 15, 20);
+  pdf.setFontSize(10);
+  pdf.setTextColor(21, 135, 194);
+  pdf.text('RIDERS', 15, 26);
 
   pdf.setTextColor(90, 90, 90);
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(9);
-  pdf.text('Confirmed Booking Receipt', 15, 26);
+  pdf.text('Confirmed Booking Receipt', 15, 32);
 
   pdf.setDrawColor(230, 230, 230);
-  pdf.line(15, 31, width - 15, 31);
+  pdf.line(15, 36, width - 15, 36);
 
   pdf.setTextColor(130, 130, 130);
   pdf.setFontSize(9);
@@ -165,7 +166,7 @@ function buildReceiptPdfBuffer({ booking, vehicle }) {
   pdf.setFontSize(9);
   pdf.setTextColor(150, 150, 150);
   pdf.setFont('helvetica', 'normal');
-  pdf.text('Thank you for choosing Elite Bike Rentals. Please carry your ID proofs at pickup.', width / 2, 142, { align: 'center' });
+  pdf.text('Thank you for choosing STM Riders. Please carry your ID proofs at pickup.', width / 2, 142, { align: 'center' });
 
   pdf.setFillColor(255, 106, 0);
   pdf.rect(0, pdf.internal.pageSize.getHeight() - 3, width, 3, 'F');
@@ -181,16 +182,16 @@ export async function sendOtpEmail({ email, name, code, purpose }) {
   const transporter = await getTransporter();
   const intro =
     purpose === 'login'
-      ? 'Use this one-time code to finish signing in to Elite Bike Rentals.'
-      : 'Use this one-time code to verify your email and finish creating your Elite Bike Rentals account.';
+      ? 'Use this one-time code to finish signing in to STM Riders.'
+      : 'Use this one-time code to verify your email and finish creating your STM Riders account.';
 
   await sendMailWithLogging(transporter, {
     from: process.env.MAIL_FROM,
     to: email,
-    subject: purpose === 'login' ? 'Your Elite Bike Rentals login code' : 'Verify your Elite Bike Rentals email',
+    subject: purpose === 'login' ? 'Your STM Riders login code' : 'Verify your STM Riders email',
     html: `
       <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111827;background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;">
-        <p style="font-size:14px;margin:0 0 12px;color:#9a3412;">Elite Bike Rentals</p>
+        <p style="font-size:14px;margin:0 0 12px;color:#9a3412;">STM Riders</p>
         <h1 style="margin:0 0 12px;font-size:24px;color:#111827;">Hello${name ? ` ${name}` : ''},</h1>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#374151;">${intro}</p>
         <div style="margin:0 0 20px;padding:18px 24px;background:#111827;border-radius:14px;text-align:center;">
@@ -226,11 +227,10 @@ export async function sendAdminBookingReviewEmail({
     subject: `New booking (Awaiting Payment): ${vehicle.name}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;padding:24px;color:#111827;background:#fffaf0;border:1px solid #fde68a;border-radius:18px;">
-        <p style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#b45309;margin:0 0 12px;">Elite Bike Rentals Admin</p>
-        <h1 style="margin:0 0 12px;font-size:28px;color:#111827;">New Booking Initiated</h1>
+        <p style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#b45309;margin:0 0 12px;">STM Riders Admin</p>
+        <h1 style="margin:0 0 12px;font-size:28px;color:#111827;">New Booking Request</h1>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#4b5563;">
-          A customer has started a booking and is currently at the checkout stage. 
-          The slot is temporarily blocked for 30 minutes. Once they pay via Razorpay, it will be automatically confirmed.
+          A customer has requested a booking. The vehicle remains available until you approve this request. Please review the details below.
         </p>
 
         <div style="background:#111827;color:#f9fafb;border-radius:16px;padding:18px 20px;margin-bottom:20px;">
@@ -250,7 +250,7 @@ export async function sendAdminBookingReviewEmail({
         </div>
 
         <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">
-          The pending slot will auto-expire if it stays unapproved too long, so the vehicle does not remain blocked forever.
+          The vehicle will not be blocked for this booking until you approve it.
         </p>
       </div>
     `,
@@ -276,14 +276,14 @@ export async function sendBookingApprovedEmail({
     subject: `Booking confirmed for ${vehicle.name}`,
     attachments: [
       {
-        filename: `Elite-Bikes-Receipt-${booking._id.toString().slice(-8).toUpperCase()}.pdf`,
+        filename: `STM-Riders-Receipt-${booking._id.toString().slice(-8).toUpperCase()}.pdf`,
         content: receiptBuffer,
         contentType: 'application/pdf',
       },
     ],
     html: `
       <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;padding:24px;color:#111827;background:#fffaf0;border:1px solid #fde68a;border-radius:18px;">
-        <p style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#b45309;margin:0 0 12px;">Elite Bike Rentals</p>
+        <p style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#b45309;margin:0 0 12px;">STM Riders</p>
         <h1 style="margin:0 0 12px;font-size:28px;color:#111827;">Your booking is confirmed.</h1>
         <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#4b5563;">
           Hello ${escapeHtml(customerName || booking.customerName)}, your booking has been approved by our admin team.
@@ -328,7 +328,7 @@ export async function sendVehicleReturnReminderEmail({
     subject: `Return check needed: ${vehicle.name}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;padding:24px;color:#111827;background:#fffaf0;border:1px solid #fde68a;border-radius:18px;">
-        <p style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#b45309;margin:0 0 12px;">Elite Bike Rentals Admin Reminder</p>
+        <p style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#b45309;margin:0 0 12px;">STM Riders Admin Reminder</p>
         <h1 style="margin:0 0 12px;font-size:28px;color:#111827;">Has this vehicle been returned?</h1>
         <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#4b5563;">
           This rental has crossed its drop-off time and still needs admin confirmation before the vehicle becomes available again.
