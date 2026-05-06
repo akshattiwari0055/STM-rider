@@ -86,19 +86,20 @@ function buildReceiptPdfBuffer({ booking, vehicle }) {
   pdf.rect(0, 0, width, 3, 'F');
 
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(20);
-  pdf.setTextColor(0, 0, 0);
-  pdf.text('ELITE', 15, 20);
+  pdf.setFontSize(19);
   pdf.setTextColor(255, 106, 0);
-  pdf.text('BIKES', 36, 20);
+  pdf.text('SINGH', 15, 20);
+  pdf.setFontSize(10);
+  pdf.setTextColor(21, 135, 194);
+  pdf.text('TRAVELS & TOUR', 15, 26);
 
   pdf.setTextColor(90, 90, 90);
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(9);
-  pdf.text('Confirmed Booking Receipt', 15, 26);
+  pdf.text('Confirmed Booking Receipt', 15, 32);
 
   pdf.setDrawColor(230, 230, 230);
-  pdf.line(15, 31, width - 15, 31);
+  pdf.line(15, 36, width - 15, 36);
 
   pdf.setTextColor(130, 130, 130);
   pdf.setFontSize(9);

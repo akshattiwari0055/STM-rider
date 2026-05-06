@@ -60,10 +60,10 @@ function ReceiptModal({ booking, onClose }) {
       pdf.rect(0, 0, w, 3, 'F');
 
       // Logo
-      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.setTextColor(0,0,0);
-      pdf.text('ELITE', 15, 22);
-      pdf.setTextColor(255, 106, 0);
-      pdf.text('BIKES', 36, 22);
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(19); pdf.setTextColor(255,106,0);
+      pdf.text('SINGH', 15, 22);
+      pdf.setFontSize(10); pdf.setTextColor(21,135,194);
+      pdf.text('TRAVELS & TOUR', 15, 28);
 
       // Status badge
       pdf.setFillColor(220,252,231); pdf.roundedRect(w-55, 13, 42, 8, 2, 2, 'F');
@@ -156,8 +156,8 @@ function ReceiptModal({ booking, onClose }) {
           {/* Branding */}
           <div className="px-8 pt-8 pb-4 flex items-center justify-between border-b border-gray-100">
             <div>
-              <p className="text-2xl font-black tracking-tight">ELITE<span className="text-[#FF6A00]">BIKES</span></p>
-              <p className="text-xs text-gray-400 tracking-widest">ELITE BIKE RENTALS</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.svg" alt="Singh Travels and Tour Logo" className="h-16 w-16 object-contain" />
             </div>
             <div className="text-right">
               <StatusBadge status={booking.status} />

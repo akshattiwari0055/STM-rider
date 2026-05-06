@@ -72,7 +72,7 @@ export default function ContactPage() {
           </div>
 
           {/* Map / Image Placeholder */}
-          <a href="https://maps.app.goo.gl/Jk9zUr5mBorsP6ULA" target="_blank" rel="noopener noreferrer" className="relative h-full min-h-[400px] rounded-3xl overflow-hidden glass border border-white/10 group block">
+          <a href="https://maps.app.goo.gl/rJheG1hmwedKFsHF8" target="_blank" rel="noopener noreferrer" className="relative h-full min-h-[400px] rounded-3xl overflow-hidden glass border border-white/10 group block">
              {/* Styled placeholder for a map or office image */}
              <div className="absolute inset-0 bg-[#0a0a0a] group-hover:bg-[#111] transition-colors" />
              {/* Map Grid Pattern */}

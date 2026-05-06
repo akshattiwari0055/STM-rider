@@ -52,8 +52,8 @@ export default function Navbar() {
         <Link href="/" className="flex items-center group">
           <img 
             src="/logo.svg" 
-            alt="Elite Bike Rentals Logo" 
-            className="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform" 
+            alt="Singh Travels and Tour Logo" 
+            className="h-12 md:h-14 w-auto object-contain group-hover:scale-105 transition-transform" 
           />
         </Link>
 

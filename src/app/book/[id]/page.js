@@ -196,8 +196,8 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
       <div className="h-2 bg-gradient-to-r from-[#FFB300] to-[#FF6A00]" />
       <div className="px-8 pt-8 pb-4 flex items-center justify-between border-b border-gray-100">
         <div>
-          <p className="text-2xl font-black">ELITE<span className="text-[#FF6A00]">BIKES</span></p>
-          <p className="text-xs text-gray-400 tracking-widest">ELITE BIKE RENTALS</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Singh Travels and Tour Logo" className="h-16 w-16 object-contain" />
         </div>
         <div className="text-right">
           <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">
@@ -515,8 +515,8 @@ export default function BookingPage() {
       pdf.setFillColor(255, 179, 0); pdf.rect(0, 0, w, 3, 'F');
 
       // Logo
-      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.setTextColor(0, 0, 0);
-      pdf.text('ELITE', 15, 22); pdf.setTextColor(255, 106, 0); pdf.text('BIKES', 36, 22);
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(19); pdf.setTextColor(255, 106, 0);
+      pdf.text('SINGH', 15, 22); pdf.setFontSize(10); pdf.setTextColor(21, 135, 194); pdf.text('TRAVELS & TOUR', 15, 28);
 
       // Status
       pdf.setFillColor(220, 252, 231); pdf.roundedRect(w - 55, 13, 42, 8, 2, 2, 'F');
