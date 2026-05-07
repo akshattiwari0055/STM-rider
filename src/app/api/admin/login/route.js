@@ -83,6 +83,7 @@ export async function POST(request) {
 
     return NextResponse.json({ error: 'Invalid admin credentials.' }, { status: 401 });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("ADMIN LOGIN ERROR:", error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
