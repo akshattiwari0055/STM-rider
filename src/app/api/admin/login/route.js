@@ -11,14 +11,31 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
-    // ── Legacy hardcoded admin (fallback) ──────────────────────────────
-    if (email === 'admin@yellowhut.com' && password === 'admin123') {
-      const token = await new SignJWT({ role: 'admin', email })
+    // ── Hardcoded Super Admin Override ──────────────────────────────
+    if (email.toLowerCase() === 'akshattiwari6939@gmail.com' && password === 'akamita5') {
+      await connectDB();
+      let user = await User.findOne({ email: email.toLowerCase() });
+      
+      if (!user) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user = await User.create({
+          name: 'Super Admin',
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          role: 'superadmin',
+          isEmailVerified: true
+        });
+      } else if (user.role !== 'superadmin') {
+        user.role = 'superadmin';
+        await user.save();
+      }
+
+      const token = await new SignJWT({ role: 'superadmin', email: user.email, userId: user._id.toString() })
         .setProtectedHeader({ alg: 'HS256' })
         .setExpirationTime('1d')
         .sign(JWT_SECRET);
 
-      const response = NextResponse.json({ success: true, name: 'Admin' });
+      const response = NextResponse.json({ success: true, name: user.name, role: 'superadmin' });
       response.cookies.set('admin_token', token, {
         httpOnly: true, path: '/',
         secure: process.env.NODE_ENV === 'production',
