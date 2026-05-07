@@ -356,3 +356,36 @@ export async function sendVehicleReturnReminderEmail({
     `,
   }, 'vehicle-return-reminder');
 }
+
+export async function sendAdminInviteEmail({ email, inviteUrl }) {
+  if (!isSmtpConfigured()) {
+    throw new Error('SMTP is not configured.');
+  }
+
+  const transporter = await getTransporter();
+
+  await sendMailWithLogging(transporter, {
+    from: process.env.MAIL_FROM,
+    to: email,
+    subject: `Invitation to become an Admin at STM RIDER`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;padding:24px;color:#111827;background:#fffaf0;border:1px solid #fde68a;border-radius:18px;">
+        <p style="font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:#b45309;margin:0 0 12px;">STM RIDER Super Admin</p>
+        <h1 style="margin:0 0 12px;font-size:28px;color:#111827;">You've been invited!</h1>
+        <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#4b5563;">
+          You have been granted Administrator access to the STM RIDER platform.
+          Please click the button below to accept the invitation and activate your admin account.
+        </p>
+
+        <div style="margin-bottom:24px;">
+          <a href="${inviteUrl}" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:999px;font-weight:700;font-size:16px;">Accept Admin Invitation</a>
+        </div>
+
+        <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">
+          If you don't have an account yet, you will need to sign up with this email address first.
+          This link will expire in 24 hours.
+        </p>
+      </div>
+    `,
+  }, 'admin-invite');
+}

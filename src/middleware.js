@@ -12,7 +12,10 @@ export async function middleware(request) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
     try {
-      await jwtVerify(token, JWT_SECRET);
+      const decoded = await jwtVerify(token, JWT_SECRET);
+      if (path.startsWith('/admin/super') && decoded.payload.role !== 'superadmin') {
+        return NextResponse.redirect(new URL('/admin', request.url));
+      }
       return NextResponse.next();
     } catch {
       return NextResponse.redirect(new URL('/admin/login', request.url));

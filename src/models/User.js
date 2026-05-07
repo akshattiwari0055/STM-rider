@@ -8,7 +8,7 @@ const userSchema = new Schema({
   googleId: { type: String, default: null },
   avatar: { type: String, default: null },
   isEmailVerified: { type: Boolean, default: false },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  role: { type: String, enum: ['user', 'admin', 'superadmin'], default: 'user' },
 }, { timestamps: true });
 
 export const User = models.User || mongoose.model('User', userSchema);
