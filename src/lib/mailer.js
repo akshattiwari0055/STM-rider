@@ -357,7 +357,7 @@ export async function sendVehicleReturnReminderEmail({
   }, 'vehicle-return-reminder');
 }
 
-export async function sendAdminInviteEmail({ email, inviteUrl }) {
+export async function sendAdminInviteEmail({ email, inviteUrl, password }) {
   if (!isSmtpConfigured()) {
     throw new Error('SMTP is not configured.');
   }
@@ -377,12 +377,21 @@ export async function sendAdminInviteEmail({ email, inviteUrl }) {
           Please click the button below to accept the invitation and activate your admin account.
         </p>
 
-        <div style="margin-bottom:24px;">
+        ${password ? `
+        <div style="margin:16px 0;font-size:15px;line-height:1.7;color:#1f2937;background:#f3f4f6;padding:16px;border-radius:12px;border:1px solid #e5e7eb;">
+          <strong style="color:#111827;">Your Initial/Temporary Password:</strong> 
+          <code style="font-family:monospace;font-size:16px;background:#e5e7eb;padding:3px 8px;border-radius:6px;color:#b45309;font-weight:bold;">${password}</code>
+          <br/>
+          <span style="font-size:12px;color:#6b7280;display:block;margin-top:6px;">You can change this password at any time from your account settings after logging in.</span>
+        </div>
+        ` : ''}
+
+        <div style="margin-bottom:24px;margin-top:20px;">
           <a href="${inviteUrl}" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:999px;font-weight:700;font-size:16px;">Accept Admin Invitation</a>
         </div>
 
         <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">
-          If you don't have an account yet, you will need to sign up with this email address first.
+          ${password ? 'Simply accept the invitation, and then log in using your email and the password above.' : 'If you don\'t have an account yet, you will need to sign up with this email address first.'}
           This link will expire in 24 hours.
         </p>
       </div>

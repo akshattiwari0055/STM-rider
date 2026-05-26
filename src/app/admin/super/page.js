@@ -5,6 +5,7 @@ import { Shield, Mail, CheckCircle2, Trash2, Loader2, AlertCircle } from 'lucide
 
 export default function SuperAdminPortal() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [admins, setAdmins] = useState([]);
@@ -38,13 +39,14 @@ export default function SuperAdminPortal() {
       const res = await fetch('/api/admin/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       
       if (res.ok) {
         setMessage({ type: 'success', text: `Invite sent to ${email} successfully!` });
         setEmail('');
+        setPassword('');
         fetchAdmins();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to send invite.' });
@@ -104,6 +106,19 @@ export default function SuperAdminPortal() {
                 className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500/50 transition-colors"
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Initial Password (Optional)</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Set temporary/initial password"
+                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500/50 transition-colors"
+                minLength={6}
+              />
+              <p className="text-[10px] text-gray-500 mt-1">If set, the admin is pre-registered and can log in instantly. If blank, they will sign up on accept.</p>
             </div>
 
             {message && (
