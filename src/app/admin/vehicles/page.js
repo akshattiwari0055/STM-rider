@@ -9,7 +9,7 @@ const STATUS_CONFIG = {
 };
 
 const defaultTiers = {
-  Car: [{ hours: 5, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }, { hours: 168, price: '' }, { hours: 720, price: '' }],
+  Car: [{ hours: 6, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }, { hours: 168, price: '' }, { hours: 720, price: '' }],
   Bike: [{ hours: 3, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }, { hours: 168, price: '' }, { hours: 720, price: '' }],
   Scooty: [{ hours: 3, price: '' }, { hours: 12, price: '' }, { hours: 24, price: '' }, { hours: 168, price: '' }, { hours: 720, price: '' }],
 };

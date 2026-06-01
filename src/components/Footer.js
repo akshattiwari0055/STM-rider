@@ -24,7 +24,7 @@ export default function Footer() {
             <h3 className="text-3xl font-bold mb-4 uppercase text-white tracking-widest"><span className="text-[#FFB300]">STM</span> RIDER</h3>
             <p className="text-gray-400 mb-6">STM RIDER - Premium car and bike rentals for elite travelers. Your journey, our wheels.</p>
             <div className="flex gap-4">
-              <a href="#" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><InstagramIcon /></a>
+              <a href="https://www.instagram.com/stm.riders/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><InstagramIcon /></a>
               <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><FacebookIcon /></a>
               <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-[#FF6A00] transition-colors"><TwitterIcon /></a>
             </div>
@@ -53,7 +53,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="text-[#FF6A00] shrink-0" size={20} />
-                <a href="mailto:info@stmrider.com" className="text-gray-400 hover:text-white transition-colors">info@stmrider.com</a>
+                <a href="mailto:yellowhutstmriders@gmail.com" className="text-gray-400 hover:text-white transition-colors">yellowhutstmriders@gmail.com</a>
               </li>
             </ul>
           </div>

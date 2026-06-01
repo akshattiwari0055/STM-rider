@@ -12,7 +12,7 @@ import { jsPDF } from 'jspdf';
 import VehicleAvailabilityCalendar from '@/components/VehicleAvailabilityCalendar';
 
 const FALLBACK_TIERS = {
-  Car: [{ hours: 5, price: 999 }, { hours: 12, price: 1499 }, { hours: 24, price: 1999 }, { hours: 168, price: 6999 }, { hours: 720, price: 25000 }],
+  Car: [{ hours: 6, price: 999 }, { hours: 12, price: 1499 }, { hours: 24, price: 1999 }, { hours: 168, price: 6999 }, { hours: 720, price: 25000 }],
   Bike: [{ hours: 3, price: 399 }, { hours: 12, price: 799 }, { hours: 24, price: 999 }, { hours: 168, price: 4999 }, { hours: 720, price: 15000 }],
   Scooty: [{ hours: 3, price: 299 }, { hours: 12, price: 499 }, { hours: 24, price: 799 }, { hours: 168, price: 3999 }, { hours: 720, price: 12000 }],
 };

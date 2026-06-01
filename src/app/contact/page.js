@@ -44,7 +44,7 @@ export default function ContactPage() {
               </div>
             </a>
 
-            <a href="#" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#E1306C]/50 transition-colors flex items-start gap-6 group block">
+            <a href="https://www.instagram.com/stm.riders/" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#E1306C]/50 transition-colors flex items-start gap-6 group block">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCAF45] flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg shadow-pink-500/20">
                 <InstagramIcon />
               </div>
