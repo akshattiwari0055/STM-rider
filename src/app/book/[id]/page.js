@@ -57,7 +57,7 @@ function PaymentPage({ booking, vehicle, onDone }) {
     
     const message = `Hello Admin! 🏍️\n\nI have just booked a vehicle on STM RIDER and made the manual payment. Please verify and approve my booking.\n\n*Booking Details:*\n- *Name:* ${booking.customerName}\n- *Vehicle:* ${vehicle.name}\n- *Duration:* ${booking.durationHours} hours\n- *Amount Paid:* ₹${booking.totalPrice?.toLocaleString('en-IN')}\n- *Booking ID:* #${booking._id?.slice(-10).toUpperCase()}`;
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/918004256939?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/919465853502?text=${encodedMessage}`;
     
     window.open(whatsappUrl, '_blank');
 

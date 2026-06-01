@@ -45,11 +45,11 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="text-[#FF6A00] mt-1 shrink-0" size={20} />
-                <a href="https://maps.app.goo.gl/Jk9zUr5mBorsP6ULA" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Gomtinagar , Lucknow</a>
+                <a href="https://maps.app.goo.gl/ehcY4mrL2FHmzor4A?g_st=ac" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">LPU Law Gate</a>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="text-[#FF6A00] shrink-0" size={20} />
-                <a href="tel:+919839093379" className="text-gray-400 hover:text-white transition-colors">+919839093379</a>
+                <a href="tel:+919465853502" className="text-gray-400 hover:text-white transition-colors">+91 94658 53502</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="text-[#FF6A00] shrink-0" size={20} />

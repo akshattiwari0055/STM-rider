@@ -7,7 +7,7 @@ const InstagramIcon = () => (
 
 export const metadata = {
   title: 'Contact Us | STM RIDER',
-  description: 'Get in touch with STM RIDER. Located at Law Gate Road in Meheru, Phagwara, Punjab.',
+  description: 'Get in touch with STM RIDER. Located at LPU Law Gate, Phagwara, Punjab.',
 };
 
 export default function ContactPage() {
@@ -30,14 +30,14 @@ export default function ContactPage() {
           
           {/* Contact Info Cards */}
           <div className="space-y-6">
-            <a href="https://maps.app.goo.gl/rJheG1hmwedKFsHF8" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#FFB300]/30 transition-colors flex items-start gap-6 group block">
+            <a href="https://maps.app.goo.gl/ehcY4mrL2FHmzor4A?g_st=ac" target="_blank" rel="noopener noreferrer" className="glass p-8 rounded-3xl border border-white/5 hover:border-[#FFB300]/30 transition-colors flex items-start gap-6 group block">
               <div className="w-14 h-14 rounded-full bg-[#FFB300]/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                 <MapPin className="w-6 h-6 text-[#FFB300]" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Our Location</h3>
                 <p className="text-gray-400 leading-relaxed font-medium">
-                  Law Gate Road, Meheru<br />
+                  LPU Law Gate<br />
                   Phagwara, Punjab
                 </p>
                 <p className="text-xs text-[#FFB300] mt-2 font-semibold group-hover:underline">View on Google Maps &rarr;</p>
@@ -64,7 +64,7 @@ export default function ContactPage() {
                <div>
                  <h3 className="text-xl font-bold text-white mb-2">Call & WhatsApp</h3>
                  <p className="text-gray-400 leading-relaxed font-medium">
-                   +91 80042 56939
+                   +91 94658 53502
                  </p>
                  <p className="text-xs text-gray-500 mt-1">Available 24/7 for support.</p>
                </div>
@@ -72,7 +72,7 @@ export default function ContactPage() {
           </div>
 
           {/* Map / Image Placeholder */}
-          <a href="https://maps.app.goo.gl/Jk9zUr5mBorsP6ULA" target="_blank" rel="noopener noreferrer" className="relative h-full min-h-[400px] rounded-3xl overflow-hidden glass border border-white/10 group block">
+          <a href="https://maps.app.goo.gl/ehcY4mrL2FHmzor4A?g_st=ac" target="_blank" rel="noopener noreferrer" className="relative h-full min-h-[400px] rounded-3xl overflow-hidden glass border border-white/10 group block">
              {/* Styled placeholder for a map or office image */}
              <div className="absolute inset-0 bg-[#0a0a0a] group-hover:bg-[#111] transition-colors" />
              {/* Map Grid Pattern */}
@@ -82,7 +82,7 @@ export default function ContactPage() {
                <MapPin className="w-12 h-12 text-[#FFB300] mb-4 drop-shadow-[0_0_15px_rgba(255,179,0,0.8)]" />
                <h3 className="text-2xl font-black text-white mb-2 drop-shadow-md">Find Us Here</h3>
                <p className="text-[#FFB300] font-semibold tracking-wider font-mono bg-black/50 px-4 py-2 rounded-lg border border-[#FFB300]/30 backdrop-blur-md mb-4">
-                 LAW GATE, MEHERU
+                 LPU LAW GATE
                </p>
                <span className="text-sm border border-[#FFB300]/20 text-white px-4 py-2 rounded-full group-hover:bg-[#FFB300]/10 transition-colors">
                  Open in Google Maps
