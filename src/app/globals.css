@@ -56,3 +56,48 @@ body {
   scrollbar-width: none;
 }
 
+/* ── Itinerary Bus & Road Animations ────────────────────────────── */
+@keyframes busTravel {
+  0% {
+    top: 0%;
+    opacity: 0;
+    transform: translateY(0) scale(0.85);
+  }
+  4% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  92% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  98% {
+    opacity: 0;
+    transform: translateY(0) scale(0.9);
+  }
+  100% {
+    top: calc(100% - 24px);
+    opacity: 0;
+    transform: translateY(0) scale(0.85);
+  }
+}
+
+@keyframes highwayPulse {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(400%);
+  }
+}
+
+.animate-bus-travel {
+  position: absolute;
+  animation: busTravel 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: 20;
+}
+
+.animate-highway-pulse {
+  animation: highwayPulse 2.8s linear infinite;
+}
+

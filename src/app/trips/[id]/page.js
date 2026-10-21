@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   MapPin, Clock, Calendar, Users, CheckCircle, XCircle, ArrowLeft,
   Phone, User, ShieldCheck, Download, CreditCard, Loader2, Sparkles,
-  Info, Compass, ChevronDown, CheckCircle2, Tag
+  Info, Compass, ChevronDown, CheckCircle2, Tag, Bus
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import Footer from '@/components/Footer';
@@ -755,16 +755,42 @@ export default function TripDetailPage() {
                                   </div>
                                 )}
 
-                                {/* Luminous Roadmap Timeline */}
-                                <div className="relative pl-6 sm:pl-7 space-y-3 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-gradient-to-b before:from-[#FFB300] before:via-[#FF6A00]/60 before:to-transparent">
+                                {/* Luminous Roadmap Timeline with Bus Travel Animation */}
+                                <div className="relative pl-6 sm:pl-7 space-y-3">
+                                  {/* Glowing Animated Highway Line */}
+                                  <div className="absolute left-[9px] top-3 bottom-4 w-1 bg-gradient-to-b from-[#FFB300] via-[#FF6A00] to-[#FFB300]/20 rounded-full shadow-[0_0_12px_rgba(255,179,0,0.5)] overflow-hidden pointer-events-none">
+                                    <div className="w-full h-24 bg-gradient-to-b from-transparent via-white/80 to-transparent animate-highway-pulse" />
+                                  </div>
+
+                                  {/* Traveling Tour Bus Along Highway */}
+                                  {steps.length > 1 && (
+                                    <div className="absolute left-[-2px] top-3 bottom-5 pointer-events-none z-20">
+                                      <div className="animate-bus-travel">
+                                        <div className="relative flex flex-col items-center">
+                                          {/* Ambient headlight glow */}
+                                          <div className="absolute -inset-1 rounded-full bg-[#FFB300]/50 blur-sm animate-pulse" />
+
+                                          {/* Glowing Bus Capsule */}
+                                          <div className="relative w-6 h-6 rounded-full bg-gradient-to-br from-[#FFB300] via-[#FF8C00] to-[#FF6A00] flex items-center justify-center shadow-[0_0_15px_rgba(255,179,0,0.9)] border-2 border-white ring-2 ring-[#FF6A00]/50">
+                                            <Bus className="w-3.5 h-3.5 text-black fill-black transform rotate-90" />
+                                          </div>
+
+                                          {/* Headlight beam projection */}
+                                          <div className="w-3 h-5 bg-gradient-to-b from-[#FFB300]/80 via-[#FFB300]/30 to-transparent blur-[1px] -mt-0.5 rounded-b-full" />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
                                   {steps.map((step, sIdx) => (
                                     <div
                                       key={sIdx}
                                       className="relative group transition-all duration-300 hover:translate-x-1"
                                     >
-                                      {/* Glowing Node on Timeline */}
-                                      <div className="absolute -left-6 sm:-left-7 top-2 w-5 h-5 rounded-full bg-[#121212] border-2 border-[#FFB300] flex items-center justify-center shadow-[0_0_10px_rgba(255,179,0,0.4)] group-hover:scale-125 group-hover:border-[#FF6A00] transition-all">
+                                      {/* Glowing Node on Timeline with Radar Ping */}
+                                      <div className="absolute -left-6 sm:-left-7 top-2 w-5 h-5 rounded-full bg-[#121212] border-2 border-[#FFB300] flex items-center justify-center shadow-[0_0_12px_rgba(255,179,0,0.5)] group-hover:scale-125 group-hover:border-[#FF6A00] transition-all">
                                         <div className="w-1.5 h-1.5 rounded-full bg-[#FFB300] group-hover:bg-[#FF6A00]" />
+                                        <span className="absolute inset-0 rounded-full border border-[#FFB300] animate-ping opacity-25 pointer-events-none" />
                                       </div>
 
                                       {/* Step Milestone Card */}
