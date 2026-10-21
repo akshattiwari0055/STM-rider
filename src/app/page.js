@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
 import Hero from '@/components/Hero';
 import VehicleShowcase from '@/components/VehicleShowcase';
+import TripsShowcase from '@/components/TripsShowcase';
 import OffersBanner from '@/components/OffersBanner';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Footer from '@/components/Footer';
@@ -17,6 +18,7 @@ export default function Home() {
     <main className="min-h-screen bg-background">
       <Hero />
       <OffersBanner />
+      <TripsShowcase />
       <VehicleShowcase />
       <WhyChooseUs />
       <Footer />

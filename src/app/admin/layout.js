@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, CarFront, FileText, Tag, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, CarFront, FileText, Tag, LogOut, Shield, Compass } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -35,6 +35,9 @@ export default function AdminLayout({ children }) {
           </Link>
           <Link href="/admin/vehicles" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${pathname.includes('/admin/vehicles') ? 'bg-[#FF6A00]/10 text-[#FFB300]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
             <CarFront size={18} /> Vehicles
+          </Link>
+          <Link href="/admin/trips" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${pathname.includes('/admin/trips') ? 'bg-[#FF6A00]/10 text-[#FFB300]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+            <Compass size={18} /> Trips & Tours
           </Link>
           <Link href="/admin/bookings" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${pathname.includes('/admin/bookings') ? 'bg-[#FF6A00]/10 text-[#FFB300]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
             <FileText size={18} /> Bookings

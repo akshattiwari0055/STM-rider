@@ -20,7 +20,7 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 2000, // Fail fast in 2 seconds if DB is offline
+      serverSelectionTimeoutMS: 10000, // 10 seconds timeout for remote Atlas connection
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {

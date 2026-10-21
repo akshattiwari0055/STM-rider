@@ -1,4 +1,4 @@
-import mongoose, { Schema, models } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 const couponSchema = new Schema({
   code: { type: String, required: true, unique: true, uppercase: true, trim: true },
@@ -8,7 +8,4 @@ const couponSchema = new Schema({
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
-// Always delete the cached model so schema changes take effect on hot-reload
-if (mongoose.models.Coupon) delete mongoose.models.Coupon;
-
-export const Coupon = mongoose.model('Coupon', couponSchema);
+export const Coupon = mongoose.models.Coupon || mongoose.model('Coupon', couponSchema);

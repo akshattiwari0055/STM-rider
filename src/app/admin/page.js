@@ -22,9 +22,10 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/bookings').then(res => res.json()),
-      fetch('/api/vehicles').then(res => res.json())
-    ]).then(([bookings, vehicles]) => {
+      fetch('/api/bookings').then(res => res.json()).catch(() => []),
+      fetch('/api/vehicles').then(res => res.json()).catch(() => []),
+      fetch('/api/trip-bookings').then(res => res.json()).catch(() => [])
+    ]).then(([bookings, vehicles, tripBookings]) => {
       let revenue = 0;
       let activeRentals = 0;
       
@@ -39,35 +40,56 @@ export default function AdminDashboard() {
       const monthMap = { 0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0 };
       const yearMap = {};
       
+      // Vehicle bookings
       if(Array.isArray(bookings)){
         bookings.forEach(b => {
           if (b.status === 'Completed' || b.status === 'Active' || b.status === 'Pending') {
             const price = b.totalPrice || 0;
             revenue += price;
             
-            // Assume booking date is roughly when they pay, or use startDate
             const bDate = new Date(b.createdAt || b.startDate);
-            
-            // Difference in days
             const diffTime = Math.abs(now - bDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            // Financial trackers
             if (diffDays <= 7) weekRev += price;
             if (bDate.getMonth() === thisMonth && bDate.getFullYear() === thisYear) monthRev += price;
             if (bDate.getFullYear() === thisYear) yearRev += price;
 
-            // Monthly breakdown (for current year only)
             if (bDate.getFullYear() === thisYear) {
                monthMap[bDate.getMonth()] += price;
             }
 
-            // Yearly breakdown
             const yr = bDate.getFullYear();
             if (!yearMap[yr]) yearMap[yr] = 0;
             yearMap[yr] += price;
           }
           if (b.status === 'Active') activeRentals++;
+        });
+      }
+
+      // Trip bookings
+      if(Array.isArray(tripBookings)){
+        tripBookings.forEach(tb => {
+          if (tb.status === 'Completed' || tb.status === 'Confirmed' || tb.status === 'Pending') {
+            const price = tb.totalPrice || 0;
+            revenue += price;
+
+            const bDate = new Date(tb.createdAt);
+            const diffTime = Math.abs(now - bDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays <= 7) weekRev += price;
+            if (bDate.getMonth() === thisMonth && bDate.getFullYear() === thisYear) monthRev += price;
+            if (bDate.getFullYear() === thisYear) yearRev += price;
+
+            if (bDate.getFullYear() === thisYear) {
+               monthMap[bDate.getMonth()] += price;
+            }
+
+            const yr = bDate.getFullYear();
+            if (!yearMap[yr]) yearMap[yr] = 0;
+            yearMap[yr] += price;
+          }
         });
       }
 
@@ -93,9 +115,11 @@ export default function AdminDashboard() {
       setMonthlyData(mDataArray);
       setYearlyData(yDataArray);
 
+      const totalBookingsCount = (Array.isArray(bookings) ? bookings.length : 0) + (Array.isArray(tripBookings) ? tripBookings.length : 0);
+
       setStats({
         revenue,
-        totalBookings: Array.isArray(bookings) ? bookings.length : 0,
+        totalBookings: totalBookingsCount,
         activeRentals,
         totalVehicles: Array.isArray(vehicles) ? vehicles.length : 0,
         weekRevenue: weekRev,

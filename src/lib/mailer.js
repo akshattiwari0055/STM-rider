@@ -398,3 +398,165 @@ export async function sendAdminInviteEmail({ email, inviteUrl, password }) {
     `,
   }, 'admin-invite');
 }
+
+export async function sendTripBookingApprovedEmail({
+  booking,
+  trip,
+  customerEmail,
+  customerName,
+}) {
+  if (!isSmtpConfigured()) {
+    console.log('[mail:trip-booking-approved] SMTP not configured, skipping email.');
+    return;
+  }
+
+  const transporter = await getTransporter();
+  const { buildTripReceiptPdfBuffer } = await import('@/lib/tripReceipt');
+  const receiptBuffer = buildTripReceiptPdfBuffer({ booking, trip });
+
+  const itinerary = Array.isArray(trip?.itinerary) && trip.itinerary.length > 0 ? trip.itinerary : [];
+  const inclusions = Array.isArray(trip?.inclusions) && trip.inclusions.length > 0 ? trip.inclusions : [];
+
+  const itineraryHtml = itinerary.length > 0
+    ? itinerary.map(item => `
+        <div style="margin-bottom:12px;padding:12px 14px;background:#f8fafc;border-left:4px solid #f59e0b;border-radius:6px;">
+          <strong style="color:#0f172a;font-size:14px;">Day ${escapeHtml(item.day)}: ${escapeHtml(item.title)}</strong>
+          <p style="margin:4px 0 0;font-size:13px;line-height:1.6;color:#475569;">${escapeHtml(item.details)}</p>
+        </div>
+      `).join('')
+    : '<p style="color:#64748b;font-size:13px;">Full daywise plan details are listed in your attached PDF voucher.</p>';
+
+  const inclusionsHtml = inclusions.length > 0
+    ? inclusions.map(inc => `<li style="margin-bottom:4px;color:#166534;font-size:13px;">${escapeHtml(inc)}</li>`).join('')
+    : '<li style="color:#166534;font-size:13px;">Transport, Hotel Stay, Breakfast, Dinner & Sightseeing</li>';
+
+  await sendMailWithLogging(transporter, {
+    from: process.env.MAIL_FROM,
+    to: customerEmail,
+    subject: `🎉 Booking Confirmed: Your Trip to ${trip?.destination || trip?.title || 'Himachal'} with STM RIDER!`,
+    attachments: [
+      {
+        filename: `STM-RIDER-Trip-Voucher-${booking._id.toString().slice(-8).toUpperCase()}.pdf`,
+        content: receiptBuffer,
+        contentType: 'application/pdf',
+      },
+    ],
+    html: `
+      <div style="font-family:Arial,Helvetica,sans-serif;max-width:640px;margin:0 auto;padding:0;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;">
+        <!-- Header Banner -->
+        <div style="background:linear-gradient(135deg, #111827 0%, #1f2937 100%);padding:28px 24px;text-align:center;border-bottom:4px solid #f59e0b;">
+          <p style="font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#f59e0b;margin:0 0 8px;font-weight:700;">STM RIDER TOURS & EXPEDITIONS</p>
+          <h1 style="margin:0;font-size:26px;font-weight:800;color:#ffffff;line-height:1.3;">Trip Booking Confirmed! 🎉</h1>
+          <p style="margin:8px 0 0;font-size:14px;color:#94a3b8;">Payment Verified * Seat Officially Reserved</p>
+        </div>
+
+        <div style="padding:24px;">
+          <!-- Warm Greeting -->
+          <div style="margin-bottom:20px;">
+            <p style="font-size:16px;color:#1e293b;margin:0 0 8px;"><strong>Hello ${escapeHtml(customerName || booking.customerName)},</strong></p>
+            <p style="margin:0;font-size:14px;line-height:1.7;color:#475569;">
+              Warm greetings from the entire <strong>STM RIDER</strong> team! We are thrilled to confirm your booking for <strong>${escapeHtml(trip?.title || 'Tour Expedition')}</strong>. Your payment has been verified by our admin team and your seats are reserved. Get ready for an unforgettable journey!
+            </p>
+          </div>
+
+          <!-- Trip Overview Card -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px;margin-bottom:24px;">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #e2e8f0;padding-bottom:12px;margin-bottom:12px;">
+              <div>
+                <span style="font-size:11px;text-transform:uppercase;color:#64748b;font-weight:bold;">Trip Package</span>
+                <p style="margin:2px 0 0;font-size:17px;font-weight:bold;color:#0f172a;">${escapeHtml(trip?.title || 'Tour')}</p>
+              </div>
+              <div style="text-align:right;">
+                <span style="font-size:11px;text-transform:uppercase;color:#64748b;font-weight:bold;">Booking Ref</span>
+                <p style="margin:2px 0 0;font-size:14px;font-weight:bold;color:#f59e0b;">#STM-TRIP-${escapeHtml(booking._id.toString().slice(-8).toUpperCase())}</p>
+              </div>
+            </div>
+
+            <table style="width:100%;font-size:13px;color:#334155;border-collapse:collapse;">
+              <tr>
+                <td style="padding:6px 0;color:#64748b;">Destination:</td>
+                <td style="padding:6px 0;font-weight:600;text-align:right;color:#0f172a;">${escapeHtml(trip?.destination || '')}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;color:#64748b;">Duration:</td>
+                <td style="padding:6px 0;font-weight:600;text-align:right;color:#0f172a;">${escapeHtml(trip?.duration || '')}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;color:#64748b;">Departure Date:</td>
+                <td style="padding:6px 0;font-weight:700;text-align:right;color:#d97706;">${escapeHtml(booking.departureDate)}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;color:#64748b;">Pickup Point:</td>
+                <td style="padding:6px 0;font-weight:600;text-align:right;color:#0f172a;">${escapeHtml(booking.pickupPoint || trip?.pickupLocation || 'LPU Law Gate')}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;color:#64748b;">Travelers / Seats:</td>
+                <td style="padding:6px 0;font-weight:600;text-align:right;color:#0f172a;">${escapeHtml(booking.numberOfSeats)} Person(s)</td>
+              </tr>
+              ${booking.couponCode ? `
+              <tr>
+                <td style="padding:6px 0;color:#16a34a;">Coupon Applied:</td>
+                <td style="padding:6px 0;font-weight:600;text-align:right;color:#16a34a;">${escapeHtml(booking.couponCode.toUpperCase())}</td>
+              </tr>
+              ` : ''}
+              <tr style="border-top:1px dashed #cbd5e1;">
+                <td style="padding:10px 0 0;font-size:15px;font-weight:700;color:#0f172a;">Total Fare Paid:</td>
+                <td style="padding:10px 0 0;font-size:18px;font-weight:800;text-align:right;color:#ea580c;">Rs. ${Number(booking.totalPrice || 0).toLocaleString('en-IN')}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Daywise Itinerary Highlights -->
+          <div style="margin-bottom:24px;">
+            <h3 style="margin:0 0 12px;font-size:15px;color:#0f172a;text-transform:uppercase;letter-spacing:0.05em;border-bottom:2px solid #f59e0b;padding-bottom:6px;display:inline-block;">
+              📅 Day-by-Day Tour Plan
+            </h3>
+            ${itineraryHtml}
+          </div>
+
+          <!-- What's Included -->
+          <div style="margin-bottom:24px;padding:16px 18px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;">
+            <strong style="display:block;margin-bottom:8px;font-size:14px;color:#166534;">✓ What is Included in Your Trip:</strong>
+            <ul style="margin:0;padding-left:18px;">
+              ${inclusionsHtml}
+            </ul>
+          </div>
+
+          <!-- Important Preparation & Checklist -->
+          <div style="margin-bottom:24px;padding:16px 18px;background:#fffbeb;border:1px solid #fef08a;border-radius:12px;">
+            <strong style="display:block;margin-bottom:8px;font-size:14px;color:#854d0e;">🎒 Important Things to Carry:</strong>
+            <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6;color:#713f12;">
+              <li><strong>Original Govt Photo ID</strong> (Aadhaar Card, Passport, or Voter ID) - mandatory for hotel check-in.</li>
+              <li>Warm clothes (jackets, thermal inners, gloves, caps) for mountain weather.</li>
+              <li>Comfortable sports or trekking shoes.</li>
+              <li>Personal water bottle and any essential medicines.</li>
+            </ul>
+          </div>
+
+          <!-- Attached Receipt Info -->
+          <div style="margin-bottom:24px;padding:14px 16px;background:#f1f5f9;border-radius:10px;text-align:center;">
+            <p style="margin:0;font-size:13px;color:#475569;">
+              📄 <strong>Official Voucher Attached:</strong> Your detailed PDF receipt with complete itinerary and payment voucher is attached to this email. You can also view or download it anytime from your <a href="https://stmrider.com/dashboard" style="color:#d97706;font-weight:bold;text-decoration:none;">Dashboard</a>.
+            </p>
+          </div>
+
+          <!-- 24x7 Assistance -->
+          <div style="border-top:1px solid #e2e8f0;padding-top:18px;font-size:13px;line-height:1.6;color:#64748b;">
+            <p style="margin:0 0 6px;">Need help or have questions about departure timings?</p>
+            <p style="margin:0;color:#0f172a;">
+              <strong>Trip Captain & Helpline:</strong> <a href="tel:+919465853502" style="color:#ea580c;text-decoration:none;font-weight:bold;">+91 94658 53502</a> |
+              <strong>WhatsApp:</strong> <a href="https://wa.me/919465853502" style="color:#16a34a;text-decoration:none;font-weight:bold;">Chat with us</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Email Footer -->
+        <div style="background:#f8fafc;padding:16px 24px;border-top:1px solid #e2e8f0;text-align:center;font-size:12px;color:#94a3b8;">
+          <p style="margin:0;">STM RIDER * Law Gate, Lovely Professional University, Phagwara, Punjab</p>
+          <p style="margin:4px 0 0;">Visit us at <a href="https://stmrider.com" style="color:#f59e0b;text-decoration:none;">stmrider.com</a></p>
+        </div>
+      </div>
+    `,
+  }, 'trip-booking-approved');
+}
+
