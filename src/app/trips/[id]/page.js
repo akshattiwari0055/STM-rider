@@ -49,7 +49,7 @@ function TripPaymentPage({ booking, trip, onDone }) {
             {booking.numberOfSeats} Seat(s) · {booking.departureDate}
           </p>
         </div>
-        <div className="text-right">
+        <div className="text-center sm:text-right">
           <p className="text-xs text-gray-500 mb-0.5">Total Amount</p>
           <p className="text-3xl font-black text-[#FFB300]">₹{booking.totalPrice?.toLocaleString('en-IN')}</p>
         </div>
@@ -66,7 +66,7 @@ function TripPaymentPage({ booking, trip, onDone }) {
         <button
           onClick={handlePaymentDone}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black font-black text-xl rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(255,179,0,0.3)] hover:scale-[1.02] disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 sm:gap-3 py-3.5 sm:py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black font-black text-lg sm:text-xl rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(255,179,0,0.3)] hover:scale-[1.02] disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="w-6 h-6 animate-spin" />
@@ -541,22 +541,22 @@ export default function TripDetailPage() {
                   <img src={trip.image} alt={trip.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                   
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-black/60 backdrop-blur-md border border-white/10 text-white flex items-center gap-1.5">
+                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
+                    <span className="px-3 sm:px-3.5 py-1 rounded-full text-xs font-bold bg-black/70 backdrop-blur-md border border-white/10 text-white flex items-center gap-1.5 shrink-0 shadow-md">
                       <Clock className="w-3.5 h-3.5 text-[#FFB300]" />
                       {trip.duration}
                     </span>
-                    <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-[#FFB300]/20 border border-[#FFB300]/40 text-[#FFB300] backdrop-blur-md">
+                    <span className="px-3 sm:px-3.5 py-1 rounded-full text-xs font-bold bg-black/70 backdrop-blur-md border border-[#FFB300]/40 text-[#FFB300] whitespace-nowrap shrink-0 shadow-md">
                       {trip.seatsAvailable} seats remaining
                     </span>
                   </div>
 
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <p className="text-sm font-semibold text-[#FFB300] flex items-center gap-1.5 mb-1.5">
-                      <MapPin className="w-4 h-4" />
+                  <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
+                    <p className="text-xs sm:text-sm font-semibold text-[#FFB300] flex items-center gap-1.5 mb-1 sm:mb-1.5">
+                      <MapPin className="w-3.5 sm:w-4 h-3.5 sm:h-4 shrink-0" />
                       {trip.destination}
                     </p>
-                    <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+                    <h1 className="text-xl sm:text-4xl font-black text-white tracking-tight">
                       {trip.title}
                     </h1>
                   </div>

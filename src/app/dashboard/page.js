@@ -796,7 +796,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Tabs ──────────────────────────────────── */}
-        <div className="flex gap-1 p-1 glass rounded-xl border border-white/5 mb-6 w-fit flex-wrap">
+        <div className="w-full sm:w-fit overflow-x-auto no-scrollbar flex gap-1.5 p-1.5 glass rounded-2xl border border-white/5 mb-6">
           {[
             { id: 'bookings', label: 'Vehicle Rentals', icon: Car },
             { id: 'trips', label: `Tour Trips (${tripBookings.length})`, icon: Compass },
@@ -805,13 +805,13 @@ export default function DashboardPage() {
             <button
               key={tab.id} id={`tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap shrink-0 transition-all ${
                 activeTab === tab.id
                   ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black shadow-[0_0_15px_rgba(255,106,0,0.3)] font-bold'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              <tab.icon className="w-4 h-4" />{tab.label}
+              <tab.icon className="w-4 h-4 shrink-0" />{tab.label}
             </button>
           ))}
         </div>

@@ -139,7 +139,7 @@ export default function TripsShowcase() {
                 </div>
 
                 {/* Content */}
-                <div className="p-6 flex-1 flex flex-col justify-between">
+                <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between">
                   <div className="space-y-3 mb-5">
                     {/* Departure Dates snippet */}
                     {trip.departureDates?.length > 0 && (
@@ -163,24 +163,26 @@ export default function TripsShowcase() {
                   </div>
 
                   {/* Price & CTA */}
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-4">
-                    <div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-white">
-                          ₹{trip.price?.toLocaleString('en-IN')}
-                        </span>
-                        {trip.originalPrice && (
-                          <span className="text-xs text-gray-500 line-through">
-                            ₹{trip.originalPrice?.toLocaleString('en-IN')}
+                  <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                    <div className="flex items-center justify-between sm:block">
+                      <div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xl sm:text-2xl font-black text-white">
+                            ₹{trip.price?.toLocaleString('en-IN')}
                           </span>
-                        )}
+                          {trip.originalPrice && (
+                            <span className="text-xs text-gray-500 line-through">
+                              ₹{trip.originalPrice?.toLocaleString('en-IN')}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-gray-400 block whitespace-nowrap">per person all-inclusive</span>
                       </div>
-                      <span className="text-[11px] text-gray-400">per person all-inclusive</span>
                     </div>
 
                     <Link
                       href={`/trips/${trip._id}`}
-                      className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(255,179,0,0.3)] shrink-0"
+                      className="w-full sm:w-auto text-center px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(255,179,0,0.3)] shrink-0 flex items-center justify-center"
                     >
                       Book Trip
                     </Link>
