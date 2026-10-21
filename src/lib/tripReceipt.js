@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import fs from 'fs';
 import path from 'path';
+import { cleanForPdf } from './pdfTextSanitizer';
 
 export function buildTripReceiptPdfBuffer({ booking, trip }) {
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -9,7 +10,7 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   const margin = 14;
   const contentWidth = w - margin * 2;
 
-  // Read optimized logo
+  // Read optimized logo if present
   let logoBase64 = null;
   try {
     const logoPath = path.join(process.cwd(), 'public', 'logo_pdf.png');
@@ -37,7 +38,7 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
       pdf.setFontSize(8);
       pdf.setTextColor(120, 120, 120);
       pdf.text('TOUR VOUCHER & ITINERARY (CONTINUED)', margin + 24, 12);
-      pdf.text(`#${booking._id?.toString().slice(-8).toUpperCase() || ''}`, w - margin, 12, { align: 'right' });
+      pdf.text(`#${cleanForPdf(booking._id?.toString().slice(-8).toUpperCase()) || ''}`, w - margin, 12, { align: 'right' });
       pdf.setDrawColor(230, 230, 230);
       pdf.line(margin, 15, w - margin, 15);
       return 20;
@@ -48,7 +49,6 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
       try {
         pdf.addImage(logoBase64, 'PNG', margin, 8, 30, 20);
       } catch {
-        // Fallback text logo
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(18);
         pdf.setTextColor(255, 106, 0);
@@ -83,7 +83,7 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
     pdf.setFont('courier', 'bold');
     pdf.setFontSize(10);
     pdf.setTextColor(255, 106, 0);
-    const voucherRef = `#STM-TRIP-${booking._id?.toString().slice(-8).toUpperCase() || 'REF'}`;
+    const voucherRef = `#STM-TRIP-${cleanForPdf(booking._id?.toString().slice(-8).toUpperCase()) || 'REF'}`;
     pdf.text(voucherRef, rightX, 19, { align: 'right' });
 
     // Status Badge
@@ -145,16 +145,18 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   pdf.text('PASSENGER INFORMATION', margin + 4, y + 6);
 
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(11);
+  pdf.setFontSize(10.5);
   pdf.setTextColor(15, 23, 42);
-  const custName = pdf.splitTextToSize(booking.customerName || 'N/A', maxCardTextWidth)[0];
-  pdf.text(custName, margin + 4, y + 13);
+  const cleanCustomerName = cleanForPdf(booking.customerName || 'N/A');
+  const custNameLine = pdf.splitTextToSize(cleanCustomerName, maxCardTextWidth)[0];
+  pdf.text(custNameLine, margin + 4, y + 13);
 
   pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(8.5);
+  pdf.setFontSize(8);
   pdf.setTextColor(71, 85, 105);
-  pdf.text(`Phone: ${booking.phone || 'N/A'}`, margin + 4, y + 19.5);
-  const emailLine = pdf.splitTextToSize(`Email: ${booking.customerEmail || 'Not Provided'}`, maxCardTextWidth)[0];
+  pdf.text(`Phone: ${cleanForPdf(booking.phone || 'N/A')}`, margin + 4, y + 19.5);
+  const cleanEmail = cleanForPdf(booking.customerEmail || 'Not Provided');
+  const emailLine = pdf.splitTextToSize(`Email: ${cleanEmail}`, maxCardTextWidth)[0];
   pdf.text(emailLine, margin + 4, y + 25);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(15, 23, 42);
@@ -172,18 +174,19 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   pdf.text('EXPEDITION DETAILS', rightCardX + 4, y + 6);
 
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(10.5);
+  pdf.setFontSize(10);
   pdf.setTextColor(15, 23, 42);
-  const tripTitleTrunc = pdf.splitTextToSize(trip.title || 'Tour Expedition', maxCardTextWidth)[0];
+  const cleanTripTitle = cleanForPdf(trip.title || 'Tour Expedition');
+  const tripTitleTrunc = pdf.splitTextToSize(cleanTripTitle, maxCardTextWidth)[0];
   pdf.text(tripTitleTrunc, rightCardX + 4, y + 12.5);
 
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(8);
   pdf.setTextColor(71, 85, 105);
 
-  // Clean up and wrap destination so it NEVER bleeds over right card edge
-  const rawDest = (trip.destination || '').replace(/->/g, ' -> ').replace(/\s+/g, ' ').trim();
-  const destLines = pdf.splitTextToSize(`Destination: ${rawDest}`, maxCardTextWidth);
+  // Clean destination without UTF-16 bugs
+  const cleanDest = cleanForPdf(trip.destination || '');
+  const destLines = pdf.splitTextToSize(`Destination: ${cleanDest}`, maxCardTextWidth);
   let curY = y + 17.5;
   if (destLines.length > 1) {
     pdf.text(destLines[0], rightCardX + 4, curY);
@@ -198,20 +201,21 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
     curY += 4.2;
   }
 
-  pdf.text(`Duration: ${trip.duration || ''}`, rightCardX + 4, curY);
+  pdf.text(`Duration: ${cleanForPdf(trip.duration || '')}`, rightCardX + 4, curY);
   curY += 4.2;
-  pdf.text(`Departure Date: ${booking.departureDate || ''}`, rightCardX + 4, curY);
+  pdf.text(`Departure Date: ${cleanForPdf(booking.departureDate || '')}`, rightCardX + 4, curY);
   curY += 4.2;
-  const pickupLine = pdf.splitTextToSize(`Pickup: ${booking.pickupPoint || trip.pickupLocation || 'LPU Law Gate'}`, maxCardTextWidth)[0];
+  const cleanPickup = cleanForPdf(booking.pickupPoint || trip.pickupLocation || 'LPU Law Gate');
+  const pickupLine = pdf.splitTextToSize(`Pickup: ${cleanPickup}`, maxCardTextWidth)[0];
   pdf.text(pickupLine, rightCardX + 4, curY);
 
   y += cardHeight + 6;
 
-  // SECTION 2: DAYWISE TOUR PLAN & HIGHLIGHTS (WHAT THEY PURCHASED)
+  // SECTION 2: DAYWISE TOUR PLAN & HIGHLIGHTS (PURCHASED ITINERARY)
   pdf.setFillColor(15, 23, 42); // slate 900
   pdf.roundedRect(margin, y, contentWidth, 7, 1.5, 1.5, 'F');
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(9);
+  pdf.setFontSize(8.5);
   pdf.setTextColor(255, 255, 255);
   pdf.text('DAY-BY-DAY TOUR PLAN & HIGHLIGHTS (PURCHASED ITINERARY)', margin + 4, y + 4.8);
   y += 10;
@@ -224,11 +228,28 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
         { day: 3, title: 'Return Journey', details: 'Breakfast, morning exploration, and comfortable return journey to origin point.' },
       ];
 
+  const textLeftMargin = margin + 20;
+  const textMaxAvailableWidth = contentWidth - 22;
+
   itinerary.forEach((item, idx) => {
+    const cleanTitle = cleanForPdf(item.title || `Day ${idx + 1} Plan`);
+    const cleanDetails = cleanForPdf(item.details || '');
+    const detailLines = pdf.splitTextToSize(cleanDetails, textMaxAvailableWidth);
+
+    // Dynamic block height
+    const blockHeight = Math.max(12, 8.5 + detailLines.length * 3.8);
+
     // Check if new page needed
-    if (y > h - 45) {
+    if (y + blockHeight > h - 35) {
       pdf.addPage();
       y = drawHeader(true);
+    }
+
+    // Timeline connector line
+    if (idx < itinerary.length - 1) {
+      pdf.setDrawColor(255, 179, 0);
+      pdf.setLineWidth(0.4);
+      pdf.line(margin + 8, y + 6, margin + 8, y + blockHeight + 2);
     }
 
     // Day badge
@@ -241,28 +262,30 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
 
     // Day title
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(9.5);
+    pdf.setFontSize(9);
     pdf.setTextColor(15, 23, 42);
-    pdf.text(item.title || `Day ${idx + 1} Plan`, margin + 20, y + 4);
+    pdf.text(cleanTitle, textLeftMargin, y + 4);
 
-    // Day details
+    // Day details with crisp single-byte letter spacing and consistent line height
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
     pdf.setTextColor(71, 85, 105);
-    const detailLines = pdf.splitTextToSize(item.details || '', contentWidth - 20);
-    pdf.text(detailLines, margin + 20, y + 8.5);
 
-    const blockHeight = Math.max(12, 10 + detailLines.length * 3.6);
-    y += blockHeight;
+    detailLines.forEach((line, lineIdx) => {
+      pdf.text(line, textLeftMargin, y + 8.5 + (lineIdx * 3.8));
+    });
+
+    y += blockHeight + 1.5;
 
     // Subtle divider between days
     if (idx < itinerary.length - 1) {
       pdf.setDrawColor(241, 245, 249);
-      pdf.line(margin + 20, y - 2, w - margin, y - 2);
+      pdf.setLineWidth(0.2);
+      pdf.line(textLeftMargin, y - 1, w - margin, y - 1);
     }
   });
 
-  y += 4;
+  y += 3;
 
   // SECTION 3: INCLUSIONS & EXCLUSIONS
   if (y > h - 55) {
@@ -292,7 +315,8 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   pdf.setFontSize(7.5);
   pdf.setTextColor(21, 128, 61);
   inclusions.forEach((inc, i) => {
-    const txt = pdf.splitTextToSize(`* ${inc}`, incWidth - 8)[0];
+    const cleanInc = cleanForPdf(inc);
+    const txt = pdf.splitTextToSize(`* ${cleanInc}`, incWidth - 8)[0];
     pdf.text(txt, margin + 4, incY + 10 + i * 4.5);
   });
 
@@ -317,7 +341,8 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
     'Follow captain guidelines for group safety.'
   ];
   guidelines.forEach((g, i) => {
-    const txt = pdf.splitTextToSize(`* ${g}`, incWidth - 8)[0];
+    const cleanG = cleanForPdf(g);
+    const txt = pdf.splitTextToSize(`* ${cleanG}`, incWidth - 8)[0];
     pdf.text(txt, rightCardX + 4, incY + 10 + i * 4.5);
   });
 
@@ -332,7 +357,7 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   pdf.setFillColor(15, 23, 42); // slate 900
   pdf.roundedRect(margin, y, contentWidth, 7, 1.5, 1.5, 'F');
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(9);
+  pdf.setFontSize(8.5);
   pdf.setTextColor(255, 255, 255);
   pdf.text('PAYMENT & FARE BREAKDOWN', margin + 4, y + 4.8);
   y += 10;
@@ -351,13 +376,15 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
 
   // Item Row
   const seats = booking.numberOfSeats || 1;
-  const basePricePerPerson = trip.price || Math.round(booking.totalPrice / seats);
+  const basePricePerPerson = trip.price || Math.round((booking.totalPrice || 0) / seats);
   const subtotal = booking.originalPrice || (basePricePerPerson * seats);
 
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(8.5);
   pdf.setTextColor(15, 23, 42);
-  pdf.text(`${trip.title || 'Tour Expedition'} (${trip.duration || ''})`, margin + 4, y + 3);
+  const cleanItemTitle = cleanForPdf(trip.title || 'Tour Expedition');
+  const cleanDuration = cleanForPdf(trip.duration || '');
+  pdf.text(`${cleanItemTitle} (${cleanDuration})`, margin + 4, y + 3);
 
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(8.5);
@@ -373,7 +400,7 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8.5);
     pdf.setTextColor(22, 163, 74);
-    pdf.text(`Coupon Discount Code: [${booking.couponCode.toUpperCase()}]`, margin + 4, y + 3);
+    pdf.text(`Coupon Discount Code: [${cleanForPdf(booking.couponCode.toUpperCase())}]`, margin + 4, y + 3);
     pdf.text(`- Rs. ${discount.toLocaleString('en-IN')}`, w - margin - 4, y + 3, { align: 'right' });
     y += 7;
   }
@@ -387,11 +414,11 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   pdf.setFillColor(254, 243, 199); // Yellow 100
   pdf.roundedRect(margin, y, contentWidth, 8, 1.5, 1.5, 'F');
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(10);
+  pdf.setFontSize(9.5);
   pdf.setTextColor(146, 64, 14); // Yellow 900
-  pdf.text('TOTAL AMOUNT (INCL. TAXES):', margin + 4, y + 5.5);
+  pdf.text('TOTAL AMOUNT PAID (INCL. ALL TAXES):', margin + 4, y + 5.5);
 
-  pdf.setFontSize(12);
+  pdf.setFontSize(11.5);
   pdf.setTextColor(255, 106, 0); // Orange
   pdf.text(`Rs. ${Number(booking.totalPrice || 0).toLocaleString('en-IN')}`, w - margin - 4, y + 5.5, { align: 'right' });
 

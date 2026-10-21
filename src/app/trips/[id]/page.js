@@ -11,6 +11,7 @@ import {
 import { jsPDF } from 'jspdf';
 import Footer from '@/components/Footer';
 import TripPoliciesSection from '@/components/TripPoliciesSection';
+import { cleanForPdf } from '@/lib/pdfTextSanitizer';
 
 // ── Payment Page Component ───────────────────────────────────────────────────
 function TripPaymentPage({ booking, trip, onDone }) {
@@ -458,14 +459,14 @@ export default function TripDetailPage() {
       pdf.setFontSize(8);
       pdf.setTextColor(255, 106, 0);
       pdf.text('PRIMARY PASSENGER', 18, 40);
-      pdf.setFontSize(11);
+      pdf.setFontSize(10.5);
       pdf.setTextColor(15, 23, 42);
-      pdf.text(booking.customerName || '', 18, 47);
+      pdf.text(cleanForPdf(booking.customerName || ''), 18, 47);
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(8.5);
+      pdf.setFontSize(8);
       pdf.setTextColor(71, 85, 105);
-      pdf.text(`Phone: ${booking.phone || ''}`, 18, 53);
-      pdf.text(`Email: ${booking.customerEmail || email || 'N/A'}`, 18, 58);
+      pdf.text(`Phone: ${cleanForPdf(booking.phone || '')}`, 18, 53);
+      pdf.text(`Email: ${cleanForPdf(booking.customerEmail || email || 'N/A')}`, 18, 58);
       pdf.setFont('helvetica', 'bold');
       pdf.text(`Seats Reserved: ${booking.numberOfSeats} Person(s)`, 18, 63);
 
@@ -477,15 +478,19 @@ export default function TripDetailPage() {
       pdf.setFontSize(8);
       pdf.setTextColor(255, 106, 0);
       pdf.text('TOUR EXPEDITION', cardX + 4, 40);
-      pdf.setFontSize(10.5);
+      pdf.setFontSize(10);
       pdf.setTextColor(15, 23, 42);
-      pdf.text(trip.title || '', cardX + 4, 47);
+      pdf.text(cleanForPdf(trip.title || ''), cardX + 4, 47);
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(8.5);
+      pdf.setFontSize(8);
       pdf.setTextColor(71, 85, 105);
-      pdf.text(`Destination: ${trip.destination} (${trip.duration})`, cardX + 4, 53);
-      pdf.text(`Departure Batch: ${booking.departureDate}`, cardX + 4, 58);
-      pdf.text(`Pickup Point: ${booking.pickupPoint || 'LPU Law Gate'}`, cardX + 4, 63);
+
+      const cleanDest = cleanForPdf(trip.destination || '');
+      const cleanDuration = cleanForPdf(trip.duration || '');
+      const destLines = pdf.splitTextToSize(`Destination: ${cleanDest} (${cleanDuration})`, (w - 34) / 2 - 8);
+      pdf.text(destLines[0] || '', cardX + 4, 53);
+      pdf.text(`Departure Batch: ${cleanForPdf(booking.departureDate)}`, cardX + 4, 58);
+      pdf.text(`Pickup Point: ${cleanForPdf(booking.pickupPoint || 'LPU Law Gate')}`, cardX + 4, 63);
 
       // Daywise Itinerary Section
       let curY = 74;
@@ -499,6 +504,23 @@ export default function TripDetailPage() {
 
       const itinerary = trip.itinerary && trip.itinerary.length > 0 ? trip.itinerary : [];
       itinerary.forEach((item, idx) => {
+        const cleanTitle = cleanForPdf(item.title || `Day ${idx + 1} Plan`);
+        const cleanDetails = cleanForPdf(item.details || '');
+        const lines = pdf.splitTextToSize(cleanDetails, w - 50);
+        const blockHeight = Math.max(12, 8.5 + lines.length * 3.8);
+
+        if (curY + blockHeight > 265) {
+          pdf.addPage();
+          curY = 20;
+        }
+
+        // Connector line
+        if (idx < itinerary.length - 1) {
+          pdf.setDrawColor(255, 179, 0);
+          pdf.setLineWidth(0.3);
+          pdf.line(21.5, curY + 5, 21.5, curY + blockHeight);
+        }
+
         pdf.setFillColor(255, 179, 0);
         pdf.roundedRect(14, curY, 15, 5, 1, 1, 'F');
         pdf.setFont('helvetica', 'bold');
@@ -509,17 +531,23 @@ export default function TripDetailPage() {
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(9);
         pdf.setTextColor(15, 23, 42);
-        pdf.text(item.title || '', 32, curY + 3.8);
+        pdf.text(cleanTitle, 32, curY + 3.8);
 
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(8);
         pdf.setTextColor(71, 85, 105);
-        const lines = pdf.splitTextToSize(item.details || '', w - 50);
-        pdf.text(lines, 32, curY + 8);
-        curY += Math.max(12, 9 + lines.length * 3.5);
+        lines.forEach((line, lineIdx) => {
+          pdf.text(line, 32, curY + 8 + (lineIdx * 3.8));
+        });
+
+        curY += blockHeight + 1.5;
       });
 
       // Price breakdown
+      if (curY > 260) {
+        pdf.addPage();
+        curY = 20;
+      }
       curY += 2;
       pdf.setFillColor(254, 243, 199);
       pdf.roundedRect(14, curY, w - 28, 8, 1.5, 1.5, 'F');
