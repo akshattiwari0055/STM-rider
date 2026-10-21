@@ -23,6 +23,9 @@ const tripSchema = new Schema({
   itinerary: { type: [itineraryDaySchema], default: [] },
   inclusions: { type: [String], default: [] },
   exclusions: { type: [String], default: [] },
+  thingsToCarry: { type: [String], default: [] },
+  cancellationPolicy: { type: [String], default: [] },
+  termsAndConditions: { type: [String], default: [] },
   status: { 
     type: String, 
     enum: ['Open', 'Filling Fast', 'Sold Out', 'Completed'], 

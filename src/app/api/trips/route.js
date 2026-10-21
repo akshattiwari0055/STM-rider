@@ -206,6 +206,9 @@ export async function POST(request) {
       itinerary: Array.isArray(body.itinerary) ? body.itinerary : [],
       inclusions: Array.isArray(body.inclusions) ? body.inclusions : [],
       exclusions: Array.isArray(body.exclusions) ? body.exclusions : [],
+      thingsToCarry: Array.isArray(body.thingsToCarry) ? body.thingsToCarry : [],
+      cancellationPolicy: Array.isArray(body.cancellationPolicy) ? body.cancellationPolicy : [],
+      termsAndConditions: Array.isArray(body.termsAndConditions) ? body.termsAndConditions : [],
       status: body.status || 'Open',
       featured: Boolean(body.featured ?? true),
     });

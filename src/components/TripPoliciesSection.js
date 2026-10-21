@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Luggage, ShieldAlert, FileText, CheckCircle2, AlertTriangle,
   RotateCcw, Sparkles, ChevronDown, Check, ArrowRight, ShieldCheck,
   HeartPulse, Award, Clock, DollarSign, RefreshCw, Zap, Users,
-  MapPin, HelpCircle
+  MapPin, HelpCircle, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 const DEFAULT_PACKING_CATEGORIES = [
@@ -214,10 +214,71 @@ export default function TripPoliciesSection({ trip }) {
   // 'carry' | 'cancellation' | 'terms' | 'all'
   const [activeTab, setActiveTab] = useState('carry');
   const [checkedItems, setCheckedItems] = useState({});
-  const [openTerms, setOpenTerms] = useState({ 't-1': true, 't-2': true });
+  const [openTerms, setOpenTerms] = useState({ 't-1': true, 't-2': true, 'custom-term-0': true });
+
+  // Scroll controls for horizontal tabs
+  const tabsContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollability = () => {
+    if (!tabsContainerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = tabsContainerRef.current;
+    setCanScrollLeft(scrollLeft > 4);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 4);
+  };
+
+  useEffect(() => {
+    checkScrollability();
+    window.addEventListener('resize', checkScrollability);
+    return () => window.removeEventListener('resize', checkScrollability);
+  }, []);
+
+  const scrollLeft = () => {
+    if (tabsContainerRef.current) {
+      tabsContainerRef.current.scrollBy({ left: -160, behavior: 'smooth' });
+      setTimeout(checkScrollability, 250);
+    }
+  };
+
+  const scrollRight = () => {
+    if (tabsContainerRef.current) {
+      tabsContainerRef.current.scrollBy({ left: 160, behavior: 'smooth' });
+      setTimeout(checkScrollability, 250);
+    }
+  };
+
+  const handleTabClick = (tab, e) => {
+    setActiveTab(tab);
+    if (e?.currentTarget) {
+      e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      setTimeout(checkScrollability, 250);
+    }
+  };
+
+  // ── Custom Policies from Admin ──────────────────────────────────────────────
+  const hasCustomCarry = Array.isArray(trip?.thingsToCarry) && trip.thingsToCarry.length > 0;
+  const hasCustomCancellation = Array.isArray(trip?.cancellationPolicy) && trip.cancellationPolicy.length > 0;
+  const hasCustomTerms = Array.isArray(trip?.termsAndConditions) && trip.termsAndConditions.length > 0;
+
+  // Custom Things to Carry Category
+  const customCarryCategory = hasCustomCarry ? [{
+    id: 'custom-trip-carry',
+    title: `${trip.title || 'Trip'} Custom Essentials`,
+    icon: '⭐',
+    badge: 'Trip Specific',
+    badgeColor: 'bg-[#FFB300]/15 text-[#FFB300] border-[#FFB300]/40',
+    items: trip.thingsToCarry.map((item, idx) => ({
+      id: `custom-pack-${idx}`,
+      name: item,
+      note: 'Recommended specifically for this destination by STM Trip Captain'
+    }))
+  }] : [];
+
+  const packingCategories = [...customCarryCategory, ...DEFAULT_PACKING_CATEGORIES];
 
   // Calculate total items and packed count
-  const allPackItems = DEFAULT_PACKING_CATEGORIES.flatMap(cat => cat.items);
+  const allPackItems = packingCategories.flatMap(cat => cat.items);
   const totalItemsCount = allPackItems.length;
   const packedCount = Object.values(checkedItems).filter(Boolean).length;
   const packedPercentage = Math.round((packedCount / totalItemsCount) * 100);
@@ -241,6 +302,18 @@ export default function TripPoliciesSection({ trip }) {
     setCheckedItems({});
   };
 
+  // Custom Terms List
+  const customTermsList = hasCustomTerms ? trip.termsAndConditions.map((clause, idx) => ({
+    id: `custom-term-${idx}`,
+    title: clause.length > 55 ? clause.slice(0, 52) + '...' : clause,
+    category: 'Trip Specific',
+    icon: '⭐',
+    summary: clause,
+    details: clause
+  })) : [];
+
+  const allTermsList = [...customTermsList, ...TERMS_LIST];
+
   const toggleTerm = (termId) => {
     setOpenTerms(prev => ({
       ...prev,
@@ -249,12 +322,12 @@ export default function TripPoliciesSection({ trip }) {
   };
 
   const toggleAllTerms = () => {
-    const allOpen = TERMS_LIST.every(t => openTerms[t.id]);
+    const allOpen = allTermsList.every(t => openTerms[t.id]);
     if (allOpen) {
       setOpenTerms({});
     } else {
       const full = {};
-      TERMS_LIST.forEach(t => {
+      allTermsList.forEach(t => {
         full[t.id] = true;
       });
       setOpenTerms(full);
@@ -278,62 +351,105 @@ export default function TripPoliciesSection({ trip }) {
           </p>
         </div>
 
-        {/* Tab Buttons */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-black/60 border border-white/10 backdrop-blur-md overflow-x-auto no-scrollbar shrink-0">
+        {/* Tab Buttons with Left/Right Scroll Arrows */}
+        <div className="relative flex items-center max-w-full">
+          {/* Left Arrow Button */}
           <button
             type="button"
-            onClick={() => setActiveTab('carry')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'carry'
-                ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black shadow-[0_0_20px_rgba(255,179,0,0.4)]'
-                : 'text-gray-300 hover:text-white hover:bg-white/5'
+            onClick={scrollLeft}
+            disabled={!canScrollLeft}
+            aria-label="Scroll tabs left"
+            className={`w-8 h-8 rounded-xl bg-black/80 border flex items-center justify-center transition-all shrink-0 mr-1.5 shadow-md ${
+              canScrollLeft
+                ? 'border-[#FFB300]/40 text-[#FFB300] hover:bg-[#FFB300] hover:text-black hover:scale-105 active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(255,179,0,0.3)]'
+                : 'border-white/10 text-gray-600 opacity-30 cursor-not-allowed'
             }`}
           >
-            <Luggage className="w-3.5 h-3.5" />
-            <span>Things to Carry</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-              activeTab === 'carry' ? 'bg-black/20 text-black' : 'bg-white/10 text-gray-300'
-            }`}>
-              {packedCount > 0 ? `${packedCount}/${totalItemsCount}` : totalItemsCount}
-            </span>
+            <ChevronLeft className="w-4 h-4" />
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('cancellation')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'cancellation'
-                ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black shadow-[0_0_20px_rgba(255,179,0,0.4)]'
-                : 'text-gray-300 hover:text-white hover:bg-white/5'
-            }`}
+          {/* Scrollable Tabs Track */}
+          <div
+            ref={tabsContainerRef}
+            onScroll={checkScrollability}
+            className="flex items-center gap-1.5 p-1 rounded-2xl bg-black/60 border border-white/10 backdrop-blur-md overflow-x-auto no-scrollbar scroll-smooth shrink"
           >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>Cancellation Policy</span>
-          </button>
+            <button
+              type="button"
+              onClick={(e) => handleTabClick('carry', e)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                activeTab === 'carry'
+                  ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black shadow-[0_0_20px_rgba(255,179,0,0.4)]'
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Luggage className="w-3.5 h-3.5" />
+              <span>Things to Carry</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                activeTab === 'carry' ? 'bg-black/20 text-black' : 'bg-white/10 text-gray-300'
+              }`}>
+                {packedCount > 0 ? `${packedCount}/${totalItemsCount}` : totalItemsCount}
+              </span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('terms')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'terms'
-                ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black shadow-[0_0_20px_rgba(255,179,0,0.4)]'
-                : 'text-gray-300 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Terms & Conditions</span>
-          </button>
+            <button
+              type="button"
+              onClick={(e) => handleTabClick('cancellation', e)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                activeTab === 'cancellation'
+                  ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black shadow-[0_0_20px_rgba(255,179,0,0.4)]'
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>Cancellation Policy</span>
+              {hasCustomCancellation && (
+                <span className="w-2 h-2 rounded-full bg-[#FFB300] animate-pulse" />
+              )}
+            </button>
 
+            <button
+              type="button"
+              onClick={(e) => handleTabClick('terms', e)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                activeTab === 'terms'
+                  ? 'bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black shadow-[0_0_20px_rgba(255,179,0,0.4)]'
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Terms & Conditions</span>
+              {hasCustomTerms && (
+                <span className="w-2 h-2 rounded-full bg-[#FFB300] animate-pulse" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => handleTabClick(activeTab === 'all' ? 'carry' : 'all', e)}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                activeTab === 'all'
+                  ? 'bg-white/20 text-white font-bold border border-white/20'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {activeTab === 'all' ? 'Tabs View' : 'View All'}
+            </button>
+          </div>
+
+          {/* Right Arrow Button */}
           <button
             type="button"
-            onClick={() => setActiveTab(activeTab === 'all' ? 'carry' : 'all')}
-            className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 ${
-              activeTab === 'all'
-                ? 'bg-white/20 text-white font-bold border border-white/20'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            onClick={scrollRight}
+            disabled={!canScrollRight}
+            aria-label="Scroll tabs right"
+            className={`w-8 h-8 rounded-xl bg-black/80 border flex items-center justify-center transition-all shrink-0 ml-1.5 shadow-md ${
+              canScrollRight
+                ? 'border-[#FFB300]/40 text-[#FFB300] hover:bg-[#FFB300] hover:text-black hover:scale-105 active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(255,179,0,0.3)] animate-pulse'
+                : 'border-white/10 text-gray-600 opacity-30 cursor-not-allowed'
             }`}
           >
-            {activeTab === 'all' ? 'Tabs View' : 'View All'}
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -356,6 +472,11 @@ export default function TripPoliciesSection({ trip }) {
                 <div>
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     Interactive Packing Checklist
+                    {hasCustomCarry && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFB300]/15 border border-[#FFB300]/30 text-[#FFB300]">
+                        Customized for {trip.title}
+                      </span>
+                    )}
                   </h3>
                   <p className="text-xs text-gray-400">
                     Tap any item to check off your bag. Prepared for high altitude & changing weather.
@@ -421,7 +542,7 @@ export default function TripPoliciesSection({ trip }) {
 
           {/* Packing Categories Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {DEFAULT_PACKING_CATEGORIES.map(category => {
+            {packingCategories.map(category => {
               const catItemsPacked = category.items.filter(item => checkedItems[item.id]).length;
               const catComplete = catItemsPacked === category.items.length;
 
@@ -431,6 +552,8 @@ export default function TripPoliciesSection({ trip }) {
                   className={`rounded-2xl p-4 sm:p-5 border transition-all duration-300 ${
                     catComplete
                       ? 'bg-emerald-950/10 border-emerald-500/30'
+                      : category.id === 'custom-trip-carry'
+                      ? 'bg-[#FFB300]/[0.04] border-[#FFB300]/30 shadow-[0_0_20px_rgba(255,179,0,0.06)]'
                       : 'bg-white/[0.03] border-white/10 hover:border-white/20'
                   }`}
                 >
@@ -529,6 +652,26 @@ export default function TripPoliciesSection({ trip }) {
               </p>
             </div>
           </div>
+
+          {/* Custom Cancellation Policy from Admin (if present) */}
+          {hasCustomCancellation && (
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-[#FFB300]/15 via-[#FF6A00]/10 to-transparent border border-[#FFB300]/40 space-y-3 shadow-[0_0_20px_rgba(255,179,0,0.1)]">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#FFB300] animate-pulse" />
+                <h4 className="text-sm font-bold text-white uppercase tracking-wider">
+                  Special Cancellation Terms for {trip.title}
+                </h4>
+              </div>
+              <ul className="space-y-2">
+                {trip.cancellationPolicy.map((clause, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-200">
+                    <span className="w-2 h-2 rounded-full bg-gradient-to-r from-[#FFB300] to-[#FF6A00] shrink-0 mt-1.5 shadow-[0_0_6px_rgba(255,179,0,0.8)]" />
+                    <span className="font-medium">{clause}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Refund Tiers Visual Roadmap Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -670,6 +813,11 @@ export default function TripPoliciesSection({ trip }) {
               <div>
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   Terms & Conditions
+                  {hasCustomTerms && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFB300]/15 border border-[#FFB300]/30 text-[#FFB300]">
+                      Includes {trip.title} Custom Rules
+                    </span>
+                  )}
                 </h3>
                 <p className="text-xs text-gray-400">
                   Official travel agreement, passenger safety protocols, and operational guidelines.
@@ -682,13 +830,13 @@ export default function TripPoliciesSection({ trip }) {
               onClick={toggleAllTerms}
               className="self-start sm:self-auto text-xs text-[#FFB300] hover:text-[#FF6A00] font-bold px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
             >
-              {TERMS_LIST.every(t => openTerms[t.id]) ? 'Collapse All' : 'Expand All'}
+              {allTermsList.every(t => openTerms[t.id]) ? 'Collapse All' : 'Expand All'}
             </button>
           </div>
 
           {/* Terms Accordion Items */}
           <div className="space-y-3">
-            {TERMS_LIST.map((item, idx) => {
+            {allTermsList.map((item, idx) => {
               const isOpen = Boolean(openTerms[item.id]);
 
               return (
@@ -712,7 +860,11 @@ export default function TripPoliciesSection({ trip }) {
                       </span>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFB300]/10 border border-[#FFB300]/20 text-[#FFB300] uppercase tracking-wider">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${
+                            item.category === 'Trip Specific'
+                              ? 'bg-[#FFB300]/20 border-[#FFB300]/50 text-[#FFB300]'
+                              : 'bg-[#FFB300]/10 border border-[#FFB300]/20 text-[#FFB300]'
+                          }`}>
                             {item.category}
                           </span>
                         </div>

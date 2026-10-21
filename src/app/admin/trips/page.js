@@ -36,6 +36,9 @@ const emptyTripForm = {
   description: '',
   inclusionsText: '',
   exclusionsText: '',
+  thingsToCarryText: '',
+  cancellationPolicyText: '',
+  termsAndConditionsText: '',
   status: 'Open',
   featured: true,
   itinerary: [
@@ -103,6 +106,9 @@ export default function AdminTrips() {
       description: t.description || '',
       inclusionsText: Array.isArray(t.inclusions) ? t.inclusions.join('\n') : '',
       exclusionsText: Array.isArray(t.exclusions) ? t.exclusions.join('\n') : '',
+      thingsToCarryText: Array.isArray(t.thingsToCarry) ? t.thingsToCarry.join('\n') : '',
+      cancellationPolicyText: Array.isArray(t.cancellationPolicy) ? t.cancellationPolicy.join('\n') : '',
+      termsAndConditionsText: Array.isArray(t.termsAndConditions) ? t.termsAndConditions.join('\n') : '',
       status: t.status || 'Open',
       featured: Boolean(t.featured),
       itinerary: Array.isArray(t.itinerary) && t.itinerary.length > 0 ? t.itinerary : [
@@ -132,6 +138,18 @@ export default function AdminTrips() {
       ? formData.exclusionsText.split('\n').map(s => s.trim()).filter(Boolean)
       : [];
 
+    const thingsToCarry = formData.thingsToCarryText
+      ? formData.thingsToCarryText.split('\n').map(s => s.trim()).filter(Boolean)
+      : [];
+
+    const cancellationPolicy = formData.cancellationPolicyText
+      ? formData.cancellationPolicyText.split('\n').map(s => s.trim()).filter(Boolean)
+      : [];
+
+    const termsAndConditions = formData.termsAndConditionsText
+      ? formData.termsAndConditionsText.split('\n').map(s => s.trim()).filter(Boolean)
+      : [];
+
     const cleanItinerary = formData.itinerary
       .filter(item => item.title.trim())
       .map((item, index) => ({
@@ -155,6 +173,9 @@ export default function AdminTrips() {
       description: formData.description,
       inclusions,
       exclusions,
+      thingsToCarry,
+      cancellationPolicy,
+      termsAndConditions,
       status: formData.status,
       featured: formData.featured,
       itinerary: cleanItinerary,
@@ -828,6 +849,80 @@ export default function AdminTrips() {
                     value={formData.exclusionsText}
                     onChange={e => setFormData({ ...formData, exclusionsText: e.target.value })}
                     className="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#FFB300]"
+                  />
+                </div>
+              </div>
+
+              {/* Custom Things to Carry, Cancellation Policy & Terms */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/5">
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#FFB300]" />
+                      Custom Policies & Things to Carry (Optional)
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Leave blank to use STM Rider standard defaults, or customize per trip below.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        thingsToCarryText: `Valid Original Govt Photo ID (Aadhaar / Passport / Voter ID)\nStudent / College ID Card\nHeavy Down Jacket / Windcheater\nThermal Inners (Top & Bottom)\nTrekking Shoes / Sturdy Sneakers with Rubber Grip\n10,000mAh+ Power Bank & Charging Cables\nPersonal Daily Medications & Motion Sickness Pills\nSPF 50+ Sunscreen, Lip Balm & Cold Cream\n15L - 25L Daypack & Insulated Water Bottle\nPolarized Sunglasses & Sufficient Physical Cash`,
+                        cancellationPolicyText: `15+ Days Before Departure: 85% Cash Refund or 100% STM Trip Credit Voucher\n7 to 14 Days Before Departure: 50% Cash Refund or 60% STM Trip Credit Voucher\n3 to 6 Days Before Departure: 25% Cash Refund or 35% STM Trip Credit Voucher\nUnder 72 Hours / No-Show: 0% Refund (Free seat transfer to friend allowed)\nWeather / Landslide Guarantee: 100% Trip Credit Voucher if routes blocked by authority`,
+                        termsAndConditionsText: `Original Govt Photo ID is mandatory for boarding checkpoints and hotel check-in.\nReporting time is 30 minutes before departure. Buses will not wait for late passengers.\nStrict zero-tolerance policy against illegal drugs, narcotics, or harassment of co-travelers.\nBaggage allowance is 1 main rucksack/trolley (max 15kg) and 1 small daypack per seat.\nItinerary routes may adapt dynamically for passenger safety in case of severe mountain weather.\nTravelers must be medically fit and disclose pre-existing cardiac or respiratory conditions.`,
+                      }));
+                    }}
+                    className="text-xs text-[#FFB300] hover:text-[#FF6A00] font-bold px-3 py-1.5 rounded-lg bg-[#FFB300]/10 border border-[#FFB300]/30 hover:bg-[#FFB300]/20 transition-all self-start sm:self-auto shrink-0"
+                  >
+                    Load Standard Template
+                  </button>
+                </div>
+
+                {/* Custom Things to Carry */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1 flex items-center justify-between">
+                    <span>🎒 Custom Things to Carry (1 item per line)</span>
+                    <span className="text-[11px] text-gray-500 font-normal">Optional</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Heavy Down Jacket&#10;Thermal Inners&#10;Trekking Shoes&#10;Power Bank (10,000mAh+)&#10;Valid Govt ID Card"
+                    value={formData.thingsToCarryText}
+                    onChange={e => setFormData({ ...formData, thingsToCarryText: e.target.value })}
+                    className="w-full bg-black border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#FFB300]"
+                  />
+                </div>
+
+                {/* Custom Cancellation Policy */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1 flex items-center justify-between">
+                    <span>🛡️ Custom Cancellation Policy (1 clause per line)</span>
+                    <span className="text-[11px] text-gray-500 font-normal">Optional</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="15+ Days: 85% Cash Refund or 100% Credit Voucher&#10;7-14 Days: 50% Cash Refund&#10;Under 72 Hours: No refund (Free seat transfer allowed)"
+                    value={formData.cancellationPolicyText}
+                    onChange={e => setFormData({ ...formData, cancellationPolicyText: e.target.value })}
+                    className="w-full bg-black border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#FFB300]"
+                  />
+                </div>
+
+                {/* Custom Terms & Conditions */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1 flex items-center justify-between">
+                    <span>📜 Custom Terms & Conditions (1 rule per line)</span>
+                    <span className="text-[11px] text-gray-500 font-normal">Optional</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Original Govt ID is mandatory for boarding&#10;Reporting time is strictly 30 minutes before departure&#10;Zero tolerance policy for drugs or misconduct"
+                    value={formData.termsAndConditionsText}
+                    onChange={e => setFormData({ ...formData, termsAndConditionsText: e.target.value })}
+                    className="w-full bg-black border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#FFB300]"
                   />
                 </div>
               </div>
