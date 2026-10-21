@@ -474,8 +474,8 @@ export async function sendTripBookingApprovedEmail({
 
             <table style="width:100%;font-size:13px;color:#334155;border-collapse:collapse;">
               <tr>
-                <td style="padding:6px 0;color:#64748b;">Destination:</td>
-                <td style="padding:6px 0;font-weight:600;text-align:right;color:#0f172a;">${escapeHtml(trip?.destination || '')}</td>
+                <td style="padding:6px 0;color:#64748b;white-space:nowrap;vertical-align:top;">Destination:</td>
+                <td style="padding:6px 0;font-weight:600;text-align:right;color:#0f172a;word-break:break-word;max-width:240px;">${escapeHtml(trip?.destination ? trip.destination.replace(/->/g, ' → ') : '')}</td>
               </tr>
               <tr>
                 <td style="padding:6px 0;color:#64748b;">Duration:</td>

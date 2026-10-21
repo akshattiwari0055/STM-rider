@@ -570,7 +570,7 @@ export default function TripDetailPage() {
                   </div>
                   <div className="p-2 sm:px-4">
                     <p className="text-xs text-gray-500 uppercase">Pickup Location</p>
-                    <p className="font-bold text-sm text-white mt-0.5 truncate">{trip.pickupLocation}</p>
+                    <p className="font-bold text-sm text-white mt-0.5 break-words leading-tight">{trip.pickupLocation}</p>
                   </div>
                   <div className="p-2 sm:px-4">
                     <p className="text-xs text-gray-500 uppercase">Group Size</p>
@@ -669,7 +669,7 @@ export default function TripDetailPage() {
 
             {/* Right 1 Col: Sticky Booking Card & Form */}
             <div className="lg:col-span-1">
-              <div className="sticky top-28 glass rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl space-y-6">
+              <div className="sticky top-28 glass rounded-3xl p-4 sm:p-7 border border-white/10 shadow-2xl space-y-6 overflow-hidden">
                 
                 {/* Price Display */}
                 <div className="pb-5 border-b border-white/10">
@@ -816,23 +816,23 @@ export default function TripDetailPage() {
                       )}
                     </label>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full">
                       <input
                         type="text"
-                        placeholder="ENTER COUPON CODE"
+                        placeholder="ENTER CODE"
                         value={couponCode}
                         disabled={Boolean(appliedCoupon)}
                         onChange={e => {
                           setCouponCode(e.target.value.toUpperCase());
                           setCouponError('');
                         }}
-                        className="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white uppercase placeholder-gray-500 focus:outline-none focus:border-[#FFB300] disabled:opacity-50"
+                        className="min-w-0 flex-1 w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white uppercase placeholder-gray-500 focus:outline-none focus:border-[#FFB300] disabled:opacity-50"
                       />
                       <button
                         type="button"
                         onClick={handleApplyCoupon}
                         disabled={couponLoading || !couponCode.trim() || Boolean(appliedCoupon)}
-                        className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                        className="px-3 sm:px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                       >
                         {couponLoading ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />

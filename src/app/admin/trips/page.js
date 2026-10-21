@@ -221,30 +221,30 @@ export default function AdminTrips() {
     : bookings.filter(b => b.status === bookingFilter);
 
   return (
-    <div className="p-6 md:p-10 space-y-8">
+    <div className="p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8 max-w-full overflow-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white flex items-center gap-3">
-            <Compass className="w-8 h-8 text-[#FFB300]" />
+          <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3">
+            <Compass className="w-7 h-7 sm:w-8 sm:h-8 text-[#FFB300]" />
             Trips & Tour Expeditions
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-gray-400 text-xs sm:text-sm mt-1">
             Manage public tour packages, departure batches, seat availability, and customer bookings.
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3 flex-wrap">
           <button
             onClick={fetchData}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-white transition-colors text-sm font-semibold"
+            className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-white transition-colors text-xs sm:text-sm font-semibold"
           >
             <RefreshCw className="w-4 h-4" /> Refresh
           </button>
           {activeTab === 'trips' && (
             <button
               onClick={openAddModal}
-              className="bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black px-5 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 shadow-[0_0_15px_rgba(255,179,0,0.3)]"
+              className="bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black px-4 sm:px-5 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 hover:opacity-90 shadow-[0_0_15px_rgba(255,179,0,0.3)]"
             >
               <Plus className="w-4 h-4" /> Post New Trip
             </button>
@@ -253,7 +253,7 @@ export default function AdminTrips() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-3 border-b border-white/10 pb-4">
+      <div className="flex gap-2 sm:gap-3 border-b border-white/10 pb-4 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveTab('trips')}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
@@ -410,12 +410,12 @@ export default function AdminTrips() {
       {activeTab === 'bookings' && (
         <div className="space-y-6">
           {/* Status Filter */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 sm:flex-wrap">
             {['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'].map(st => (
               <button
                 key={st}
                 onClick={() => setBookingFilter(st)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all whitespace-nowrap shrink-0 sm:shrink ${
                   bookingFilter === st
                     ? 'bg-[#FF6A00] text-black border-[#FF6A00]'
                     : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
@@ -444,7 +444,7 @@ export default function AdminTrips() {
                 return (
                   <div
                     key={b._id}
-                    className={`bg-[#111] border rounded-2xl p-5 transition-all ${
+                    className={`bg-[#111] border rounded-2xl p-4 sm:p-5 transition-all overflow-hidden ${
                       b.status === 'Pending'
                         ? 'border-yellow-500/40 shadow-[0_0_20px_rgba(234,179,8,0.1)]'
                         : 'border-white/5 hover:border-white/10'
@@ -453,12 +453,12 @@ export default function AdminTrips() {
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                       
                       {/* Trip & Customer Info */}
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-                          <Compass className="w-6 h-6 text-[#FFB300]" />
+                      <div className="flex items-start gap-3 sm:gap-4 w-full lg:w-auto">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+                          <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-[#FFB300]" />
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
                             <h3 className="font-bold text-white text-base">
                               {b.trip?.title || 'Trip Package'}
                             </h3>
@@ -467,7 +467,7 @@ export default function AdminTrips() {
                             </span>
                           </div>
                           
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mt-1">
+                          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-gray-400 mt-1">
                             <span className="text-white font-semibold flex items-center gap-1">
                               <Users className="w-3.5 h-3.5 text-[#FFB300]" />
                               {b.customerName} ({b.numberOfSeats} seat{b.numberOfSeats > 1 ? 's' : ''})
@@ -490,22 +490,24 @@ export default function AdminTrips() {
                       </div>
 
                       {/* Price & Actions */}
-                      <div className="flex items-center gap-6 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-white/5">
-                        <div className="text-left lg:text-right">
-                          <p className="text-xs text-gray-500">Total Paid</p>
-                          <p className="text-xl font-black text-[#FFB300]">
-                            ₹{b.totalPrice?.toLocaleString('en-IN')}
-                          </p>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between lg:justify-end gap-3 sm:gap-6 w-full lg:w-auto border-t lg:border-t-0 pt-3 lg:pt-0 border-white/5">
+                        <div className="flex items-center justify-between sm:justify-start gap-4">
+                          <div className="text-left sm:text-left lg:text-right">
+                            <p className="text-xs text-gray-500">Total Paid</p>
+                            <p className="text-xl font-black text-[#FFB300]">
+                              ₹{b.totalPrice?.toLocaleString('en-IN')}
+                            </p>
+                          </div>
+
+                          {/* Status badge */}
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shrink-0 ${cfg.bg} ${cfg.color}`}>
+                            <StatusIcon className="w-3 h-3" />
+                            {b.status}
+                          </span>
                         </div>
 
-                        {/* Status badge */}
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${cfg.bg} ${cfg.color}`}>
-                          <StatusIcon className="w-3 h-3" />
-                          {b.status}
-                        </span>
-
                         {/* Action buttons */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           {b.status === 'Pending' && (
                             <button
                               onClick={() => handleBookingStatusUpdate(b._id, 'Confirmed')}
@@ -567,7 +569,6 @@ export default function AdminTrips() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-
                       </div>
 
                     </div>

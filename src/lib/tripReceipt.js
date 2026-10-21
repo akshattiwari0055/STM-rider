@@ -131,7 +131,8 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
 
   // SECTION 1: PASSENGER & EXPEDITION OVERVIEW CARDS
   const cardWidth = (contentWidth - 6) / 2;
-  const cardHeight = 36;
+  const cardHeight = 40;
+  const maxCardTextWidth = cardWidth - 8;
 
   // Left Card: Customer Info
   pdf.setFillColor(248, 250, 252); // slate 50
@@ -146,16 +147,18 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(11);
   pdf.setTextColor(15, 23, 42);
-  pdf.text(booking.customerName || 'N/A', margin + 4, y + 13);
+  const custName = pdf.splitTextToSize(booking.customerName || 'N/A', maxCardTextWidth)[0];
+  pdf.text(custName, margin + 4, y + 13);
 
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(8.5);
   pdf.setTextColor(71, 85, 105);
-  pdf.text(`Phone: ${booking.phone || 'N/A'}`, margin + 4, y + 19);
-  pdf.text(`Email: ${booking.customerEmail || 'Not Provided'}`, margin + 4, y + 24);
+  pdf.text(`Phone: ${booking.phone || 'N/A'}`, margin + 4, y + 19.5);
+  const emailLine = pdf.splitTextToSize(`Email: ${booking.customerEmail || 'Not Provided'}`, maxCardTextWidth)[0];
+  pdf.text(emailLine, margin + 4, y + 25);
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(15, 23, 42);
-  pdf.text(`Seats Reserved: ${booking.numberOfSeats || 1} Passenger(s)`, margin + 4, y + 30);
+  pdf.text(`Seats Reserved: ${booking.numberOfSeats || 1} Passenger(s)`, margin + 4, y + 32);
 
   // Right Card: Trip Overview
   const rightCardX = margin + cardWidth + 6;
@@ -171,16 +174,36 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(10.5);
   pdf.setTextColor(15, 23, 42);
-  const tripTitleTrunc = pdf.splitTextToSize(trip.title || 'Tour Expedition', cardWidth - 8)[0];
-  pdf.text(tripTitleTrunc, rightCardX + 4, y + 13);
+  const tripTitleTrunc = pdf.splitTextToSize(trip.title || 'Tour Expedition', maxCardTextWidth)[0];
+  pdf.text(tripTitleTrunc, rightCardX + 4, y + 12.5);
 
   pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(8.5);
+  pdf.setFontSize(8);
   pdf.setTextColor(71, 85, 105);
-  pdf.text(`Destination: ${trip.destination || ''}`, rightCardX + 4, y + 19);
-  pdf.text(`Duration: ${trip.duration || ''}`, rightCardX + 4, y + 24);
-  pdf.text(`Departure Date: ${booking.departureDate || ''}`, rightCardX + 4, y + 29);
-  pdf.text(`Pickup Point: ${booking.pickupPoint || trip.pickupLocation || 'LPU Law Gate'}`, rightCardX + 4, y + 33.5);
+
+  // Clean up and wrap destination so it NEVER bleeds over right card edge
+  const rawDest = (trip.destination || '').replace(/->/g, ' -> ').replace(/\s+/g, ' ').trim();
+  const destLines = pdf.splitTextToSize(`Destination: ${rawDest}`, maxCardTextWidth);
+  let curY = y + 17.5;
+  if (destLines.length > 1) {
+    pdf.text(destLines[0], rightCardX + 4, curY);
+    curY += 3.8;
+    const secondLine = destLines.length > 2
+      ? pdf.splitTextToSize(destLines.slice(1).join(' '), maxCardTextWidth)[0] + '...'
+      : destLines[1];
+    pdf.text(secondLine, rightCardX + 4, curY);
+    curY += 4.2;
+  } else {
+    pdf.text(destLines[0] || 'Destination: N/A', rightCardX + 4, curY);
+    curY += 4.2;
+  }
+
+  pdf.text(`Duration: ${trip.duration || ''}`, rightCardX + 4, curY);
+  curY += 4.2;
+  pdf.text(`Departure Date: ${booking.departureDate || ''}`, rightCardX + 4, curY);
+  curY += 4.2;
+  const pickupLine = pdf.splitTextToSize(`Pickup: ${booking.pickupPoint || trip.pickupLocation || 'LPU Law Gate'}`, maxCardTextWidth)[0];
+  pdf.text(pickupLine, rightCardX + 4, curY);
 
   y += cardHeight + 6;
 
