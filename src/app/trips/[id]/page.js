@@ -195,6 +195,25 @@ export default function TripDetailPage() {
   const [couponError, setCouponError] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
 
+  // Itinerary accordion state
+  const [expandedDays, setExpandedDays] = useState({ 1: true });
+
+  const toggleDay = (day) => {
+    setExpandedDays(prev => ({ ...prev, [day]: !prev[day] }));
+  };
+
+  const toggleAllDays = () => {
+    if (!trip?.itinerary) return;
+    const allOpen = trip.itinerary.every(item => expandedDays[item.day]);
+    if (allOpen) {
+      setExpandedDays({});
+    } else {
+      const all = {};
+      trip.itinerary.forEach(item => { all[item.day] = true; });
+      setExpandedDays(all);
+    }
+  };
+
   // Fetch Trip & User
   useEffect(() => {
     Promise.all([
@@ -598,34 +617,81 @@ export default function TripDetailPage() {
 
               {/* Day-by-Day Itinerary */}
               {trip.itinerary && trip.itinerary.length > 0 && (
-                <div className="glass rounded-3xl p-6 sm:p-8 border border-white/10 space-y-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-[#FF6A00]" />
-                      Day-by-Day Detailed Itinerary
-                    </h2>
-                    <p className="text-gray-400 text-xs mt-1">Planned meticulously for maximum fun and comfort.</p>
+                <div className="glass rounded-3xl p-4 sm:p-7 border border-white/10 space-y-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-[#FF6A00]" />
+                        Day-by-Day Detailed Itinerary
+                      </h2>
+                      <p className="text-gray-400 text-xs mt-1">Tap any day to view details & plan.</p>
+                    </div>
+
+                    {trip.itinerary.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={toggleAllDays}
+                        className="text-xs text-[#FFB300] hover:text-[#FF6A00] font-bold shrink-0 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                      >
+                        {trip.itinerary.every(item => expandedDays[item.day]) ? 'Collapse All' : 'Expand All'}
+                      </button>
+                    )}
                   </div>
 
-                  <div className="space-y-4">
-                    {trip.itinerary.map(item => (
-                      <div
-                        key={item.day}
-                        className="p-5 rounded-2xl bg-white/3 border border-white/5 space-y-2 hover:border-[#FFB300]/20 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FFB300] to-[#FF6A00] text-black font-black flex items-center justify-center text-xs shrink-0">
-                            D{item.day}
-                          </span>
-                          <h3 className="font-bold text-white text-base">
-                            Day {item.day}: {item.title}
-                          </h3>
+                  <div className="space-y-3">
+                    {trip.itinerary.map(item => {
+                      const isOpen = Boolean(expandedDays[item.day]);
+
+                      return (
+                        <div
+                          key={item.day}
+                          className="rounded-2xl bg-white/3 border border-white/5 overflow-hidden hover:border-[#FFB300]/30 transition-all"
+                        >
+                          {/* Clickable Day Header */}
+                          <button
+                            type="button"
+                            onClick={() => toggleDay(item.day)}
+                            className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left hover:bg-white/5 transition-colors cursor-pointer"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FFB300] to-[#FF6A00] text-black font-black flex items-center justify-center text-xs shrink-0 shadow-sm">
+                                D{item.day}
+                              </span>
+                              <div className="min-w-0">
+                                <h3 className="font-bold text-white text-sm sm:text-base truncate">
+                                  Day {item.day}: {item.title}
+                                </h3>
+                                {!isOpen && (
+                                  <p className="text-xs text-gray-500 truncate mt-0.5 max-w-sm sm:max-w-md">
+                                    {item.details}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-[11px] font-semibold text-gray-400 hidden sm:inline">
+                                {isOpen ? 'Hide' : 'Details'}
+                              </span>
+                              <ChevronDown
+                                className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transition-transform duration-300 ${
+                                  isOpen ? 'rotate-180 text-[#FFB300]' : ''
+                                }`}
+                              />
+                            </div>
+                          </button>
+
+                          {/* Full-width clean expanded content */}
+                          {isOpen && (
+                            <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-3 border-t border-white/5 bg-black/20">
+                              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                                {item.details}
+                              </p>
+                            </div>
+                          )}
                         </div>
-                        <p className="text-gray-400 text-sm pl-11 leading-relaxed">
-                          {item.details}
-                        </p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
