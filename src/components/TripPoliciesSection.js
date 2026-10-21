@@ -623,7 +623,7 @@ export default function TripPoliciesSection({ trip }) {
             <div className="w-9 h-9 rounded-xl bg-[#FFB300]/20 text-[#FFB300] flex items-center justify-center shrink-0">
               <Luggage className="w-5 h-5" />
             </div>
-            <p className="text-xs text-gray-300 leading-relaxed">
+            <p className="text-xs text-gray-300 leading-normal">
               <strong className="text-[#FFB300]">Luggage Tip:</strong> Please travel light with 1 main rucksack or trolley (max 15kg) and 1 small 20L daypack. Excess heavy baggage may restrict vehicle boot space.
             </p>
           </div>
@@ -748,7 +748,7 @@ export default function TripPoliciesSection({ trip }) {
                   <Users className="w-4 h-4" />
                 </div>
                 <h5 className="font-bold text-white text-sm">Zero-Fee Seat Transfer</h5>
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs text-gray-400 leading-normal">
                   Unable to travel? Transfer your confirmed booking to a friend or college mate up to <strong className="text-white">24 hours prior to departure</strong> with ₹0 transfer charges!
                 </p>
               </div>
@@ -759,7 +759,7 @@ export default function TripPoliciesSection({ trip }) {
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <h5 className="font-bold text-white text-sm">Force Majeure & Weather</h5>
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs text-gray-400 leading-normal">
                   If the trip cannot proceed due to severe landslides, snow blockades, or government administration restrictions, receive a <strong className="text-white">100% STM Trip Credit Voucher</strong> valid for 1 year.
                 </p>
               </div>
@@ -770,7 +770,7 @@ export default function TripPoliciesSection({ trip }) {
                   <Zap className="w-4 h-4" />
                 </div>
                 <h5 className="font-bold text-white text-sm">Fast UPI / Bank Refund</h5>
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs text-gray-400 leading-normal">
                   Approved cancellation refunds are credited back directly to your original UPI account or bank within <strong className="text-white">3 to 5 business days</strong> with zero hidden deductions.
                 </p>
               </div>
@@ -891,7 +891,7 @@ export default function TripPoliciesSection({ trip }) {
                   {/* Expanded Body Content */}
                   {isOpen && (
                     <div className="px-4 pb-5 pt-2 sm:px-6 sm:pb-6 border-t border-white/5 bg-gradient-to-b from-black/40 via-black/20 to-transparent">
-                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-xs sm:text-sm text-gray-300 leading-relaxed">
+                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-xs sm:text-sm text-gray-300 leading-normal">
                         {item.details}
                       </div>
                     </div>

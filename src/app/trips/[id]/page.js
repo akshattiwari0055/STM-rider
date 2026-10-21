@@ -506,8 +506,10 @@ export default function TripDetailPage() {
       itinerary.forEach((item, idx) => {
         const cleanTitle = cleanForPdf(item.title || `Day ${idx + 1} Plan`);
         const cleanDetails = cleanForPdf(item.details || '');
-        const lines = pdf.splitTextToSize(cleanDetails, w - 50);
-        const blockHeight = Math.max(12, 8.5 + lines.length * 3.8);
+        const lines = pdf.splitTextToSize(cleanDetails, w - 50)
+          .map(l => l.trim())
+          .filter(Boolean);
+        const blockHeight = Math.max(10, 7.2 + lines.length * 3.0);
 
         if (curY + blockHeight > 265) {
           pdf.addPage();
@@ -518,7 +520,7 @@ export default function TripDetailPage() {
         if (idx < itinerary.length - 1) {
           pdf.setDrawColor(255, 179, 0);
           pdf.setLineWidth(0.3);
-          pdf.line(21.5, curY + 5, 21.5, curY + blockHeight);
+          pdf.line(21.5, curY + 5, 21.5, curY + blockHeight + 1);
         }
 
         pdf.setFillColor(255, 179, 0);
@@ -537,10 +539,10 @@ export default function TripDetailPage() {
         pdf.setFontSize(8);
         pdf.setTextColor(71, 85, 105);
         lines.forEach((line, lineIdx) => {
-          pdf.text(line, 32, curY + 8 + (lineIdx * 3.8));
+          pdf.text(line, 32, curY + 7.5 + (lineIdx * 3.0));
         });
 
-        curY += blockHeight + 1.5;
+        curY += blockHeight + 1.2;
       });
 
       // Price breakdown
@@ -692,7 +694,7 @@ export default function TripDetailPage() {
                   <Sparkles className="w-5 h-5 text-[#FFB300]" />
                   Trip Overview
                 </h2>
-                <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
+                <p className="text-gray-300 leading-normal text-sm sm:text-base">
                   {trip.description}
                 </p>
               </div>
@@ -828,7 +830,7 @@ export default function TripDetailPage() {
                                           <span className="text-base select-none shrink-0 mt-0.5">
                                             {getStepEmoji(step, sIdx)}
                                           </span>
-                                          <p className="text-gray-200 text-xs sm:text-sm leading-relaxed font-normal">
+                                          <p className="text-gray-200 text-xs sm:text-sm leading-snug font-normal">
                                             {step}
                                           </p>
                                         </div>

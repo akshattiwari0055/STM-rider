@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import fs from 'fs';
 import path from 'path';
-import { cleanForPdf } from './pdfTextSanitizer';
+import { cleanForPdf } from './pdfTextSanitizer.js';
 
 export function buildTripReceiptPdfBuffer({ booking, trip }) {
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -186,25 +186,25 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
 
   // Clean destination without UTF-16 bugs
   const cleanDest = cleanForPdf(trip.destination || '');
-  const destLines = pdf.splitTextToSize(`Destination: ${cleanDest}`, maxCardTextWidth);
+  const destLines = pdf.splitTextToSize(`Destination: ${cleanDest}`, maxCardTextWidth).map(l => l.trim()).filter(Boolean);
   let curY = y + 17.5;
   if (destLines.length > 1) {
     pdf.text(destLines[0], rightCardX + 4, curY);
-    curY += 3.8;
+    curY += 3.2;
     const secondLine = destLines.length > 2
       ? pdf.splitTextToSize(destLines.slice(1).join(' '), maxCardTextWidth)[0] + '...'
       : destLines[1];
     pdf.text(secondLine, rightCardX + 4, curY);
-    curY += 4.2;
+    curY += 3.5;
   } else {
     pdf.text(destLines[0] || 'Destination: N/A', rightCardX + 4, curY);
-    curY += 4.2;
+    curY += 3.5;
   }
 
   pdf.text(`Duration: ${cleanForPdf(trip.duration || '')}`, rightCardX + 4, curY);
-  curY += 4.2;
+  curY += 3.5;
   pdf.text(`Departure Date: ${cleanForPdf(booking.departureDate || '')}`, rightCardX + 4, curY);
-  curY += 4.2;
+  curY += 3.5;
   const cleanPickup = cleanForPdf(booking.pickupPoint || trip.pickupLocation || 'LPU Law Gate');
   const pickupLine = pdf.splitTextToSize(`Pickup: ${cleanPickup}`, maxCardTextWidth)[0];
   pdf.text(pickupLine, rightCardX + 4, curY);
@@ -234,10 +234,12 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
   itinerary.forEach((item, idx) => {
     const cleanTitle = cleanForPdf(item.title || `Day ${idx + 1} Plan`);
     const cleanDetails = cleanForPdf(item.details || '');
-    const detailLines = pdf.splitTextToSize(cleanDetails, textMaxAvailableWidth);
+    const detailLines = pdf.splitTextToSize(cleanDetails, textMaxAvailableWidth)
+      .map(l => l.trim())
+      .filter(Boolean);
 
-    // Dynamic block height
-    const blockHeight = Math.max(12, 8.5 + detailLines.length * 3.8);
+    // Dynamic block height with compact line spacing (3.0mm)
+    const blockHeight = Math.max(10, 7.2 + detailLines.length * 3.0);
 
     // Check if new page needed
     if (y + blockHeight > h - 35) {
@@ -249,7 +251,7 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
     if (idx < itinerary.length - 1) {
       pdf.setDrawColor(255, 179, 0);
       pdf.setLineWidth(0.4);
-      pdf.line(margin + 8, y + 6, margin + 8, y + blockHeight + 2);
+      pdf.line(margin + 8, y + 6, margin + 8, y + blockHeight + 1);
     }
 
     // Day badge
@@ -266,22 +268,22 @@ export function buildTripReceiptPdfBuffer({ booking, trip }) {
     pdf.setTextColor(15, 23, 42);
     pdf.text(cleanTitle, textLeftMargin, y + 4);
 
-    // Day details with crisp single-byte letter spacing and consistent line height
+    // Day details with crisp single-byte letter spacing and tight, compact line height
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
     pdf.setTextColor(71, 85, 105);
 
     detailLines.forEach((line, lineIdx) => {
-      pdf.text(line, textLeftMargin, y + 8.5 + (lineIdx * 3.8));
+      pdf.text(line, textLeftMargin, y + 7.5 + (lineIdx * 3.0));
     });
 
-    y += blockHeight + 1.5;
+    y += blockHeight + 1.2;
 
     // Subtle divider between days
     if (idx < itinerary.length - 1) {
       pdf.setDrawColor(241, 245, 249);
       pdf.setLineWidth(0.2);
-      pdf.line(textLeftMargin, y - 1, w - margin, y - 1);
+      pdf.line(textLeftMargin, y - 0.5, w - margin, y - 0.5);
     }
   });
 

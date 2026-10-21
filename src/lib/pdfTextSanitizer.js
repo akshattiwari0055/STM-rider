@@ -30,6 +30,8 @@ export function cleanForPdf(input) {
     // Normalize line endings
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
+    // Collapse consecutive newlines to prevent blank lines between text
+    .replace(/\n{2,}/g, '\n')
     // Normalize spaces
     .replace(/[ \t]+/g, ' ')
     .trim();
