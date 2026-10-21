@@ -38,6 +38,8 @@ export default function Footer() {
               <li><Link href="/trips" className="text-gray-400 hover:text-[#FFB300] transition-colors">Trips & Tours</Link></li>
               <li><Link href="/about" className="text-gray-400 hover:text-[#FFB300] transition-colors">About Us</Link></li>
               <li><Link href="/contact" className="text-gray-400 hover:text-[#FFB300] transition-colors">Contact</Link></li>
+              <li><Link href="/terms" className="text-gray-400 hover:text-[#FFB300] transition-colors">Terms & Conditions</Link></li>
+              <li><Link href="/cancellation-policy" className="text-gray-400 hover:text-[#FFB300] transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
           
@@ -62,7 +64,11 @@ export default function Footer() {
         
         <div className="border-t border-white/10 pt-8 text-center text-gray-500 text-sm flex flex-col md:flex-row justify-between items-center gap-4">
           <p>&copy; {new Date().getFullYear()} STM RIDER. All rights reserved.</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm">
+            <Link href="/terms" className="hover:text-[#FFB300] transition-colors">Terms & Conditions</Link>
+            <span className="text-gray-700 hidden sm:inline">•</span>
+            <Link href="/cancellation-policy" className="hover:text-[#FFB300] transition-colors">Cancellation Policy</Link>
+            <span className="text-gray-700 hidden sm:inline">•</span>
             <Link href="/admin" className="hover:text-[#FFB300] transition-colors">Admin Login</Link>
           </div>
         </div>

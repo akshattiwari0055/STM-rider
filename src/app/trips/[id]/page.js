@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import Footer from '@/components/Footer';
+import TripPoliciesSection from '@/components/TripPoliciesSection';
 
 // ── Payment Page Component ───────────────────────────────────────────────────
 function TripPaymentPage({ booking, trip, onDone }) {
@@ -853,6 +854,9 @@ export default function TripDetailPage() {
                 </div>
               </div>
 
+              {/* Things to Carry, Cancellation Policy, Terms & Conditions Section */}
+              <TripPoliciesSection trip={trip} />
+
             </div>
 
             {/* Right 1 Col: Sticky Booking Card & Form */}
@@ -1093,6 +1097,20 @@ export default function TripDetailPage() {
                   <p className="text-[11px] text-center text-gray-500">
                     Guaranteed seat reservation • Instant UPI confirmation
                   </p>
+
+                  <div className="pt-3 border-t border-white/10 flex items-center justify-center gap-2.5 text-[11px] text-gray-400">
+                    <a href="#trip-policies" className="hover:text-[#FFB300] transition-colors underline decoration-white/20 hover:decoration-[#FFB300]">
+                      🎒 Things to Carry
+                    </a>
+                    <span>•</span>
+                    <a href="#trip-policies" className="hover:text-[#FFB300] transition-colors underline decoration-white/20 hover:decoration-[#FFB300]">
+                      🛡️ Cancellation
+                    </a>
+                    <span>•</span>
+                    <a href="#trip-policies" className="hover:text-[#FFB300] transition-colors underline decoration-white/20 hover:decoration-[#FFB300]">
+                      📜 Terms
+                    </a>
+                  </div>
                 </form>
 
               </div>
