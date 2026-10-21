@@ -165,6 +165,59 @@ function TripReceiptView({ booking, trip, onDownload }) {
   );
 }
 
+// ── Itinerary Helpers ────────────────────────────────────────────────────────
+function parseItinerarySteps(details) {
+  if (!details) return { highlight: null, steps: [] };
+
+  const rawLines = details
+    .split(/\r?\n+/)
+    .map(l => l.trim())
+    .filter(Boolean);
+
+  let highlight = null;
+  let steps = rawLines;
+
+  if (rawLines.length > 1) {
+    const first = rawLines[0];
+    const isTheme = (first.length <= 70 && !first.endsWith('.')) || (first === first.toUpperCase() && first.length <= 95);
+    if (isTheme) {
+      highlight = first;
+      steps = rawLines.slice(1);
+    }
+  } else if (rawLines.length === 1) {
+    const sentences = rawLines[0]
+      .split(/(?<=[.?!])\s+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    if (sentences.length > 1) {
+      if (sentences[0] === sentences[0].toUpperCase() && sentences[0].length <= 95) {
+        highlight = sentences[0];
+        steps = sentences.slice(1);
+      } else {
+        steps = sentences;
+      }
+    }
+  }
+
+  return { highlight, steps };
+}
+
+function getStepEmoji(text, index) {
+  const lower = (text || '').toLowerCase();
+  if (lower.includes('assemble') || lower.includes('gate') || lower.includes('reporting') || lower.includes('pickup') || lower.includes('meet')) return '📍';
+  if (lower.includes('drive') || lower.includes('journey') || lower.includes('highway') || lower.includes('travel') || lower.includes('bus') || lower.includes('road') || lower.includes('begin')) return '🚌';
+  if (lower.includes('mountain') || lower.includes('himalaya') || lower.includes('valley') || lower.includes('pass') || lower.includes('solang') || lower.includes('snow') || lower.includes('scenic') || lower.includes('view') || lower.includes('tunnel') || lower.includes('sissu')) return '🏔️';
+  if (lower.includes('music') || lower.includes('social') || lower.includes('bonfire') || lower.includes('party') || lower.includes('dance') || lower.includes('relax') || lower.includes('vibe')) return '🔥';
+  if (lower.includes('refreshment') || lower.includes('breakfast') || lower.includes('lunch') || lower.includes('dinner') || lower.includes('meal') || lower.includes('food') || lower.includes('tea') || lower.includes('coffee') || lower.includes('snack') || lower.includes('break')) return '☕';
+  if (lower.includes('market') || lower.includes('shop') || lower.includes('souvenir') || lower.includes('handicraft') || lower.includes('mall road') || lower.includes('shopping')) return '🛍️';
+  if (lower.includes('night') || lower.includes('sleep') || lower.includes('stay') || lower.includes('hotel') || lower.includes('camp') || lower.includes('tent') || lower.includes('check-in')) return '🌙';
+  if (lower.includes('explore') || lower.includes('adventure') || lower.includes('trek') || lower.includes('sightseeing') || lower.includes('river') || lower.includes('beas')) return '🌲';
+
+  const defaultEmojis = ['✨', '🌟', '🎯', '📸', '🎒'];
+  return defaultEmojis[index % defaultEmojis.length];
+}
+
 // ── Main Trip Details Page ───────────────────────────────────────────────────
 export default function TripDetailPage() {
   const { id } = useParams();
@@ -645,13 +698,17 @@ export default function TripDetailPage() {
                       return (
                         <div
                           key={item.day}
-                          className="rounded-2xl bg-white/3 border border-white/5 overflow-hidden hover:border-[#FFB300]/30 transition-all"
+                          className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
+                            isOpen
+                              ? 'bg-[#141414]/90 border-[#FFB300]/40 shadow-[0_4px_30px_rgba(255,179,0,0.1)]'
+                              : 'bg-white/3 border-white/5 hover:border-white/20 hover:bg-white/[0.04]'
+                          }`}
                         >
                           {/* Clickable Day Header */}
                           <button
                             type="button"
                             onClick={() => toggleDay(item.day)}
-                            className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left hover:bg-white/5 transition-colors cursor-pointer"
+                            className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-white/5 transition-colors cursor-pointer"
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FFB300] to-[#FF6A00] text-black font-black flex items-center justify-center text-xs shrink-0 shadow-sm">
@@ -671,7 +728,7 @@ export default function TripDetailPage() {
 
                             <div className="flex items-center gap-2 shrink-0">
                               <span className="text-[11px] font-semibold text-gray-400 hidden sm:inline">
-                                {isOpen ? 'Hide' : 'Details'}
+                                {isOpen ? 'Hide' : 'View Plan'}
                               </span>
                               <ChevronDown
                                 className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transition-transform duration-300 ${
@@ -682,13 +739,52 @@ export default function TripDetailPage() {
                           </button>
 
                           {/* Full-width clean expanded content */}
-                          {isOpen && (
-                            <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-3 border-t border-white/5 bg-black/20">
-                              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-                                {item.details}
-                              </p>
-                            </div>
-                          )}
+                          {isOpen && (() => {
+                            const { highlight, steps } = parseItinerarySteps(item.details);
+
+                            return (
+                              <div className="px-4 pb-5 sm:px-6 sm:pb-6 pt-4 border-t border-white/5 bg-gradient-to-b from-black/40 via-black/20 to-transparent">
+                                
+                                {/* Highlight Banner if present */}
+                                {highlight && (
+                                  <div className="mb-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FFB300]/15 to-[#FF6A00]/10 border border-[#FFB300]/30 shadow-[0_0_15px_rgba(255,179,0,0.1)]">
+                                    <Sparkles className="w-3.5 h-3.5 text-[#FFB300] shrink-0 animate-pulse" />
+                                    <span className="text-xs font-bold text-[#FFB300] tracking-wide uppercase">
+                                      {highlight}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {/* Luminous Roadmap Timeline */}
+                                <div className="relative pl-6 sm:pl-7 space-y-3 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-gradient-to-b before:from-[#FFB300] before:via-[#FF6A00]/60 before:to-transparent">
+                                  {steps.map((step, sIdx) => (
+                                    <div
+                                      key={sIdx}
+                                      className="relative group transition-all duration-300 hover:translate-x-1"
+                                    >
+                                      {/* Glowing Node on Timeline */}
+                                      <div className="absolute -left-6 sm:-left-7 top-2 w-5 h-5 rounded-full bg-[#121212] border-2 border-[#FFB300] flex items-center justify-center shadow-[0_0_10px_rgba(255,179,0,0.4)] group-hover:scale-125 group-hover:border-[#FF6A00] transition-all">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#FFB300] group-hover:bg-[#FF6A00]" />
+                                      </div>
+
+                                      {/* Step Milestone Card */}
+                                      <div className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 hover:border-[#FFB300]/30 transition-all shadow-sm">
+                                        <div className="flex items-start gap-2.5">
+                                          <span className="text-base select-none shrink-0 mt-0.5">
+                                            {getStepEmoji(step, sIdx)}
+                                          </span>
+                                          <p className="text-gray-200 text-xs sm:text-sm leading-relaxed font-normal">
+                                            {step}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                              </div>
+                            );
+                          })()}
                         </div>
                       );
                     })}
