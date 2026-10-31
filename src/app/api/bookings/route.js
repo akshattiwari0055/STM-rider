@@ -14,6 +14,7 @@ import {
   notifyAdminForNewBooking,
   sendOverdueReturnReminders,
 } from '@/lib/booking-workflow';
+import { generateUniqueAmount } from '@/lib/payment-gateway';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
 
@@ -117,9 +118,15 @@ export async function POST(request) {
     };
     if (userId) bookingData.user = userId;
 
+    // Generate unique paise fingerprint AFTER we have the booking ID
+    // We'll set it after creation below.
+
     let newBooking;
     try {
       newBooking = await Booking.create(bookingData);
+      // Set unique payment amount now that we have the booking _id
+      newBooking.uniquePaymentAmount = generateUniqueAmount(finalPrice, newBooking._id.toString());
+      await newBooking.save();
     } catch (error) {
       if (error?.code === 11000) {
         return NextResponse.json({

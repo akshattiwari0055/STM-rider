@@ -48,138 +48,222 @@ function rangesOverlap(startA, endA, startB, endB) {
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 const fmtTime = (d) => new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-// ── Payment Page Component (UTR-based) ──────────────────────────────────────
+// ── Payment Gateway ───────────────────────────────────────────────────────────
 function PaymentPage({ booking, vehicle, onDone }) {
-  const [utr, setUtr] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [paid, setPaid] = useState(false);
+  // 'scan' → user sees QR + buttons | 'paying' → app opened, waiting | 'success' → done
+  const [stage, setStage]       = useState('scan');
+  const [confirming, setConfirming] = useState(false);
+  const [openedApp, setOpenedApp]   = useState(null); // 'phonepe' | 'gpay' | 'paytm' | 'upi'
 
-  const handleConfirmPayment = async () => {
-    setError('');
-    const cleaned = utr.trim().toUpperCase();
-    if (!cleaned || cleaned.length < 12) {
-      setError('Please enter a valid UTR / Transaction ID (at least 12 characters).');
-      return;
-    }
-    setLoading(true);
+  const amt     = booking.uniquePaymentAmount || booking.totalPrice;
+  const amtStr  = typeof amt === 'number' ? amt.toFixed(2) : String(booking.totalPrice);
+
+  // UPI deep links — pre-fill amount, merchant name, note
+  const upiId  = process.env.NEXT_PUBLIC_MERCHANT_UPI_ID || 'mayankjaiswal@upi';
+  const name   = process.env.NEXT_PUBLIC_MERCHANT_NAME   || 'Mayank Jaiswal';
+  const note   = encodeURIComponent(`STM RIDER #${booking._id?.slice(-6).toUpperCase()}`);
+  const base   = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amtStr}&cu=INR&tn=${note}`;
+
+  const links = {
+    phonepe: `phonepe://pay?${base}`,
+    gpay:    `tez://upi/pay?${base}`,
+    paytm:   `paytmmp://pay?${base}`,
+    upi:     `upi://pay?${base}`,
+  };
+
+  const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=${encodeURIComponent(links.upi)}`;
+
+  const openApp = (appKey) => {
+    window.location.href = links[appKey];
+    setOpenedApp(appKey);
+    setStage('paying');
+  };
+
+  const handleConfirmed = async () => {
+    setConfirming(true);
     try {
-      const res = await fetch(`/api/bookings/${booking._id}/confirm-utr`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ utrNumber: cleaned }),
-      });
+      const res  = await fetch(`/api/bookings/${booking._id}/activate`, { method: 'POST' });
       const data = await res.json();
       if (res.ok && data.success) {
-        setPaid(true);
-        setTimeout(() => onDone(), 1200);
+        setStage('success');
+        setTimeout(() => onDone(), 2000);
       } else {
-        setError(data.error || 'Something went wrong. Please try again.');
+        alert(data.error || 'Something went wrong. Please try again.');
       }
     } catch {
-      setError('Network error. Please check your connection and try again.');
+      alert('Network error. Please check your connection.');
     } finally {
-      setLoading(false);
+      setConfirming(false);
     }
   };
 
-  return (
-    <div className="flex flex-col items-center max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-[#FFB300]/10 border-2 border-[#FFB300]/30 flex items-center justify-center mx-auto mb-4">
-          <CreditCard className="w-8 h-8 text-[#FFB300]" />
-        </div>
-        <h2 className="text-3xl font-black text-white mb-1">Complete Payment</h2>
-        <p className="text-gray-400">Scan the QR code below and pay via UPI, then enter your UTR to confirm.</p>
-      </div>
-
-      {/* Booking Summary strip */}
-      <div className="w-full glass border border-white/10 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-center gap-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={vehicle.image} alt={vehicle.name} className="w-24 h-16 object-cover rounded-xl flex-shrink-0" />
-        <div className="flex-1 text-center sm:text-left">
-          <p className="text-white font-bold text-lg">{vehicle.name}</p>
-          <p className="text-gray-400 text-sm">{booking.durationHours} hours · {fmtDate(booking.startDate)}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-gray-500 mb-0.5">Total Amount</p>
-          <p className="text-3xl font-black text-[#FFB300]">₹{booking.totalPrice?.toLocaleString('en-IN')}</p>
-        </div>
-      </div>
-
-      {/* Steps */}
-      <div className="w-full max-w-sm mb-6 space-y-2">
-        {[
-          { n: '1', text: 'Scan the QR code below with any UPI app (PhonePe, GPay, Paytm)' },
-          { n: '2', text: `Pay exactly ₹${booking.totalPrice?.toLocaleString('en-IN')} and complete the transaction` },
-          { n: '3', text: 'Copy the UTR / Transaction ID from your UPI app and paste it below' },
-        ].map(({ n, text }) => (
-          <div key={n} className="flex items-start gap-3">
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FFB300]/20 border border-[#FFB300]/40 flex items-center justify-center text-[#FFB300] text-xs font-black">{n}</span>
-            <p className="text-gray-400 text-sm leading-relaxed">{text}</p>
+  // ── Success screen ──────────────────────────────────────────────────────────
+  if (stage === 'success') {
+    return (
+      <div className="flex flex-col items-center max-w-lg mx-auto text-center py-8">
+        <div className="relative mb-6">
+          <div className="w-24 h-24 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto animate-bounce">
+            <CheckCircle className="w-12 h-12 text-emerald-400" />
           </div>
-        ))}
+          <div className="absolute inset-0 rounded-full bg-emerald-500/5 animate-ping" />
+        </div>
+        <h2 className="text-3xl font-black text-white mb-2">Payment Successful! 🎉</h2>
+        <p className="text-gray-400">Your booking is confirmed. Loading your receipt...</p>
       </div>
+    );
+  }
 
-      {/* QR Code */}
-      <div className="w-full max-w-sm bg-white p-4 rounded-3xl mb-6 shadow-2xl flex flex-col items-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/qr1.png" alt="Payment QR Code" className="w-full h-auto rounded-xl object-contain mb-2" />
-        <p className="text-black font-bold">Mayank Jaiswal</p>
-      </div>
-
-      {/* UTR Entry */}
-      <div className="w-full max-w-sm space-y-3">
-        <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-            Enter UTR / Transaction ID
-          </label>
-          <div className="relative">
-            <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-            <input
-              id="utr-input"
-              type="text"
-              value={utr}
-              onChange={e => { setUtr(e.target.value.toUpperCase()); setError(''); }}
-              placeholder="e.g. 512345678901"
-              maxLength={22}
-              disabled={loading || paid}
-              className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#FFB300] font-mono tracking-wider transition-all disabled:opacity-50"
-            />
+  // ── Paying screen (app was opened) ─────────────────────────────────────────
+  if (stage === 'paying') {
+    return (
+      <div className="flex flex-col items-center max-w-lg mx-auto">
+        {/* Amount reminder */}
+        <div className="w-full glass border border-[#FFB300]/20 rounded-2xl p-4 mb-6 flex items-center gap-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={vehicle.image} alt={vehicle.name} className="w-16 h-12 object-cover rounded-xl flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-white font-bold">{vehicle.name}</p>
+            <p className="text-gray-500 text-sm">{booking.durationHours}h · {fmtDate(booking.startDate)}</p>
           </div>
-          <p className="text-xs text-gray-600 mt-1">
-            Find this in PhonePe: <span className="text-gray-400">History → tap payment → UTR No.</span><br />
-            Or GPay: <span className="text-gray-400">Activity → tap payment → Transaction ID</span>
-          </p>
+          <div className="text-right">
+            <p className="text-xs text-gray-500">Amount</p>
+            <p className="text-2xl font-black text-[#FFB300]">₹{amtStr}</p>
+          </div>
         </div>
 
-        {error && (
-          <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <span className="text-red-400 text-xs leading-relaxed">{error}</span>
+        {/* Waiting animation */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center gap-2 mb-4">
+            {[0,1,2].map(i => (
+              <div key={i} className="w-3 h-3 rounded-full bg-[#FFB300] animate-bounce" style={{ animationDelay: `${i * 0.18}s` }} />
+            ))}
           </div>
-        )}
+          <h2 className="text-2xl font-black text-white mb-1">
+            {openedApp === 'gpay' ? 'Google Pay' : openedApp === 'phonepe' ? 'PhonePe' : openedApp === 'paytm' ? 'Paytm' : 'UPI App'} opened
+          </h2>
+          <p className="text-gray-400 text-sm">Complete the payment of <span className="text-[#FFB300] font-bold">₹{amtStr}</span> in the app, then come back here.</p>
+        </div>
 
+        {/* Confirm button */}
         <button
-          onClick={handleConfirmPayment}
-          disabled={loading || paid || utr.trim().length < 12}
-          id="confirm-utr-btn"
-          className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black font-black text-lg rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(255,179,0,0.3)] hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100"
+          onClick={handleConfirmed}
+          disabled={confirming}
+          className="w-full max-w-sm flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-black text-xl rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(52,211,153,0.3)] hover:scale-[1.02] disabled:opacity-50 disabled:scale-100 mb-4"
         >
-          {paid ? (
-            <><CheckCircle className="w-5 h-5" /> Payment Confirmed!</>
-          ) : loading ? (
-            <><Loader2 className="w-5 h-5 animate-spin" /> Verifying...</>
+          {confirming ? (
+            <><Loader2 className="w-6 h-6 animate-spin" /> Confirming...</>
           ) : (
-            <><ShieldCheck className="w-5 h-5" /> Confirm Payment</>  
+            <><CheckCircle className="w-6 h-6" /> I&apos;ve Paid — Confirm Booking</>
           )}
         </button>
 
-        <p className="text-center text-xs text-gray-600 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-3 h-3 text-[#FFB300]" />
-          Your booking activates instantly upon UTR confirmation.
-        </p>
+        <button onClick={() => setStage('scan')} className="text-xs text-gray-600 hover:text-gray-400 transition-colors">
+          ← Go back / Use different app
+        </button>
       </div>
+    );
+  }
+
+  // ── Scan screen (default) ───────────────────────────────────────────────────
+  return (
+    <div className="flex flex-col items-center max-w-2xl mx-auto">
+
+      {/* Header */}
+      <div className="text-center mb-6">
+        <div className="w-16 h-16 rounded-2xl bg-[#FFB300]/10 border-2 border-[#FFB300]/30 flex items-center justify-center mx-auto mb-4">
+          <CreditCard className="w-8 h-8 text-[#FFB300]" />
+        </div>
+        <h2 className="text-3xl font-black text-white mb-1">Complete Your Payment</h2>
+        <p className="text-gray-400 text-sm">Pay via UPI and your booking confirms instantly.</p>
+      </div>
+
+      {/* Amount + vehicle strip */}
+      <div className="w-full glass border border-[#FFB300]/20 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-center gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={vehicle.image} alt={vehicle.name} className="w-20 h-14 object-cover rounded-xl flex-shrink-0" />
+        <div className="flex-1 text-center sm:text-left">
+          <p className="text-white font-bold text-lg">{vehicle.name}</p>
+          <p className="text-gray-500 text-sm">{booking.durationHours}h · {fmtDate(booking.startDate)}</p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="text-xs text-gray-500 mb-0.5">Total to pay</p>
+          <p className="text-4xl font-black text-[#FFB300]">₹{amtStr}</p>
+        </div>
+      </div>
+
+      {/* Main: QR + Buttons side by side */}
+      <div className="w-full flex flex-col sm:flex-row gap-6 items-start justify-center mb-6">
+
+        {/* Dynamic QR */}
+        <div className="flex flex-col items-center mx-auto sm:mx-0 flex-shrink-0">
+          <div className="bg-white p-3 rounded-2xl shadow-2xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={qrURL} alt="Pay via UPI QR" width={180} height={180} className="rounded-lg block" />
+          </div>
+          <p className="text-xs text-gray-500 mt-2 text-center">Scan with any UPI app</p>
+        </div>
+
+        {/* App Buttons */}
+        <div className="flex-1 w-full space-y-3">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Tap to open directly</p>
+
+          {/* PhonePe */}
+          <button
+            onClick={() => openApp('phonepe')}
+            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-[#5f259f]/20 hover:border-[#5f259f]/40 transition-all group"
+          >
+            <span className="text-2xl">📲</span>
+            <div className="text-left flex-1">
+              <p className="text-white font-bold">PhonePe</p>
+              <p className="text-gray-500 text-xs">Opens PhonePe with amount pre-filled</p>
+            </div>
+            <span className="text-gray-500 text-xs group-hover:text-white transition-colors">Open →</span>
+          </button>
+
+          {/* Google Pay */}
+          <button
+            onClick={() => openApp('gpay')}
+            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-blue-600/20 hover:border-blue-500/40 transition-all group"
+          >
+            <span className="text-2xl">💙</span>
+            <div className="text-left flex-1">
+              <p className="text-white font-bold">Google Pay</p>
+              <p className="text-gray-500 text-xs">Opens GPay with amount pre-filled</p>
+            </div>
+            <span className="text-gray-500 text-xs group-hover:text-white transition-colors">Open →</span>
+          </button>
+
+          {/* Paytm */}
+          <button
+            onClick={() => openApp('paytm')}
+            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-[#00BAF2]/20 hover:border-[#00BAF2]/40 transition-all group"
+          >
+            <span className="text-2xl">💳</span>
+            <div className="text-left flex-1">
+              <p className="text-white font-bold">Paytm</p>
+              <p className="text-gray-500 text-xs">Opens Paytm with amount pre-filled</p>
+            </div>
+            <span className="text-gray-500 text-xs group-hover:text-white transition-colors">Open →</span>
+          </button>
+
+          {/* Other UPI */}
+          <button
+            onClick={() => openApp('upi')}
+            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all group"
+          >
+            <span className="text-2xl">📱</span>
+            <div className="text-left flex-1">
+              <p className="text-white font-bold">Other UPI App</p>
+              <p className="text-gray-500 text-xs">BHIM, Amazon Pay, or any UPI app</p>
+            </div>
+            <span className="text-gray-500 text-xs group-hover:text-white transition-colors">Open →</span>
+          </button>
+        </div>
+      </div>
+
+      <p className="text-xs text-gray-600 text-center">
+        🔒 Payment goes directly to the merchant · No data stored
+      </p>
     </div>
   );
 }
