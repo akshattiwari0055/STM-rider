@@ -48,22 +48,39 @@ function rangesOverlap(startA, endA, startB, endB) {
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 const fmtTime = (d) => new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-// ── Payment Page Component ───────────────────────────────────────────────────
+// ── Payment Page Component (UTR-based) ──────────────────────────────────────
 function PaymentPage({ booking, vehicle, onDone }) {
+  const [utr, setUtr] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [paid, setPaid] = useState(false);
 
-  const handlePaymentDone = () => {
+  const handleConfirmPayment = async () => {
+    setError('');
+    const cleaned = utr.trim().toUpperCase();
+    if (!cleaned || cleaned.length < 12) {
+      setError('Please enter a valid UTR / Transaction ID (at least 12 characters).');
+      return;
+    }
     setLoading(true);
-    
-    const message = `Hello Admin! 🏍️\n\nI have just booked a vehicle on STM RIDER and made the manual payment. Please verify and approve my booking.\n\n*Booking Details:*\n- *Name:* ${booking.customerName}\n- *Vehicle:* ${vehicle.name}\n- *Duration:* ${booking.durationHours} hours\n- *Amount Paid:* ₹${booking.totalPrice?.toLocaleString('en-IN')}\n- *Booking ID:* #${booking._id?.slice(-10).toUpperCase()}`;
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/919465853502?text=${encodedMessage}`;
-    
-    window.open(whatsappUrl, '_blank');
-
-    setTimeout(() => {
-      onDone();
-    }, 1500);
+    try {
+      const res = await fetch(`/api/bookings/${booking._id}/confirm-utr`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ utrNumber: cleaned }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPaid(true);
+        setTimeout(() => onDone(), 1200);
+      } else {
+        setError(data.error || 'Something went wrong. Please try again.');
+      }
+    } catch {
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -73,12 +90,12 @@ function PaymentPage({ booking, vehicle, onDone }) {
         <div className="w-16 h-16 rounded-2xl bg-[#FFB300]/10 border-2 border-[#FFB300]/30 flex items-center justify-center mx-auto mb-4">
           <CreditCard className="w-8 h-8 text-[#FFB300]" />
         </div>
-        <h2 className="text-3xl font-black text-white mb-1">Manual Payment Required</h2>
-        <p className="text-gray-400">Scan the QR code below to pay securely via UPI.</p>
+        <h2 className="text-3xl font-black text-white mb-1">Complete Payment</h2>
+        <p className="text-gray-400">Scan the QR code below and pay via UPI, then enter your UTR to confirm.</p>
       </div>
 
       {/* Booking Summary strip */}
-      <div className="w-full glass border border-white/10 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-4">
+      <div className="w-full glass border border-white/10 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-center gap-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={vehicle.image} alt={vehicle.name} className="w-24 h-16 object-cover rounded-xl flex-shrink-0" />
         <div className="flex-1 text-center sm:text-left">
@@ -91,31 +108,76 @@ function PaymentPage({ booking, vehicle, onDone }) {
         </div>
       </div>
 
+      {/* Steps */}
+      <div className="w-full max-w-sm mb-6 space-y-2">
+        {[
+          { n: '1', text: 'Scan the QR code below with any UPI app (PhonePe, GPay, Paytm)' },
+          { n: '2', text: `Pay exactly ₹${booking.totalPrice?.toLocaleString('en-IN')} and complete the transaction` },
+          { n: '3', text: 'Copy the UTR / Transaction ID from your UPI app and paste it below' },
+        ].map(({ n, text }) => (
+          <div key={n} className="flex items-start gap-3">
+            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FFB300]/20 border border-[#FFB300]/40 flex items-center justify-center text-[#FFB300] text-xs font-black">{n}</span>
+            <p className="text-gray-400 text-sm leading-relaxed">{text}</p>
+          </div>
+        ))}
+      </div>
+
       {/* QR Code */}
-      <div className="w-full max-w-sm bg-white p-4 rounded-3xl mb-8 shadow-2xl flex flex-col items-center">
+      <div className="w-full max-w-sm bg-white p-4 rounded-3xl mb-6 shadow-2xl flex flex-col items-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/qr1.png" alt="Payment QR Code" className="w-full h-auto rounded-xl object-contain mb-2" />
         <p className="text-black font-bold">Mayank Jaiswal</p>
       </div>
 
-      <div className="w-full max-w-sm space-y-4">
+      {/* UTR Entry */}
+      <div className="w-full max-w-sm space-y-3">
+        <div>
+          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            Enter UTR / Transaction ID
+          </label>
+          <div className="relative">
+            <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              id="utr-input"
+              type="text"
+              value={utr}
+              onChange={e => { setUtr(e.target.value.toUpperCase()); setError(''); }}
+              placeholder="e.g. 512345678901"
+              maxLength={22}
+              disabled={loading || paid}
+              className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#FFB300] font-mono tracking-wider transition-all disabled:opacity-50"
+            />
+          </div>
+          <p className="text-xs text-gray-600 mt-1">
+            Find this in PhonePe: <span className="text-gray-400">History → tap payment → UTR No.</span><br />
+            Or GPay: <span className="text-gray-400">Activity → tap payment → Transaction ID</span>
+          </p>
+        </div>
+
+        {error && (
+          <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <span className="text-red-400 text-xs leading-relaxed">{error}</span>
+          </div>
+        )}
+
         <button
-          onClick={handlePaymentDone}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black font-black text-xl rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(255,179,0,0.3)] hover:scale-[1.02] disabled:opacity-50"
+          onClick={handleConfirmPayment}
+          disabled={loading || paid || utr.trim().length < 12}
+          id="confirm-utr-btn"
+          className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#FFB300] to-[#FF6A00] text-black font-black text-lg rounded-2xl hover:opacity-90 transition-all shadow-[0_0_30px_rgba(255,179,0,0.3)] hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100"
         >
-          {loading ? (
-            <Loader2 className="w-6 h-6 animate-spin" />
+          {paid ? (
+            <><CheckCircle className="w-5 h-5" /> Payment Confirmed!</>
+          ) : loading ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> Verifying...</>
           ) : (
-            <>
-              <ShieldCheck className="w-6 h-6" />
-              I Have Paid ₹{booking.totalPrice?.toLocaleString('en-IN')}
-            </>
+            <><ShieldCheck className="w-5 h-5" /> Confirm Payment</>  
           )}
         </button>
-        
-        <p className="text-center text-xs text-gray-600 flex items-center justify-center gap-2">
+
+        <p className="text-center text-xs text-gray-600 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3 h-3 text-[#FFB300]" />
-          Admin will approve the booking shortly after verification.
+          Your booking activates instantly upon UTR confirmation.
         </p>
       </div>
     </div>
@@ -139,8 +201,8 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
           <img src="/log.png" alt="STM RIDER Logo" className="h-16 w-16 object-contain" />
         </div>
         <div className="text-right">
-          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-[#FFB300]/20 text-[#FF6A00]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FF6A00]" /> PENDING
+          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> CONFIRMED
           </span>
           <p className="text-xs text-gray-400 mt-1">#{booking._id?.slice(-10).toUpperCase()}</p>
         </div>
@@ -183,7 +245,7 @@ function ReceiptView({ booking, vehicle, receiptRef }) {
           </div>
         </div>
         <div className="pt-4 border-t border-dashed border-gray-200 text-center text-xs text-gray-400">
-          Thank you for choosing STM RIDER • Awaiting Admin Approval 🏍️
+          Thank you for choosing STM RIDER • Payment Confirmed ✅
         </div>
       </div>
       <div className="h-2 bg-gradient-to-r from-[#FF6A00] to-[#FFB300]" />
@@ -798,10 +860,10 @@ export default function BookingPage() {
               <div className="w-20 h-20 rounded-full bg-[#FFB300]/10 border-2 border-[#FFB300]/30 flex items-center justify-center mx-auto mb-4 animate-bounce">
                 <CheckCircle className="w-10 h-10 text-[#FFB300]" />
               </div>
-              <h2 className="text-4xl font-black text-white mb-2">Booking Submitted!</h2>
+              <h2 className="text-4xl font-black text-white mb-2">Booking Confirmed! 🎉</h2>
               <p className="text-gray-400 max-w-xl mx-auto text-lg">
-                Your payment is under review. Your vehicle is tentatively reserved.
-                Our admin team will approve the booking shortly and send a confirmation email.
+                Your payment has been verified and your booking is now <span className="text-emerald-400 font-bold">active</span>.
+                A confirmation email has been sent to you. You&apos;re all set to pick up your vehicle!
               </p>
             </div>
 
