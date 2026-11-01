@@ -283,14 +283,17 @@ function PaymentPage({ booking, vehicle, onDone }) {
         <div className="flex-1 w-full space-y-3">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Open UPI app directly</p>
           {[
-            { key: 'phonepe', label: 'PhonePe',   desc: 'Auto-fills amount & confirms back', emoji: '📲', hover: 'hover:bg-[#5f259f]/20 hover:border-[#5f259f]/50' },
-            { key: 'gpay',    label: 'Google Pay', desc: 'Auto-fills amount & confirms back', emoji: '💙', hover: 'hover:bg-blue-600/20 hover:border-blue-500/50' },
-            { key: 'paytm',   label: 'Paytm',      desc: 'Auto-fills amount & confirms back', emoji: '💳', hover: 'hover:bg-[#00BAF2]/20 hover:border-[#00BAF2]/50' },
-            { key: 'upi',     label: 'Other UPI',  desc: 'BHIM, Amazon Pay, any UPI app',     emoji: '📱', hover: 'hover:bg-white/10 hover:border-white/20' },
-          ].map(({ key, label, desc, emoji, hover }) => (
+            { key: 'phonepe', label: 'PhonePe',   desc: 'Opens PhonePe with amount pre-filled',    logo: '/phonepe.png', logoBg: 'bg-[#5f259f]', hover: 'hover:bg-[#5f259f]/20 hover:border-[#5f259f]/50' },
+            { key: 'gpay',    label: 'Google Pay', desc: 'Opens Google Pay with amount pre-filled', logo: '/gpay.png',    logoBg: 'bg-white',     hover: 'hover:bg-blue-500/20 hover:border-blue-500/50' },
+            { key: 'paytm',   label: 'Paytm',      desc: 'Opens Paytm with amount pre-filled',      logo: '/paytm.png',   logoBg: 'bg-[#00BAF2]', hover: 'hover:bg-[#00BAF2]/20 hover:border-[#00BAF2]/50' },
+            { key: 'upi',     label: 'Other UPI',  desc: 'BHIM, Amazon Pay, any UPI app',           logo: '/upi.png',     logoBg: 'bg-white',     hover: 'hover:bg-white/10 hover:border-white/20' },
+          ].map(({ key, label, desc, logo, logoBg, hover }) => (
             <button key={key} onClick={() => openApp(links[key])}
               className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl border border-white/10 bg-white/5 transition-all group ${hover}`}>
-              <span className="text-xl flex-shrink-0">{emoji}</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <div className={`w-11 h-11 rounded-xl ${logoBg} flex items-center justify-center flex-shrink-0 p-1.5 shadow-md`}>
+                <img src={logo} alt={label} className="w-full h-full object-contain" />
+              </div>
               <div className="text-left flex-1">
                 <p className="text-white font-bold text-sm">{label}</p>
                 <p className="text-gray-500 text-xs">{desc}</p>
