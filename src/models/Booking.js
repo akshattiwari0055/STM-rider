@@ -26,6 +26,7 @@ const bookingSchema = new Schema({
   razorpayPaymentId: { type: String, default: null },
   utrNumber: { type: String, default: null },
   uniquePaymentAmount: { type: Number, default: null }, // e.g. 500.47 — unique paise fingerprint
+  paymentVerifiedVia: { type: String, default: null },  // 'upi-callback' | 'admin' | null
 }, { timestamps: true });
 
 // Always delete the cached model so schema changes take effect on hot-reload
