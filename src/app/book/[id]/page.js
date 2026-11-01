@@ -136,8 +136,12 @@ function PaymentPage({ booking, vehicle, onDone }) {
   }, []);
 
   const openApp = (link) => {
-    window.open(link, '_blank');
-    startPolling();
+    // Use location.href so the OS intent system opens the UPI app directly.
+    // window.open() with a custom scheme (tez://, phonepe://) just shows about:blank.
+    // location.href keeps this page alive in the background while the app opens.
+    window.location.href = link;
+    // Small delay so the app has time to launch before we start polling
+    setTimeout(() => startPolling(), 1500);
   };
 
   // ── SUCCESS ──────────────────────────────────────────────────────────────────
